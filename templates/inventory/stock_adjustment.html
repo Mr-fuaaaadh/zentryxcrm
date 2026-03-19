@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Stock Calibration | {{ asset.asset_code }} | Zentryx CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <!-- App Css -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'assets/css/app.min.css' %}" rel="stylesheet" type="text/css">
+
+    <style>
+        :root { --cal-primary: #f59e0b; --cal-secondary: #f8fafc; --cal-border: #e2e8f0; }
+        .calibration-card { border: none; border-radius: 1.5rem; background: #fff; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border: 1px solid var(--cal-border); overflow: hidden; }
+        .calibration-header { background: #1e293b; color: #fff; padding: 2rem; }
+        
+        .pulse-indicator { width: 10px; height: 10px; border-radius: 50%; background: var(--cal-primary); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); } 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); } }
+        
+        .form-control-cal { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.85rem; padding: 0.75rem 1.1rem; font-size: 0.95rem; transition: all 0.2s; }
+        .form-control-cal:focus { background: #fff; border-color: var(--cal-primary); box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15); outline: none; }
+        
+        .adj-type-card { border: 2px solid #f1f5f9; border-radius: 1rem; padding: 1.25rem; cursor: pointer; transition: all 0.2s; position: relative; }
+        .adj-type-card:hover { border-color: #e2e8f0; background: #fbfcfe; }
+        .adj-radio:checked + .adj-type-card { border-color: var(--cal-primary); background: #fff8eb; }
+        .adj-radio:checked + .adj-type-card.type-out { border-color: #ef4444; background: #fef2f2; }
+        
+        .adj-radio { position: absolute; opacity: 0; width: 0; height: 0; }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+
+                    <div class="row align-items-center mb-4">
+                        <div class="col-sm-6">
+                            <h4 class="mb-1 text-dark fw-bold">Manual Stock Calibration</h4>
+                            <p class="text-muted fs-13 mb-0">Executing high-precision stock movement protocol for Ref #{{ asset.asset_code }}</p>
+                        </div>
+                        <div class="col-sm-6 text-sm-end">
+                            <a href="{% url 'inventory:asset_detail' asset.pk %}" class="btn btn-light border px-4 fw-bold">
+                                <i class="mdi mdi-arrow-left me-2"></i> Dossier
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-xl-6">
+                            <div class="calibration-card">
+                                <div class="calibration-header d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <h5 class="text-white fw-bold mb-1">Calibration Engine</h5>
+                                        <p class="text-white-50 fs-12 mb-0">Adjustment logged in audit trail.</p>
+                                    </div>
+                                    <div class="pulse-indicator"></div>
+                                </div>
+                                <div class="card-body p-4 p-md-5">
+                                    <div class="alert bg-info-subtle border-0 rounded-4 p-3 mb-4 d-flex align-items-center gap-3">
+                                        <div class="avatar avatar-sm bg-info text-white rounded-circle d-flex align-items-center justify-content-center" style="width:32px; height:32px;">
+                                            <i class="mdi mdi-information-outline"></i>
+                                        </div>
+                                        <div>
+                                            <span class="text-info-emphasis fw-bold fs-13">Current Ledger State</span>
+                                            <div class="fw-900 text-info-emphasis fs-18">{{ asset.total_stock }} {{ asset.unit }}</div>
+                                        </div>
+                                    </div>
+
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        
+                                        <label class="form-label text-muted fs-11 fw-bold text-uppercase mb-3">Calibration Dimension</label>
+                                        <div class="row g-3 mb-4">
+                                            <div class="col-6">
+                                                <input type="radio" name="adjustment_type" id="typeAdd" value="ADD" class="adj-radio" checked>
+                                                <label for="typeAdd" class="adj-type-card w-100">
+                                                    <div class="fw-bold text-dark fs-14 mb-1">Stock Inflow</div>
+                                                    <small class="text-muted">Increment asset volume</small>
+                                                    <div class="mt-2 text-success fw-bold"><i class="mdi mdi-plus-circle me-1"></i>ADDITION</div>
+                                                </label>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="radio" name="adjustment_type" id="typeRemove" value="REMOVE" class="adj-radio">
+                                                <label for="typeRemove" class="adj-type-card type-out w-100">
+                                                    <div class="fw-bold text-dark fs-14 mb-1">Stock Outflow</div>
+                                                    <small class="text-muted">Retract asset volume</small>
+                                                    <div class="mt-2 text-danger fw-bold"><i class="mdi mdi-minus-circle me-1"></i>REDUCTION</div>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label class="form-label text-muted fs-11 fw-bold text-uppercase">Quantum to Adjust ({{ asset.unit }})</label>
+                                            <input type="number" name="quantity" class="form-control-cal" placeholder="Enter numerical volume..." required min="1">
+                                        </div>
+
+                                        <div class="mb-5">
+                                            <label class="form-label text-muted fs-11 fw-bold text-uppercase">Rationalization / Reason</label>
+                                            <textarea name="reason" class="form-control-cal" rows="4" placeholder="Document the reason for this calibration (e.g., Audit realignment, Damage retraction, Warehouse discovery)..."></textarea>
+                                        </div>
+
+                                        <div class="d-grid gap-2">
+                                            <button type="submit" class="btn btn-warning btn-lg fw-bold shadow-sm">
+                                                <i class="mdi mdi-check-decagram-outline me-2"></i> Commit Calibration Protocol
+                                            </button>
+                                            <a href="{% url 'inventory:asset_detail' asset.pk %}" class="btn btn-soft-light py-2 fw-bold">Discard Protocol</a>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% include 'base/footer.html' %}
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/libs/metismenu/metisMenu.min.js' %}"></script>
+    <script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'assets/js/app.js' %}"></script>
+</body>
+</html>

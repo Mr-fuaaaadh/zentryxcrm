@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Sales Intelligence Command Center | Zentryx CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{% static 'assets/images/logo-sm.png' %}">
+    
+    <!-- Select2 Css -->
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- Bootstrap Css -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css">
+    <!-- icons css -->
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- App Css -->
+    <link href="{% static 'assets/css/app.min.css' %}" id="app-style" rel="stylesheet" type="text/css">
+
+    <style>
+        :root { --si-primary: #6366f1; --si-success: #10b981; --si-warning: #f59e0b; --si-info: #0ea5e9; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .glass-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        
+        .elite-card { border: 2px solid transparent; background: linear-gradient(white, white) padding-box, linear-gradient(to right, #6366f1, #a855f7) border-box; }
+        .performer-rank { position: absolute; top: -10px; right: -10px; width: 34px; height: 34px; border-radius: 50%; background: #1e293b; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; border: 3px solid #fff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        .stat-icon { width: 48px; height: 48px; border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        
+        .score-table thead th { background: #f8fafc; text-transform: uppercase; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.075em; color: #64748b; padding: 1.25rem; border: none; }
+        .score-table tbody td { padding: 1.25rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        
+        .perf-pill { padding: 4px 10px; border-radius: 50px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        .progress-bar-att { height: 6px; border-radius: 10px; background: #e2e8f0; overflow: hidden; }
+        .progress-bar-fill { height: 100%; border-radius: 10px; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .conversion-tag { background: #f1f5f9; border-radius: 0.5rem; padding: 0.5rem 0.75rem; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; font-weight: 600; color: #475569; }
+        
+        .chart-container { height: 350px; }
+        .efficiency-ring { position: relative; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; }
+        
+        .filter-header { background: #fff; border-bottom: 1px solid #f1f5f9; padding: 1.5rem 0; margin-bottom: 2rem; position: sticky; top: 0; z-index: 50; }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        <div class="sidebar-left horizontal-sidebar">
+            {% include 'base/horizontal_sidebar.html' %}
+        </div>
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+
+                    <!-- Intelligence Navigation & Filter -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-lg-6">
+                            <h4 class="mb-1 text-dark fw-bold">Sales Intelligence Command Center</h4>
+                            <p class="text-muted fs-13 mb-0">Unified visibility into team velocity, conversion analytics, and revenue performance.</p>
+                        </div>
+                        <div class="col-lg-6 mt-3 mt-lg-0">
+                            <form method="get" class="d-flex gap-2 justify-content-lg-end align-items-center">
+                                <div class="input-group" style="width: 180px;">
+                                    <span class="input-group-text bg-white border-end-0"><i class="mdi mdi-calendar-range text-muted"></i></span>
+                                    <select name="month" class="form-select border-start-0" onchange="this.form.submit()">
+                                        {% for m in months %}
+                                        <option value="{{ m }}" {% if current_month == m %}selected{% endif %}>
+                                            {{ m|date:"F"|default:m }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <input type="number" name="year" class="form-control" value="{{ current_year }}" style="width: 100px;" onchange="this.form.submit()">
+                                <a href="{% url 'sales:staff_target_list' %}" class="btn btn-outline-primary px-3 fw-bold border-light-subtle shadow-sm">Manage Targets</a>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Pulse Metrics Head -->
+                    <div class="row g-4 mb-5">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="glass-card p-4 h-100 border-0">
+                                <div class="d-flex align-items-center justify-content-between mb-4">
+                                    <div class="stat-icon bg-primary-subtle text-primary"><i class="mdi mdi-currency-inr"></i></div>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill">Revenue Target</span>
+                                </div>
+                                <h3 class="fw-bold text-dark mb-1">₹{{ agg_actual_revenue|floatformat:0 }}</h3>
+                                <p class="text-muted fs-13 mb-3">of ₹{{ agg_target_revenue|floatformat:0 }} total target</p>
+                                <div class="progress-bar-att mb-2">
+                                    <div class="progress-bar-fill bg-primary" style="width: {{ rev_achievement_pct }}%"></div>
+                                </div>
+                                <div class="d-flex justify-content-between fs-11 fw-bold text-uppercase ls-1">
+                                    <span class="text-muted">Progression</span>
+                                    <span class="text-primary">{{ rev_achievement_pct }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="glass-card p-4 h-100 border-0">
+                                <div class="d-flex align-items-center justify-content-between mb-4">
+                                    <div class="stat-icon bg-success-subtle text-success"><i class="mdi mdi-bullseye-arrow"></i></div>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">Efficiency Index</span>
+                                </div>
+                                <h3 class="fw-bold text-dark mb-1">{{ team_efficiency }}%</h3>
+                                <p class="text-muted fs-13 mb-3">Aggregate team performance score</p>
+                                <div class="progress-bar-att mb-2">
+                                    <div class="progress-bar-fill bg-success" style="width: {{ team_efficiency }}%"></div>
+                                </div>
+                                <div class="d-flex justify-content-between fs-11 fw-bold text-uppercase ls-1">
+                                    <span class="text-muted">Target Fidelity</span>
+                                    <span class="text-success">{{ team_efficiency }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="glass-card p-4 h-100 border-0">
+                                <div class="d-flex align-items-center justify-content-between mb-4">
+                                    <div class="stat-icon bg-info-subtle text-info"><i class="mdi mdi-trending-up"></i></div>
+                                    <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill">Pipeline Velocity</span>
+                                </div>
+                                <h3 class="fw-bold text-dark mb-1">{{ total_leads }}</h3>
+                                <p class="text-muted fs-13 mb-3">Fresh identifiers generated this month</p>
+                                <div class="d-flex align-items-center gap-2 mt-auto">
+                                    <span class="badge bg-soft-info text-info"><i class="mdi mdi-arrow-up me-1"></i>12%</span>
+                                    <span class="text-muted fs-11">vs last month</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="glass-card p-4 h-100 border-0">
+                                <div class="d-flex align-items-center justify-content-between mb-4">
+                                    <div class="stat-icon bg-warning-subtle text-warning"><i class="mdi mdi-handshake"></i></div>
+                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill">Conversion Peak</span>
+                                </div>
+                                <h3 class="fw-bold text-dark mb-1">{{ total_deals }}</h3>
+                                <p class="text-muted fs-13 mb-3">Successful conversions achieved</p>
+                                <div class="d-flex align-items-center gap-2 mt-auto">
+                                    <span class="badge bg-soft-warning text-warning"><i class="mdi mdi-check-circle-outline me-1"></i>Optimized</span>
+                                    <span class="text-muted fs-11">Conversion focus active</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Elite Performers & Charts -->
+                    <div class="row g-4 mb-5">
+                        <div class="col-xl-8">
+                            <div class="glass-card border-0 p-4 h-100">
+                                <div class="d-flex align-items-center justify-content-between mb-4">
+                                    <h5 class="fw-bold text-dark mb-0">Production Analytics: Leads vs Targets</h5>
+                                    <div class="dropdown">
+                                        <button class="btn btn-light btn-sm dropdown-toggle shadow-none border" type="button" data-bs-toggle="dropdown">
+                                            Metric: Identifier Gen
+                                        </button>
+                                        <ul class="dropdown-menu shadow-lg border-0">
+                                            <li><a class="dropdown-item active" href="#">Leads Achievement</a></li>
+                                            <li><a class="dropdown-item" href="#">Revenue Forecast</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div id="leadsBarChart" class="chart-container"></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4">
+                            <div class="glass-card border-0 p-4 h-100">
+                                <h5 class="fw-bold text-dark mb-4">Elite Performers (Top 3)</h5>
+                                <div class="d-flex flex-column gap-3">
+                                    {% for p in elite_performers %}
+                                    <div class="p-3 rounded-4 border border-light-subtle bg-white shadow-sm position-relative {% if forloop.first %}elite-card{% endif %}">
+                                        {% if forloop.first %}<div class="performer-rank">1</div>{% endif %}
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="avatar avatar-sm avatar-circle {% if forloop.first %}bg-primary text-white{% else %}bg-light text-primary{% endif %} fw-bold">
+                                                {{ p.staff.user.get_full_name|default:p.staff.user.username|slice:":1"|upper }}
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-0 fw-bold text-dark">{{ p.staff.user.get_full_name|default:p.staff.user.username }}</h6>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="text-muted fs-11">{{ p.staff.designation|default:"Sales Intelligence" }}</span>
+                                                    <span class="badge bg-success-subtle text-success fs-10 rounded-pill">{{ p.efficiency_index }}% EFF</span>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="text-dark fw-bold fs-14">₹{{ p.actuals.revenue|default:0|floatformat:0 }}</span>
+                                                <label class="d-block text-muted fs-10 text-uppercase fw-bold">Revenue</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="mt-4 p-3 bg-light rounded-4 border-0">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="text-muted fs-12 fw-bold">Team Efficiency Radial</span>
+                                        <span class="text-primary fw-bold fs-12">{{ team_efficiency }}%</span>
+                                    </div>
+                                    <div id="efficiencyRadial" style="min-height: 150px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Scorecard Matrix -->
+                    <div class="glass-card border-0 mb-5 overflow-hidden">
+                        <div class="p-4 border-bottom bg-white d-flex align-items-center justify-content-between">
+                            <h5 class="fw-bold text-dark mb-0">Performance Scorecard Matrix</h5>
+                            <button type="button" class="btn btn-light btn-sm border fs-12 fw-bold"><i class="mdi mdi-export-variant me-2"></i>Export Intelligence</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table score-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">Sales Professional</th>
+                                        <th>Identifier Dynamics</th>
+                                        <th>Commercial Velocity</th>
+                                        <th>Operational Rating</th>
+                                        <th class="text-end pe-4">Index Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for p in performances %}
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="avatar avatar-sm avatar-circle bg-soft-primary text-primary fw-bold">
+                                                    {{ p.staff.user.get_full_name|default:p.staff.user.username|slice:":1"|upper }}
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-bold text-dark">{{ p.staff.user.get_full_name|default:p.staff.user.username }}</h6>
+                                                    <div class="conversion-tag mt-1">
+                                                        <i class="mdi mdi-sync text-primary"></i>
+                                                        <span>{{ p.conversion_rate }}% Conv. Rate</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="width: 180px;">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <label class="text-muted fs-11">Leads Generated</label>
+                                                    <span class="text-dark fw-bold fs-11">{{ p.actuals.leads|default:0 }}/{{ p.target.leads_target|default:0 }}</span>
+                                                </div>
+                                                <div class="progress-bar-att mb-1">
+                                                    <div class="progress-bar-fill bg-info" style="width: {{ p.leads_pct }}%"></div>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <label class="text-muted fs-10">Achievement</label>
+                                                    <span class="text-info fs-10 fw-bold">{{ p.leads_pct }}%</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="width: 180px;">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <label class="text-muted fs-11">Revenue (INR)</label>
+                                                    <span class="text-dark fw-bold fs-11">₹{{ p.actuals.revenue|default:0|floatformat:0 }}</span>
+                                                </div>
+                                                <div class="progress-bar-att mb-1">
+                                                    <div class="progress-bar-fill bg-success" style="width: {{ p.revenue_pct }}%"></div>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <label class="text-muted fs-10">Target: ₹{{ p.target.revenue_target|floatformat:0 }}</label>
+                                                    <span class="text-success fs-10 fw-bold">{{ p.revenue_pct }}%</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if p.efficiency_index >= 85 %}
+                                            <span class="perf-pill bg-success-subtle text-success border border-success-subtle">
+                                                <i class="mdi mdi-lightning-bolt me-1"></i> Hyper Performer
+                                            </span>
+                                            {% elif p.efficiency_index >= 60 %}
+                                            <span class="perf-pill bg-primary-subtle text-primary border border-primary-subtle">
+                                                <i class="mdi mdi-trending-up me-1"></i> Optimal Growth
+                                            </span>
+                                            {% elif p.efficiency_index >= 30 %}
+                                            <span class="perf-pill bg-warning-subtle text-warning border border-warning-subtle">
+                                                <i class="mdi mdi-alert-circle-outline me-1"></i> Strategy Review
+                                            </span>
+                                            {% else %}
+                                            <span class="perf-pill bg-danger-subtle text-danger border border-danger-subtle">
+                                                <i class="mdi mdi-close-octagram-outline me-1"></i> Immediate Action
+                                            </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <div class="d-inline-flex flex-column align-items-end">
+                                                <span class="text-dark fw-800 fs-18">{{ p.efficiency_index }}</span>
+                                                <label class="text-muted fs-10 text-uppercase fw-bold ls-1">Score</label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% include 'base/footer.html' %}
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/libs/metismenu/metisMenu.min.js' %}"></script>
+    <script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/libs/apexcharts/apexcharts.min.js' %}"></script>
+    <script src="{% static 'assets/js/app.js' %}"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chartData = JSON.parse('{{ chart_data_json|safe }}');
+            const teamEfficiency = {{ team_efficiency|default:0 }};
+
+            // Main Performance Bar Chart
+            const barOptions = {
+                series: [{
+                    name: 'Achievement',
+                    data: chartData.leads_actual
+                }, {
+                    name: 'Target Threshold',
+                    data: chartData.leads_target
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 350,
+                    toolbar: { show: false },
+                    fontFamily: 'Inter, sans-serif'
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: '45%',
+                        borderRadius: 8,
+                        dataLabels: { position: 'top' }
+                    }
+                },
+                dataLabels: {
+                    enabled: true,
+                    formatter: function (val) { return val; },
+                    offsetY: -20,
+                    style: { fontSize: '10px', colors: ["#304758"] }
+                },
+                stroke: { show: true, width: 2, colors: ['transparent'] },
+                colors: ['#6366f1', '#e2e8f0'],
+                xaxis: {
+                    categories: chartData.labels,
+                    labels: { style: { colors: '#64748b', fontSize: '11px', fontWeight: 600 } }
+                },
+                yaxis: { opposite: true, labels: { style: { colors: '#64748b' } } },
+                fill: { opacity: 1 },
+                tooltip: { y: { formatter: function (val) { return val + " Units"; } } },
+                grid: { borderColor: '#f1f5f9', strokeDashArray: 4 },
+                legend: { position: 'top', horizontalAlign: 'right', fontWeight: 700 }
+            };
+            new ApexCharts(document.querySelector("#leadsBarChart"), barOptions).render();
+
+            // Efficiency Radial Gear
+            const radialOptions = {
+                series: [teamEfficiency],
+                chart: { height: 280, type: 'radialBar', sparkline: { enabled: true } },
+                plotOptions: {
+                    radialBar: {
+                        hollow: { margin: 0, size: '70%', background: 'transparent' },
+                        track: { background: '#f1f5f9', strokeWidth: '100%' },
+                        dataLabels: {
+                            name: { show: false },
+                            value: {
+                                offsetY: 10,
+                                fontSize: '24px',
+                                fontWeight: 800,
+                                color: '#1e293b',
+                                formatter: function (val) { return val + "%"; }
+                            }
+                        }
+                    }
+                },
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shade: 'dark', type: 'vertical', gradientToColors: ['#10b981'],
+                        stops: [0, 100]
+                    }
+                },
+                stroke: { lineCap: 'round' },
+                colors: ['#6366f1']
+            };
+            new ApexCharts(document.querySelector("#efficiencyRadial"), radialOptions).render();
+        });
+    </script>
+</body>
+</html>

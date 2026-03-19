@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Staff Directory | Zentryx CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta content="Enterprise Staff Management System" name="description">
+    
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{% static 'assets/images/logo-sm.png' %}">
+    
+    <!-- Select2 Css -->
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- Simplebar Css -->
+    <link rel="stylesheet" href="{% static 'assets/libs/simplebar/simplebar.min.css' %}">
+    <!-- Bootstrap Css -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css">
+    <!-- icons css -->
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- App Css -->
+    <link href="{% static 'assets/css/app.min.css' %}" id="app-style" rel="stylesheet" type="text/css">
+
+    <style>
+        :root {
+            --primary-soft: rgba(99, 102, 241, 0.1);
+            --primary-border: rgba(99, 102, 241, 0.2);
+            --success-soft: rgba(16, 185, 129, 0.1);
+            --info-soft: rgba(59, 130, 246, 0.1);
+            --warning-soft: rgba(245, 158, 11, 0.1);
+            --danger-soft: rgba(239, 68, 68, 0.1);
+        }
+
+        .stat-card { border: none; border-radius: 1rem; transition: transform 0.2s, box-shadow 0.2s; background: #fff; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .stat-icon { width: 48px; height: 48px; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+
+        .filter-card { border: none; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05); border-radius: 0.75rem; background: #fff; }
+        
+        .staff-avatar { width: 42px; height: 42px; border-radius: 0.5rem; object-fit: cover; }
+        .avatar-initials { width: 42px; height: 42px; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1rem; }
+
+        .table-premium thead th { background-color: #f9fafb; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; color: #6b7280; border-top: none; padding: 1rem; }
+        .table-premium tbody td { padding: 1rem; vertical-align: middle; border-color: #f3f4f6; }
+        .table-premium tbody tr { transition: background-color 0.2s; }
+        .table-premium tbody tr:hover { background-color: #f9fafb; }
+
+        .badge-pill { padding: 0.35em 0.8em; border-radius: 50rem; font-weight: 500; font-size: 0.75rem; }
+        
+        .search-box .mdi-magnify { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 1rem; }
+        .search-box input { padding-left: 38px; border-radius: 0.5rem; border: 1px solid #e5e7eb; }
+        .search-box input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+
+        .action-btn { width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 0.5rem; transition: all 0.2s; border: none; }
+        
+        .empty-state { padding: 5rem 2rem; text-align: center; }
+        .empty-state-icon { font-size: 4.5rem; color: #f3f4f6; margin-bottom: 1.5rem; }
+
+        .pagination .page-link { border: none; border-radius: 0.5rem; margin: 0 2px; color: #4b5563; font-weight: 500; }
+        .pagination .page-item.active .page-link { background-color: #6366f1; color: #fff; }
+        .pagination .page-link:hover { background-color: #f3f4f6; }
+    </style>
+</head>
+
+<body>
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        <div class="sidebar-left horizontal-sidebar">
+            {% include 'base/horizontal_sidebar.html' %}
+        </div>
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+                    
+                    <!-- Top Navigation & Title -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-6">
+                            <h4 class="mb-1 text-dark fw-bold">Staff Directory</h4>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0 fs-13">
+                                    <li class="breadcrumb-item text-muted">Organization</li>
+                                    <li class="breadcrumb-item active fw-medium">Staff Members</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                            <div class="d-flex gap-2 justify-content-md-end">
+                                <button type="button" class="btn btn-outline-secondary d-flex align-items-center px-3 border-light-subtle">
+                                    <i class="mdi mdi-export me-1 fs-16"></i> Export Data
+                                </button>
+                                <a href="{% url 'staff:add' %}" class="btn btn-primary d-flex align-items-center px-4 shadow-sm">
+                                    <i class="mdi mdi-account-plus-outline me-1 fs-16"></i> Add Member
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Bar -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="card stat-card shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="stat-icon bg-primary-subtle text-primary">
+                                            <i class="mdi mdi-account-group-outline"></i>
+                                        </div>
+                                        <div class="ms-3">
+                                            <p class="text-muted mb-0 fs-13">Total Staff</p>
+                                            <h4 class="mb-0 fw-bold">{{ total_staff }}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="card stat-card shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="stat-icon bg-success-subtle text-success">
+                                            <i class="mdi mdi-account-check-outline"></i>
+                                        </div>
+                                        <div class="ms-3">
+                                            <p class="text-muted mb-0 fs-13">Active Now</p>
+                                            <h4 class="mb-0 fw-bold">{{ active_staff }}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="card stat-card shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="stat-icon bg-warning-subtle text-warning">
+                                            <i class="mdi mdi-airplane-takeoff"></i>
+                                        </div>
+                                        <div class="ms-3">
+                                            <p class="text-muted mb-0 fs-13">On Leave</p>
+                                            <h4 class="mb-0 fw-bold">{{ on_leave_staff }}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="card stat-card shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="stat-icon bg-info-subtle text-info">
+                                            <i class="mdi mdi-star-face"></i>
+                                        </div>
+                                        <div class="ms-3">
+                                            <p class="text-muted mb-0 fs-13">Joined This Month</p>
+                                            <h4 class="mb-0 fw-bold">{{ new_joinees }}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% else %}success{% endif %} alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+                    <!-- Filters Section -->
+                    <div class="card filter-card mb-4 border-light-subtle shadow-sm">
+                        <div class="card-body p-3">
+                            <form method="get" class="row g-2 align-items-center">
+                                <div class="col-lg-4">
+                                    <div class="search-box position-relative">
+                                        <i class="mdi mdi-magnify"></i>
+                                        <input type="text" name="search" class="form-control"
+                                            placeholder="Search name, ID, or email..." value="{{ search_query }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <select name="status" class="form-select select2" data-placeholder="Status">
+                                        <option value="">All Statuses</option>
+                                        {% for val, label in status_choices %}
+                                        <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select name="department" class="form-select select2" data-placeholder="Department">
+                                        <option value="">All Departments</option>
+                                        {% for dept in departments %}
+                                        <option value="{{ dept.id }}" {% if department_filter == dept.id|stringformat:"s" %}selected{% endif %}>
+                                            {{ dept.name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-dark w-100 fw-medium">Apply Filters</button>
+                                </div>
+                                <div class="col-md-1">
+                                    <a href="{% url 'staff:list' %}" class="btn btn-light w-100 px-0" title="Reset Filters">
+                                        <i class="mdi mdi-refresh fs-18"></i>
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Staff Table -->
+                    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+                        <div class="table-responsive">
+                            <table class="table table-premium mb-0 align-middle">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 100px;">
+                                            <a href="?sort={% if sort_by == 'employee_id' %}-{% endif %}employee_id&search={{ search_query }}" class="text-muted text-decoration-none">
+                                                ID {% if sort_by == 'employee_id' %}<i class="mdi mdi-chevron-up"></i>{% elif sort_by == '-employee_id' %}<i class="mdi mdi-chevron-down"></i>{% endif %}
+                                            </a>
+                                        </th>
+                                        <th>Staff Member</th>
+                                        <th>Contact Email</th>
+                                        <th>Role & Dept</th>
+                                        <th>Joining Date</th>
+                                        <th>Work Status</th>
+                                        <th class="text-end pe-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for staff in staff_list %}
+                                    <tr>
+                                        <td>
+                                            <span class="fw-bold text-dark fs-12">#{{ staff.employee_id|slice:"-4:" }}</span>
+                                            <div class="text-muted fs-11 mt-1">{{ staff.employee_id }}</div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if staff.user.profile_image %}
+                                                <img src="{{ staff.user.profile_image.url }}" class="staff-avatar" alt="">
+                                                {% else %}
+                                                <div class="avatar-initials bg-primary-subtle text-primary">
+                                                    {{ staff.user.first_name|slice:":1" }}{{ staff.user.last_name|slice:":1" }}
+                                                </div>
+                                                {% endif %}
+                                                <div class="ms-3">
+                                                    <h6 class="mb-0 fw-bold text-dark">{{ staff.user.get_full_name }}</h6>
+                                                    <span class="text-muted fs-12">{{ staff.get_employment_type_display }}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-dark fs-13 fw-medium">{{ staff.user.email }}</div>
+                                            <div class="text-muted fs-12 mt-1">{{ staff.personal_phone|default:"No phone" }}</div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold text-dark fs-13">{{ staff.designation.title|default:"No Title" }}</div>
+                                            <div class="badge bg-light text-muted fs-11 mt-1">
+                                                <i class="mdi mdi-domain me-1"></i>{{ staff.department.name|default:"General" }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-dark fs-13">{{ staff.joining_date|date:"d M, Y" }}</div>
+                                            <div class="text-muted fs-11 mt-1">{{ staff.joining_date|timesince }} ago</div>
+                                        </td>
+                                        <td>
+                                            {% if staff.employment_status == 'ACTIVE' %}
+                                            <span class="badge-pill bg-success-soft text-success">
+                                                <i class="mdi mdi-check-circle-outline me-1"></i>Active
+                                            </span>
+                                            {% elif staff.employment_status == 'ON_LEAVE' %}
+                                            <span class="badge-pill bg-warning-soft text-warning">
+                                                <i class="mdi mdi-clock-outline me-1"></i>On Leave
+                                            </span>
+                                            {% elif staff.employment_status == 'RESIGNED' or staff.employment_status == 'TERMINATED' %}
+                                            <span class="badge-pill bg-danger-soft text-danger">
+                                                <i class="mdi mdi-account-off-outline me-1"></i>{{ staff.get_employment_status_display }}
+                                            </span>
+                                            {% else %}
+                                            <span class="badge-pill bg-secondary-soft text-secondary">
+                                                {{ staff.get_employment_status_display }}
+                                            </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <div class="d-flex gap-1 justify-content-end">
+                                                <a href="{% url 'staff:update' staff.pk %}" class="btn btn-sm btn-label-primary btn-icon" title="Edit Staff">
+                                                    <i data-eva="edit-2-outline" class="fs-18"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-label-danger btn-icon" 
+                                                    onclick="confirmStaffDelete('{{ staff.pk }}', '{{ staff.user.get_full_name|addslashes }}')" title="Delete Member">
+                                                    <i data-eva="trash-2-outline" class="fs-18"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="7">
+                                            <div class="empty-state">
+                                                <i class="mdi mdi-account-search-outline empty-state-icon d-block"></i>
+                                                <h5 class="text-dark">No staff members found</h5>
+                                                <p class="text-muted mx-auto" style="max-width: 320px;">We couldn't find any staff records matching your current filter criteria.</p>
+                                                <a href="{% url 'staff:list' %}" class="btn btn-dark mt-2 border-radius-sm">Clear all filters</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Pagination Summary -->
+                    {% if is_paginated %}
+                    <div class="row align-items-center mt-4">
+                        <div class="col-sm-6">
+                            <p class="text-muted fs-13 mb-0">Showing <span class="fw-semibold text-dark">{{ page_obj.start_index }}</span> to <span class="fw-semibold text-dark">{{ page_obj.end_index }}</span> of <span class="fw-semibold text-dark">{{ paginator.count }}</span> staff members</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <nav aria-label="Staff pagination">
+                                <ul class="pagination pagination-sm justify-content-sm-end mb-0 mt-3 mt-sm-0">
+                                    {% if page_obj.has_previous %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if department_filter %}&department={{ department_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"><i class="mdi mdi-chevron-left"></i></a></li>
+                                    {% endif %}
+                                    
+                                    {% for i in paginator.page_range %}
+                                    {% if page_obj.number == i %}
+                                    <li class="page-item active" aria-current="page"><span class="page-link">{{ i }}</span></li>
+                                    {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ i }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if department_filter %}&department={{ department_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">{{ i }}</a></li>
+                                    {% endif %}
+                                    {% endfor %}
+
+                                    {% if page_obj.has_next %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if department_filter %}&department={{ department_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"><i class="mdi mdi-chevron-right"></i></a></li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="staffDeleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-body text-center p-5">
+                    <div class="stat-icon bg-danger-subtle text-danger mx-auto mb-4" style="width: 70px; height: 70px; font-size: 2.5rem;">
+                        <i class="mdi mdi-alert-circle-outline"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">Delete Staff Member?</h4>
+                    <p class="text-muted fs-15">You are about to remove <span id="staffName" class="fw-bold text-dark"></span> from the system. This action will also delete the associated user account and cannot be undone.</p>
+                    <div class="d-flex gap-2 justify-content-center mt-4 pt-2">
+                        <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Keep Member</button>
+                        <form id="staffDeleteForm" method="post" action="">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger px-4 shadow-sm">Yes, Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/libs/metismenu/metisMenu.min.js' %}"></script>
+    <script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'assets/libs/eva-icons/eva.min.js' %}"></script>
+    <script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/app.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            if ($.fn.select2) {
+                $('.select2').select2({ minimumResultsForSearch: Infinity });
+            }
+            if (typeof eva !== 'undefined') {
+                eva.replace();
+            }
+        });
+
+        function confirmStaffDelete(staffId, staffName) {
+            $('#staffName').text(staffName);
+            // Construct the delete URL using the ID
+            let url = "{% url 'staff:delete' '000000' %}".replace('000000', staffId);
+            $('#staffDeleteForm').attr('action', url);
+            new bootstrap.Modal('#staffDeleteModal').show();
+        }
+    </script>
+</body>
+</html>

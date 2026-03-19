@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>{% if form.instance.pk %}Refine Attendance Log{% else %}New Attendance Entry{% endif %} | Zentryx CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta content="Enterprise Workforce Attendance Logging" name="description">
+    
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{% static 'assets/images/logo-sm.png' %}">
+    
+    <!-- Select2 Css -->
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- Simplebar Css -->
+    <link rel="stylesheet" href="{% static 'assets/libs/simplebar/simplebar.min.css' %}">
+    <!-- Bootstrap Css -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css">
+    <!-- icons css -->
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- App Css -->
+    <link href="{% static 'assets/css/app.min.css' %}" id="app-style" rel="stylesheet" type="text/css">
+
+    <style>
+        :root { --att-primary: #4f46e5; --att-secondary: #6366f1; }
+        .canvas-card { border: none; border-radius: 1.25rem; background: #fff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 2rem; overflow: hidden; }
+        .canvas-header { background: #f9fafb; border-bottom: 1px solid #f3f4f6; padding: 1.25rem 2rem; display: flex; align-items: center; }
+        .header-icon { width: 40px; height: 40px; border-radius: 0.85rem; background: #fff; border: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: center; color: var(--att-primary); margin-right: 1.25rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        
+        .form-label-att { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #4b5563; margin-bottom: 0.6rem; display: block; }
+        .form-control-att, .form-select-att { border-radius: 0.75rem; border: 1px solid #e2e8f0; padding: 0.75rem 1rem; font-size: 0.9rem; transition: all 0.2s; }
+        .form-control-att:focus, .form-select-att:focus { border-color: var(--att-primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08); outline: none; }
+        
+        .sticky-ops { position: sticky; bottom: 0; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border-top: 1px solid #f1f5f9; padding: 1.5rem 0; z-index: 100; margin-top: 3rem; box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.02); }
+        
+        .policy-alert { background: #eff6ff; border: 1px solid #dbeafe; border-radius: 1rem; padding: 1.25rem; }
+        .policy-item { display: flex; align-items: flex-start; gap: 0.75rem; font-size: 0.85rem; color: #1e40af; margin-bottom: 0.75rem; }
+    </style>
+</head>
+
+<body>
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        <div class="sidebar-left horizontal-sidebar">
+            {% include 'base/horizontal_sidebar.html' %}
+        </div>
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+                    
+                    <!-- Top Ribbon -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-8">
+                            <h4 class="mb-1 text-dark fw-bold">{% if form.instance.pk %}Refine Attendance Log{% else %}Log New Activity{% endif %}</h4>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0 fs-13 text-muted">
+                                    <li class="breadcrumb-item"><a href="{% url 'attendance:list' %}" class="text-muted text-decoration-none">Attendance Matrix</a></li>
+                                    <li class="breadcrumb-item active fw-medium">{% if form.instance.pk %}Update Log{% else %}New Entry{% endif %}</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="col-4 text-end">
+                            <a href="{% url 'attendance:list' %}" class="btn btn-outline-secondary px-4 fw-medium border-light-subtle shadow-sm">
+                                <i class="mdi mdi-arrow-left me-1"></i> Exit Canvas
+                            </a>
+                        </div>
+                    </div>
+
+                    <form method="post" id="attendanceCanvasForm">
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <!-- Left: Content -->
+                            <div class="col-lg-8">
+                                <div class="canvas-card shadow-sm">
+                                    <div class="canvas-header">
+                                        <div class="header-icon"><i class="mdi mdi-account-card-outline fs-20"></i></div>
+                                        <h5 class="mb-0 fw-bold text-dark">Identity & Resource</h5>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="row g-4">
+                                            <div class="col-md-7">
+                                                <label class="form-label-att">Assign to Staff Member <span class="text-danger">*</span></label>
+                                                {{ form.staff }}
+                                                {% if form.staff.errors %}
+                                                <p class="text-danger fs-11 mt-1 fw-bold">{{ form.staff.errors.0 }}</p>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-5">
+                                                <label class="form-label-att">Attendance Date <span class="text-danger">*</span></label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-light border-light-subtle"><i class="mdi mdi-calendar"></i></span>
+                                                    {{ form.date }}
+                                                </div>
+                                                {% if form.date.errors %}
+                                                <p class="text-danger fs-11 mt-1 fw-bold">{{ form.date.errors.0 }}</p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="canvas-card shadow-sm">
+                                    <div class="canvas-header">
+                                        <div class="header-icon text-primary"><i class="mdi mdi-clock-outline fs-20"></i></div>
+                                        <h5 class="mb-0 fw-bold text-dark">Temporal Log</h5>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="row g-4">
+                                            <div class="col-md-4">
+                                                <label class="form-label-att">Check-In Time</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-success-subtle text-success border-light-subtle"><i class="mdi mdi-login-variant"></i></span>
+                                                    {{ form.check_in }}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label-att">Check-Out Time</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-danger-subtle text-danger border-light-subtle"><i class="mdi mdi-logout-variant"></i></span>
+                                                    {{ form.check_out }}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label-att">Lunch Duration (Hrs)</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-light border-light-subtle"><i class="mdi mdi-coffee-outline"></i></span>
+                                                    {{ form.lunch_time_houre }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="canvas-card shadow-sm">
+                                    <div class="canvas-header">
+                                        <div class="header-icon text-muted"><i class="mdi mdi-comment-text-outline fs-20"></i></div>
+                                        <h5 class="mb-0 fw-bold text-dark">Record Verification</h5>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="row g-4">
+                                            <div class="col-12">
+                                                <label class="form-label-att">Administrative Remarks</label>
+                                                {{ form.remarks }}
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="form-check form-switch p-3 bg-light rounded-3 d-flex align-items-center justify-content-between">
+                                                    <div>
+                                                        <label class="form-check-label fw-bold text-dark mb-0 fs-13" for="{{ form.is_approved.id_for_label }}">Commit to Financial Audit</label>
+                                                        <p class="text-muted fs-11 mb-0">Approved records are locked and synced with the payroll engine.</p>
+                                                    </div>
+                                                    {{ form.is_approved }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Policy & Status -->
+                            <div class="col-lg-4">
+                                <div class="canvas-card shadow-sm border-start border-4 border-primary">
+                                    <div class="canvas-header">
+                                        <div class="header-icon text-primary"><i class="mdi mdi-traffic-light-outline fs-20"></i></div>
+                                        <h5 class="mb-0 fw-bold text-dark">Lifecycle State</h5>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <label class="form-label-att">Categorical Status</label>
+                                        {{ form.status }}
+                                        <p class="text-muted fs-11 mt-3">This state affects how working hours are calculated in the monthly summary.</p>
+                                    </div>
+                                </div>
+
+                                <div class="policy-alert shadow-sm border-0">
+                                    <h6 class="fw-bold mb-3"><i class="mdi mdi-shield-account-outline me-2"></i>Operational Policy</h6>
+                                    <div class="policy-item">
+                                        <i class="mdi mdi-numeric-1-circle text-primary fs-16"></i>
+                                        <span><strong>Precision:</strong> Ensure check-out is mathematically after check-in to avoid calculation errors.</span>
+                                    </div>
+                                    <div class="policy-item">
+                                        <i class="mdi mdi-numeric-2-circle text-primary fs-16"></i>
+                                        <span><strong>Validation:</strong> Automatic grace periods are applied based on the staff member's assigned shift.</span>
+                                    </div>
+                                    <div class="policy-item">
+                                        <i class="mdi mdi-numeric-3-circle text-primary fs-16"></i>
+                                        <span><strong>Auditing:</strong> Changes to approved records are tracked in the system intelligence logs.</span>
+                                    </div>
+                                </div>
+
+                                {% if form.instance.pk %}
+                                <div class="mt-4 p-3 bg-white rounded-3 border border-light-subtle shadow-sm text-center">
+                                    <span class="text-muted fs-11 text-uppercase fw-bold ls-1 mb-1 d-block">System Audit</span>
+                                    <span class="fw-bold text-dark fs-13">Last Scanned: {{ form.instance.updated_at|date:"d M, H:i" }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Sticky Operations -->
+                        <div class="sticky-ops rounded-4">
+                            <div class="container-fluid text-end pe-5">
+                                <a href="{% url 'attendance:list' %}" class="btn btn-light px-4 me-3 fw-bold border-light-subtle">Discard Canvas</a>
+                                <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm">
+                                    <i class="mdi mdi-check-decagram-outline me-2"></i> {% if form.instance.pk %}Commit Refinements{% else %}Execute Strategy{% endif %}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+            {% include 'base/footer.html' %}
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/libs/metismenu/metisMenu.min.js' %}"></script>
+    <script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'assets/libs/eva-icons/eva.min.js' %}"></script>
+    <script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/app.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Apply premium styling to Django controls
+            $('input, textarea').addClass('form-control-att');
+            $('select').addClass('form-select-att select2');
+            
+            if ($.fn.select2) {
+                $('.select2').select2({ width: '100%', placeholder: 'Select parameter' });
+            }
+            if (typeof eva !== 'undefined') { eva.replace(); }
+        });
+    </script>
+</body>
+</html>

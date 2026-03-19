@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Add New Customer | Zentryx CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{% static 'assets/images/logo-sm.png' %}">
+    
+    <!-- Select2 -->
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- Simplebar Css -->
+    <link rel="stylesheet" href="{% static 'assets/libs/simplebar/simplebar.min.css' %}">
+    <!-- Bootstrap Css -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css">
+    <!-- Icons css -->
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- App Css -->
+    <link href="{% static 'assets/css/app.min.css' %}" id="app-style" rel="stylesheet" type="text/css">
+
+    <style>
+        .form-card { border: none; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0.75rem; margin-bottom: 2rem; }
+        .form-card .card-header { background-color: transparent; border-bottom: 1px solid #f3f4f6; padding: 1.25rem 1.5rem; }
+        .form-card .card-title { font-size: 1rem; font-weight: 700; color: #111827; margin-bottom: 0; }
+        .form-label { font-weight: 600; color: #374151; font-size: 0.875rem; margin-bottom: 0.5rem; }
+        .form-control:focus, .form-select:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+        .section-icon { width: 32px; height: 32px; background-color: #eef2ff; color: #6366f1; border-radius: 0.5rem; display: inline-flex; align-items: center; justify-content: center; margin-right: 0.75rem; }
+    </style>
+</head>
+
+<body>
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        <div class="sidebar-left horizontal-sidebar">
+            {% include 'base/horizontal_sidebar.html' %}
+        </div>
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+
+                    <!-- Page Header -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-8">
+                            <div class="page-title-box">
+                                <h4 class="mb-1 text-dark fw-bold">Register New Customer</h4>
+                                <nav aria-label="breadcrumb">
+                                    <ol class="breadcrumb m-0 font-size-13">
+                                        <li class="breadcrumb-item"><a href="{% url 'customers:list' %}">Customers</a></li>
+                                        <li class="breadcrumb-item active">Add New</li>
+                                    </ol>
+                                </nav>
+                            </div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <a href="{% url 'customers:list' %}" class="btn btn-link text-muted pe-0">
+                                <i class="mdi mdi-arrow-left me-1"></i> Back to Directory
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-xl-9">
+                            {% if messages %}
+                            {% for message in messages %}
+                            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+
+                            <form method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                
+                                <!-- Basic Information -->
+                                <div class="card form-card">
+                                    <div class="card-header d-flex align-items-center">
+                                        <div class="section-icon"><i class="mdi mdi-account-card-details-outline fs-18"></i></div>
+                                        <h4 class="card-title">Primary Information</h4>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="row g-4">
+                                            <div class="col-md-8">
+                                                <label for="{{ form.name.id_for_label }}" class="form-label">Full Name / Display Name</label>
+                                                {{ form.name }}
+                                                {% if form.name.errors %}<div class="text-danger mt-1 fs-12">{{ form.name.errors.0 }}</div>{% endif %}
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="{{ form.customer_type.id_for_label }}" class="form-label">Classification</label>
+                                                {{ form.customer_type }}
+                                                {% if form.customer_type.errors %}<div class="text-danger mt-1 fs-12">{{ form.customer_type.errors.0 }}</div>{% endif %}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="{{ form.company_name.id_for_label }}" class="form-label">Company Name</label>
+                                                {{ form.company_name }}
+                                                {% if form.company_name.errors %}<div class="text-danger mt-1 fs-12">{{ form.company_name.errors.0 }}</div>{% endif %}
+                                                <small class="text-muted">Required if classification is 'Company'</small>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="{{ form.gst_number.id_for_label }}" class="form-label">Tax ID / GST Number</label>
+                                                {{ form.gst_number }}
+                                                {% if form.gst_number.errors %}<div class="text-danger mt-1 fs-12">{{ form.gst_number.errors.0 }}</div>{% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Contact Details -->
+                                <div class="card form-card">
+                                    <div class="card-header d-flex align-items-center">
+                                        <div class="section-icon"><i class="mdi mdi-contact-mail-outline fs-18"></i></div>
+                                        <h4 class="card-title">Communication & Web</h4>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="row g-4">
+                                            <div class="col-md-6">
+                                                <label for="{{ form.email.id_for_label }}" class="form-label">Official Email Address</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-light border-light-subtle"><i class="mdi mdi-email-outline"></i></span>
+                                                    {{ form.email }}
+                                                </div>
+                                                {% if form.email.errors %}<div class="text-danger mt-1 fs-12">{{ form.email.errors.0 }}</div>{% endif %}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="{{ form.phone.id_for_label }}" class="form-label">Mobile Number</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-light border-light-subtle"><i class="mdi mdi-phone-outline"></i></span>
+                                                    {{ form.phone }}
+                                                </div>
+                                                {% if form.phone.errors %}<div class="text-danger mt-1 fs-12">{{ form.phone.errors.0 }}</div>{% endif %}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="{{ form.alternate_phone.id_for_label }}" class="form-label">Secondary Contact</label>
+                                                {{ form.alternate_phone }}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="{{ form.website.id_for_label }}" class="form-label">Corporate Website</label>
+                                                {{ form.website }}
+                                                {% if form.website.errors %}<div class="text-danger mt-1 fs-12">{{ form.website.errors.0 }}</div>{% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Assignment & Source -->
+                                <div class="card form-card">
+                                    <div class="card-header d-flex align-items-center">
+                                        <div class="section-icon"><i class="mdi mdi-cog-transfer-outline fs-18"></i></div>
+                                        <h4 class="card-title">Administrative Details</h4>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="row g-4">
+                                            <div class="col-md-6">
+                                                <label for="{{ form.assigned_to.id_for_label }}" class="form-label">Assigned Account Manager</label>
+                                                {{ form.assigned_to }}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="{{ form.source.id_for_label }}" class="form-label">Lead Source</label>
+                                                {{ form.source }}
+                                            </div>
+                                            <div class="col-md-12">
+                                                <label for="{{ form.notes.id_for_label }}" class="form-label">Internal Briefing / Notes</label>
+                                                {{ form.notes }}
+                                            </div>
+                                            <div class="col-md-12">
+                                                <div class="form-check form-switch card p-3 border-light shadow-none">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-grow-1">
+                                                            <h6 class="mb-0 fw-semibold">Active Status</h6>
+                                                            <p class="text-muted mb-0 small">Toggle to enable or disable this account in the system.</p>
+                                                        </div>
+                                                        {{ form.is_active }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-3 justify-content-end mb-5">
+                                    <a href="{% url 'customers:list' %}" class="btn btn-light px-4 py-2">Discard Changes</a>
+                                    <button type="submit" class="btn btn-primary px-5 py-2 fw-bold">Save Customer Profile</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="footer border-top">
+                <div class="container-fluid">
+                    <div class="row align-items-center">
+                        <div class="col-sm-6 text-muted">
+                            <script>document.write(new Date().getFullYear())</script> © Zentryx CRM.
+                        </div>
+                        <div class="col-sm-6 text-sm-end text-muted">
+                            Enterprise Resource Management
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/libs/metismenu/metisMenu.min.js' %}"></script>
+    <script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'assets/libs/eva-icons/eva.min.js' %}"></script>
+    <script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/app.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                width: '100%'
+            });
+        });
+    </script>
+</body>
+</html>
+>

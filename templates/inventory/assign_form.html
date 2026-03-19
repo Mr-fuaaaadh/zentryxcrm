@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Asset Deployment | {{ asset.asset_code }} | Zentryx CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <!-- Select2 Css -->
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- App Css -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'assets/css/app.min.css' %}" rel="stylesheet" type="text/css">
+
+    <style>
+        :root { --dep-primary: #10b981; --dep-secondary: #f8fafc; --dep-border: #e2e8f0; }
+        .deployment-canvas { border: none; border-radius: 1.5rem; background: #fff; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border: 1px solid var(--dep-border); overflow: hidden; }
+        .deployment-header { background: #1e293b; color: #fff; padding: 2rem; }
+        
+        .form-control-dep, .form-select-dep { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.85rem; padding: 0.75rem 1.1rem; font-size: 0.95rem; transition: all 0.2s; }
+        .form-control-dep:focus, .form-select-dep:focus { background: #fff; border-color: var(--dep-primary); box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); outline: none; }
+        
+        .asset-summary-box { background: #f0fdf4; border: 1px dashed #10b981; border-radius: 1rem; padding: 1.25rem; }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+
+                    <div class="row align-items-center mb-4">
+                        <div class="col-sm-6">
+                            <h4 class="mb-1 text-dark fw-bold">Asset Deployment Protocol</h4>
+                            <p class="text-muted fs-13 mb-0">Mapping managed physical resources to organizational personnel.</p>
+                        </div>
+                        <div class="col-sm-6 text-sm-end">
+                            <a href="{% url 'inventory:asset_detail' asset.pk %}" class="btn btn-light border px-4 fw-bold">
+                                <i class="mdi mdi-arrow-left me-2"></i> Dossier
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-xl-6">
+                            <div class="deployment-canvas">
+                                <div class="deployment-header">
+                                    <h5 class="text-white fw-bold mb-1">Configuration Engine</h5>
+                                    <p class="text-white-50 fs-12 mb-0">Deployment linkage protocol.</p>
+                                </div>
+                                <div class="card-body p-4 p-md-5">
+                                    <div class="asset-summary-box mb-4">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="avatar avatar-md bg-success text-white rounded-4 fs-2 d-flex align-items-center justify-content-center" style="width:48px; height:48px;">
+                                                <i class="mdi mdi-cube-send"></i>
+                                            </div>
+                                            <div>
+                                                <span class="text-success fw-bold fs-11 text-uppercase ls-1">Target Asset</span>
+                                                <h5 class="fw-900 text-dark mb-0">{{ asset.name }} <small class="text-muted fw-normal" style="font-size: 11px;">#{{ asset.asset_code }}</small></h5>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        
+                                        <div class="mb-4">
+                                            <label class="form-label text-muted fs-11 fw-bold text-uppercase">Deployment Target (Personnel)</label>
+                                            {{ form.staff_name }}
+                                            {% if form.staff_name.errors %}<div class="text-danger small mt-1">{{ form.staff_name.errors.0 }}</div>{% endif %}
+                                        </div>
+
+                                        <div class="row g-3 mb-4">
+                                            {% if form.serial_number %}
+                                            <div class="col-12">
+                                                <label class="form-label text-muted fs-11 fw-bold text-uppercase">Unique Identifier (Serial #)</label>
+                                                {{ form.serial_number }}
+                                                {% if form.serial_number.errors %}<div class="text-danger small mt-1">{{ form.serial_number.errors.0 }}</div>{% endif %}
+                                            </div>
+                                            {% else %}
+                                            <div class="col-12">
+                                                <label class="form-label text-muted fs-11 fw-bold text-uppercase">Deployment Volume (Qty)</label>
+                                                {{ form.quantity }}
+                                                {% if form.quantity.errors %}<div class="text-danger small mt-1">{{ form.quantity.errors.0 }}</div>{% endif %}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="mb-5">
+                                            <label class="form-label text-muted fs-11 fw-bold text-uppercase">Operational Remarks</label>
+                                            {{ form.remarks }}
+                                        </div>
+
+                                        <div class="d-grid gap-2">
+                                            <button type="submit" class="btn btn-success btn-lg fw-bold shadow-sm">
+                                                <i class="mdi mdi-check-circle-outline me-2"></i> Commit Deployment Protocol
+                                            </button>
+                                            <a href="{% url 'inventory:asset_detail' asset.pk %}" class="btn btn-soft-light py-2 fw-bold">Abort Protocol</a>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% include 'base/footer.html' %}
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/libs/metismenu/metisMenu.min.js' %}"></script>
+    <script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/app.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            if ($.fn.select2) {
+                $('#id_staff_name').select2({ width: '100%', placeholder: 'Select deployment target...' });
+            }
+            $('input[type="text"], input[type="number"], select, textarea').addClass('form-control-dep');
+            $('select').addClass('form-select-dep');
+        });
+    </script>
+</body>
+</html>

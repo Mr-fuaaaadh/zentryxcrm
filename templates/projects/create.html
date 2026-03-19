@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>{% if form.instance.pk %}Edit Project Strategy{% else %}Launch New Project{% endif %} | Zentryx CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta content="Enterprise Project Lifecycle Management" name="description">
+    
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{% static 'assets/images/logo-sm.png' %}">
+    
+    <!-- Select2 Css -->
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- Bootstrap Datepicker -->
+    <link href="{% static 'assets/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet">
+    <!-- Simplebar Css -->
+    <link rel="stylesheet" href="{% static 'assets/libs/simplebar/simplebar.min.css' %}">
+    <!-- Bootstrap Css -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css">
+    <!-- icons css -->
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- App Css -->
+    <link href="{% static 'assets/css/app.min.css' %}" id="app-style" rel="stylesheet" type="text/css">
+
+    <style>
+        :root { --p-primary: #4f46e5; --p-secondary: #6366f1; }
+        .canvas-card { border: none; border-radius: 1.25rem; background: #fff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 2rem; overflow: hidden; }
+        .canvas-header { background: #f9fafb; border-bottom: 1px solid #f3f4f6; padding: 1.25rem 2rem; display: flex; align-items: center; }
+        .header-icon { width: 40px; height: 40px; border-radius: 0.85rem; background: #fff; border: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: center; color: var(--p-primary); margin-right: 1.25rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        
+        .form-label-p { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #4b5563; margin-bottom: 0.6rem; display: block; }
+        .form-control-p, .form-select-p { border-radius: 0.75rem; border: 1px solid #e2e8f0; padding: 0.75rem 1rem; font-size: 0.9rem; transition: all 0.2s; }
+        .form-control-p:focus, .form-select-p:focus { border-color: var(--p-primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08); outline: none; }
+        
+        .sticky-ops { position: sticky; bottom: 0; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border-top: 1px solid #f1f5f9; padding: 1.5rem 0; z-index: 100; margin-top: 3rem; box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.02); }
+    </style>
+</head>
+
+<body>
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        <div class="sidebar-left horizontal-sidebar">
+            {% include 'base/horizontal_sidebar.html' %}
+        </div>
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+                    
+                    <!-- Top Ribbon -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-8">
+                            <h4 class="mb-1 text-dark fw-bold">{% if form.instance.pk %}Refine Project Strategy{% else %}Initiate New Project{% endif %}</h4>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0 fs-13 text-muted">
+                                    <li class="breadcrumb-item"><a href="{% url 'projects:list' %}" class="text-muted text-decoration-none">Project Matrix</a></li>
+                                    <li class="breadcrumb-item active fw-medium">{% if form.instance.pk %}Update Lifecycle{% else %}Capture Requirements{% endif %}</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="col-4 text-end">
+                            <a href="{% url 'projects:list' %}" class="btn btn-outline-secondary px-4 fw-medium border-light-subtle shadow-sm">
+                                <i class="mdi mdi-arrow-left me-1"></i> Exit Canvas
+                            </a>
+                        </div>
+                    </div>
+
+     
+
+                    <form method="post" enctype="multipart/form-data" id="projectCanvasForm">
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <!-- Left: Project Core -->
+                            <div class="col-lg-8">
+                                <div class="canvas-card shadow-sm">
+                                    <div class="canvas-header">
+                                        <div class="header-icon"><i class="mdi mdi-briefcase-edit-outline fs-20"></i></div>
+                                        <h5 class="mb-0 fw-bold text-dark">Strategic Identity</h5>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="row g-4">
+                                            <div class="col-md-8">
+                                                <label class="form-label-p">Project Designation <span class="text-danger">*</span></label>
+                                                {{ form.name }}
+                                                {% if form.name.errors %}
+                                                <p class="text-danger fs-11 mt-1 fw-bold">{{ form.name.errors.0 }}</p>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label-p">System Account Code <span class="text-danger">*</span></label>
+                                                {{ form.project_code }}
+                                                {% if form.project_code.errors %}
+                                                <p class="text-danger fs-11 mt-1 fw-bold">{{ form.project_code.errors.0 }}</p>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label-p">Project Objective & Context</label>
+                                                {{ form.description }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="canvas-card shadow-sm">
+                                    <div class="canvas-header">
+                                        <div class="header-icon"><i class="mdi mdi-account-group-outline fs-20"></i></div>
+                                        <h5 class="mb-0 fw-bold text-dark">Operational Stakeholders</h5>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="row g-4">
+                                            <div class="col-md-6">
+                                                <label class="form-label-p">Primary Customer/Account</label>
+                                                {{ form.customer }}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label-p">Prospective Lead Association</label>
+                                                {{ form.lead }}
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label-p">Project Strategy Director (Manager)</label>
+                                                {{ form.manager }}
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label-p">Resource Team Allocation</label>
+                                                {{ form.team_members }}
+                                                <p class="text-muted fs-11 mt-2">Select all cross-functional members assigned to this project lifecycle.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Lifecycle & Budget -->
+                            <div class="col-lg-4">
+                                <div class="canvas-card shadow-sm">
+                                    <div class="canvas-header">
+                                        <div class="header-icon text-warning"><i class="mdi mdi-chart-donut fs-20"></i></div>
+                                        <h5 class="mb-0 fw-bold text-dark">Lifecycle Status</h5>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="mb-4">
+                                            <label class="form-label-p text-primary">Strategic Priority</label>
+                                            {{ form.priority }}
+                                        </div>
+                                        <div>
+                                            <label class="form-label-p text-success">Current State</label>
+                                            {{ form.status }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="canvas-card shadow-sm">
+                                    <div class="canvas-header">
+                                        <div class="header-icon text-info"><i class="mdi mdi-calendar-clock-outline fs-20"></i></div>
+                                        <h5 class="mb-0 fw-bold text-dark">Temporal Matrix</h5>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="mb-4">
+                                            <label class="form-label-p">Initiation Date</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-light-subtle"><i class="mdi mdi-calendar-start"></i></span>
+                                                {{ form.start_date }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="form-label-p">Target Completion</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-light-subtle"><i class="mdi mdi-calendar-check"></i></span>
+                                                {{ form.end_date }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="canvas-card shadow-sm border-start border-4 border-success">
+                                    <div class="canvas-header">
+                                        <div class="header-icon text-success"><i class="mdi mdi-cash-multiple fs-20"></i></div>
+                                        <h5 class="mb-0 fw-bold text-dark">Commercial Forecast</h5>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="mb-4">
+                                            <label class="form-label-p">Total Strategic Budget</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-success-subtle fw-bold text-success">$</span>
+                                                {{ form.budget }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="form-label-p">Internal Estimated Cost</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-light-subtle fw-bold text-muted">$</span>
+                                                {{ form.estimated_cost }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Operations -->
+                        <div class="sticky-ops rounded-4">
+                            <div class="container-fluid text-end pe-5">
+                                <a href="{% url 'projects:list' %}" class="btn btn-light px-4 me-3 fw-bold border-light-subtle">Discard Plan</a>
+                                <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm">
+                                    <i class="mdi mdi-rocket-launch-outline me-2"></i> {% if form.instance.pk %}Update Operational Matrix{% else %}Commit Project Strategy{% endif %}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+            {% include 'base/footer.html' %}
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/libs/metismenu/metisMenu.min.js' %}"></script>
+    <script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'assets/libs/eva-icons/eva.min.js' %}"></script>
+    <script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'assets/js/app.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Apply premium styling to Django controls
+            $('input, textarea').addClass('form-control-p');
+            $('select').addClass('form-select-p select2');
+            
+            if ($.fn.select2) {
+                $('.select2').select2({ width: '100%', placeholder: 'Select parameter' });
+            }
+            if (typeof eva !== 'undefined') { eva.replace(); }
+        });
+    </script>
+</body>
+</html>

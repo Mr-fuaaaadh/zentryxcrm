@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>{{ lead.first_name }}'s Profile | Zentryx CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta content="Enterprise Lead Intelligence" name="description">
+    
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{% static 'assets/images/logo-sm.png' %}">
+    
+    <!-- Select2 Css -->
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- Simplebar Css -->
+    <link rel="stylesheet" href="{% static 'assets/libs/simplebar/simplebar.min.css' %}">
+    <!-- Bootstrap Css -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css">
+    <!-- icons css -->
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- App Css -->
+    <link href="{% static 'assets/css/app.min.css' %}" id="app-style" rel="stylesheet" type="text/css">
+
+    <style>
+        :root { --lead-primary: #4f46e5; --lead-secondary: #6366f1; }
+        .command-header { background: #fff; border-bottom: 1px solid #f3f4f6; margin: -25px -25px 25px -25px; padding: 1.5rem 2rem; }
+        .detail-card { border: none; border-radius: 1rem; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        
+        .timeline-modern { position: relative; padding-left: 3rem; }
+        .timeline-modern::before { content: ''; position: absolute; left: 1.25rem; top: 0; bottom: 0; width: 2px; background: #f3f4f6; }
+        .timeline-item-modern { position: relative; padding-bottom: 2rem; }
+        .timeline-marker-modern { position: absolute; left: -2.75rem; width: 2rem; height: 2rem; border-radius: 50%; border: 4px solid #fff; z-index: 1; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .timeline-content-modern { background: #f9fafb; border-radius: 0.75rem; padding: 1rem; border: 1px solid #f3f4f6; }
+
+        .form-label-premium { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #6b7280; letter-spacing: 0.05em; margin-bottom: 0.5rem; display: block; }
+        .value-premium { color: #111827; font-weight: 500; font-size: 0.9375rem; }
+        
+        .activity-logger { background: #fff; border-radius: 1rem; overflow: hidden; border: 1px solid #e5e7eb; }
+        .logger-tabs { display: flex; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
+        .logger-tab { flex: 1; text-align: center; padding: 0.75rem; cursor: pointer; color: #6b7280; font-weight: 500; transition: all 0.2s; border-bottom: 2px solid transparent; }
+        .logger-tab.active { color: var(--lead-primary); background: #fff; border-bottom-color: var(--lead-primary); }
+        
+        .avatar-badge { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.125rem; }
+    </style>
+</head>
+
+<body>
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        <div class="sidebar-left horizontal-sidebar">
+            {% include 'base/horizontal_sidebar.html' %}
+        </div>
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+                    
+                    <!-- Command Header -->
+                    <div class="command-header d-flex align-items-center justify-content-between shadow-sm">
+                        <div class="d-flex align-items-center">
+                            <a href="{% url 'leads:list' %}" class="btn btn-light btn-sm rounded-circle me-3"><i class="mdi mdi-arrow-left"></i></a>
+                            <div class="avatar-badge bg-primary-subtle text-primary me-3">
+                                {{ lead.first_name|slice:":1" }}{{ lead.last_name|slice:":1" }}
+                            </div>
+                            <div>
+                                <h4 class="mb-0 fw-bold text-dark">{{ lead.first_name }} {{ lead.last_name }}</h4>
+                                <div class="d-flex align-items-center mt-1">
+                                    <span class="badge bg-primary-subtle text-primary me-2">{{ lead.get_status_display }}</span>
+                                    <span class="text-muted fs-13"><i class="mdi mdi-domain me-1"></i>{{ lead.company_name|default:"Independent Lead" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'leads:edit' lead.pk %}" class="btn btn-outline-primary px-3 fw-medium"><i class="mdi mdi-pencil-outline me-1"></i>Edit Profile</a>
+                            <div class="dropdown">
+                                <button class="btn btn-primary px-4 fw-bold dropdown-toggle" data-bs-toggle="dropdown">Action Center</button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-light">
+                                    <li><a class="dropdown-item py-2 fw-medium text-success" href="#"><i class="mdi mdi-account-convert me-2 text-success"></i>Convert to Customer</a></li>
+                                    <li><a class="dropdown-item py-2" href="#"><i class="mdi mdi-file-document-outline me-2 text-primary"></i>Generate Proposal</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item py-2 text-danger" href="#"><i class="mdi mdi-close-circle-outline me-2"></i>Mark as Lost</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Primary Column: Discovery & Engagement -->
+                        <div class="col-lg-8">
+                            <!-- Lead Intelligence Card -->
+                            <div class="card detail-card shadow-sm border-light-subtle">
+                                <div class="card-header bg-transparent border-bottom px-4 py-3 d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0 fw-bold">Discovery Insight</h5>
+                                    <span class="badge bg-{% if lead.priority == 'urgent' %}danger{% elif lead.priority == 'high' %}warning{% else %}info{% endif %}-subtle text-{% if lead.priority == 'urgent' %}danger{% elif lead.priority == 'high' %}warning{% else %}info{% endif %} px-3">
+                                        {{ lead.get_priority_display }} Priority
+                                    </span>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="row g-4">
+                                        <div class="col-md-4">
+                                            <span class="form-label-premium">Contact Channel</span>
+                                            <p class="value-premium mb-0"><i class="mdi mdi-email-outline text-muted me-2"></i>{{ lead.email|default:"No Email" }}</p>
+                                            <p class="value-premium mt-1"><i class="mdi mdi-phone-outline text-muted me-2"></i>{{ lead.phone }}</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <span class="form-label-premium">Professional Role</span>
+                                            <p class="value-premium mb-0">{{ lead.designation|default:"Consultant" }}</p>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <span class="form-label-premium">Pipeline Valuation</span>
+                                            <p class="value-premium mb-0 text-success fw-bold">${{ lead.expected_revenue|default:"0"|floatformat:0 }} USD</p>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="bg-light p-3 rounded-3 mt-2">
+                                                <span class="form-label-premium">Operational Notes</span>
+                                                <p class="mb-0 fs-13 text-muted lh-base">{{ lead.notes|default:"No background intelligence available for this lead yet." }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Activity Feed -->
+                            <div class="card detail-card shadow-sm border-light-subtle">
+                                <div class="card-header bg-transparent border-bottom px-4 py-3">
+                                    <h5 class="card-title mb-0 fw-bold">Engagement Timeline</h5>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="timeline-modern">
+                                        {% for activity in activities %}
+                                        <div class="timeline-item-modern">
+                                            <div class="timeline-marker-modern 
+                                                {% if activity.activity_type == 'call' %}bg-info text-white
+                                                {% elif activity.activity_type == 'meeting' %}bg-warning text-white
+                                                {% elif activity.activity_type == 'email' %}bg-primary text-white
+                                                {% else %}bg-secondary text-white{% endif %}">
+                                                <i class="mdi mdi-{% if activity.activity_type == 'call' %}phone-in-talk{% elif activity.activity_type == 'meeting' %}account-group-outline{% elif activity.activity_type == 'email' %}email-send-outline{% else %}note-outline{% endif %} fs-14"></i>
+                                            </div>
+                                            <div class="timeline-content-modern">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <h6 class="mb-0 fw-bold text-dark">{{ activity.get_activity_type_display }} Logged</h6>
+                                                    <small class="text-muted fw-medium"><i class="mdi mdi-clock-outline me-1"></i>{{ activity.activity_date|date:"M d, Y | H:i" }}</small>
+                                                </div>
+                                                <p class="text-muted mb-3 fs-13 lh-base">{{ activity.description }}</p>
+                                                <div class="d-flex align-items-center pt-2 border-top border-light">
+                                                    <div class="avatar avatar-xxs avatar-circle bg-soft-primary text-primary fw-bold me-2 fs-8">
+                                                        {{ activity.created_by.user.first_name|slice:":1" }}{{ activity.created_by.user.last_name|slice:":1" }}
+                                                    </div>
+                                                    <span class="text-muted fs-11 fw-medium uppercase">Executive: {{ activity.created_by.user.get_full_name }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% empty %}
+                                        <div class="text-center py-5">
+                                            <div class="avatar-label-light mx-auto mb-3" style="width: 60px; height: 60px;"><i class="mdi mdi-timeline-text-outline fs-32 text-light"></i></div>
+                                            <h6 class="text-muted fw-normal">No engagement activities recorded for this pipeline.</h6>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Secondary Column: Operation & Logger -->
+                        <div class="col-lg-4">
+                            <!-- Quick Logger -->
+                            <div class="activity-logger shadow-sm mb-4">
+                                <div class="logger-tabs">
+                                    <div class="logger-tab active" data-type="call"><i class="mdi mdi-phone me-1"></i>Call</div>
+                                    <div class="logger-tab" data-type="email"><i class="mdi mdi-email me-1"></i>Email</div>
+                                    <div class="logger-tab" data-type="meeting"><i class="mdi mdi-account-group me-1"></i>Meet</div>
+                                </div>
+                                <div class="card-body p-4">
+                                    <form action="{% url 'leads:add_activity' lead.pk %}" method="post" id="activityForm">
+                                        {% csrf_token %}
+                                        <div class="mb-3 d-none">
+                                            {{ activity_form.activity_type }}
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fs-11 fw-bold">Executive Summary</label>
+                                            {{ activity_form.description }}
+                                        </div>
+                                        <div class="mb-4">
+                                            <label class="form-label fs-11 fw-bold">Engagement Date</label>
+                                            <div class="input-group input-group-sm">
+                                                <span class="input-group-text bg-light border-light-subtle"><i class="mdi mdi-calendar-outline"></i></span>
+                                                {{ activity_form.activity_date }}
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm">
+                                            <i class="mdi mdi-plus-circle-outline me-1"></i> Log Interaction
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Ownership Metadata -->
+                            <div class="card detail-card shadow-sm border-light-subtle bg-primary-subtle border-0">
+                                <div class="card-body p-4 text-center">
+                                    <span class="form-label-premium text-primary">Pipeline Owner</span>
+                                    {% if lead.assigned_to %}
+                                    <div class="avatar avatar-circle mx-auto my-3 bg-white text-primary fw-bold fs-18 shadow-sm" style="width: 56px; height: 56px;">
+                                        {{ lead.assigned_to.user.first_name|slice:":1" }}{{ lead.assigned_to.user.last_name|slice:":1" }}
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-1">{{ lead.assigned_to.user.get_full_name }}</h6>
+                                    <p class="text-muted fs-12 mb-0">Assigned strategy lead</p>
+                                    {% else %}
+                                    <div class="avatar-label-danger mx-auto my-3" style="width: 56px; height: 56px;"><i class="mdi mdi-account-question-outline fs-32"></i></div>
+                                    <p class="text-danger fw-medium fs-13 mb-0">Unassigned Pipeline</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="card detail-card shadow-sm border-light-subtle">
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="mdi mdi-bullseye-arrow fs-20 text-danger me-2"></i>
+                                        <h6 class="mb-0 fw-bold">Account Lifecycle</h6>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted fs-13">Qualified Date:</span>
+                                        <span class="text-dark fw-medium fs-13">{{ lead.created_at|date:"M d, Y" }}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-0">
+                                        <span class="text-muted fs-13">Next Follow-up:</span>
+                                        <span class="text-primary fw-bold fs-13">{{ lead.next_follow_up|default:"TBD" }}</span>
+                                    </div>
+                                    <hr class="my-3 border-light">
+                                    <p class="text-muted fs-11 text-center mb-0">Last intellectual update: {{ lead.updated_at|timesince }} ago</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% include 'base/footer.html' %}
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/libs/metismenu/metisMenu.min.js' %}"></script>
+    <script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'assets/libs/eva-icons/eva.min.js' %}"></script>
+    <script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/app.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Apply premium styling to Logger form
+            $('#activityForm textarea').addClass('form-control').attr('rows', '3').attr('placeholder', 'Describe the engagement results...');
+            $('#activityForm input[type="datetime-local"]').addClass('form-control form-control-sm');
+            
+            // Tab interaction for logger
+            $('.logger-tab').on('click', function() {
+                $('.logger-tab').removeClass('active');
+                $(this).addClass('active');
+                const type = $(this).data('type');
+                $('#activityForm select[name="activity_type"]').val(type).trigger('change');
+            });
+
+            if (typeof eva !== 'undefined') { eva.replace(); }
+        });
+    </script>
+</body>
+</html>

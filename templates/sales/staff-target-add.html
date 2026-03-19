@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+{% load static %}
+{% include 'base/base.html' %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>{% if is_update %}Edit Monthly Target{% else %}Set Monthly Target{% endif %} | Zentryx CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <style>
+        /* ===== Page Layout ===== */
+        .target-form-wrapper {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        /* ===== Section Divider ===== */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .section-divider-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .section-divider h6 {
+            margin: 0;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+        .section-divider-line {
+            flex: 1;
+            height: 1px;
+            background: #f0f2f7;
+        }
+
+        /* ===== Metric Input Group ===== */
+        .metric-input-card {
+            background: #f8f9fc;
+            border: 1.5px solid #e9ecef;
+            border-radius: 12px;
+            padding: 16px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .metric-input-card:focus-within {
+            border-color: #f1f1f3;
+            box-shadow: 0 0 0 3px rgba(85, 110, 230, 0.08);
+            background: #fff;
+        }
+        .metric-input-card .metric-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .metric-input-card label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #74788d;
+            margin-bottom: 6px;
+        }
+        .metric-input-card .form-control {
+            border: none;
+            border-bottom: 1.5px solid #dee2e6;
+            border-radius: 0;
+            padding-left: 0;
+            background: transparent;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #343a40;
+        }
+        .metric-input-card .form-control:focus {
+            box-shadow: none;
+            border-bottom-color: #556ee6;
+        }
+        .metric-help {
+            font-size: 0.70rem;
+            color: #adb5bd;
+            margin-top: 4px;
+        }
+
+        /* ===== Error State ===== */
+        .field-error-wrap .metric-input-card {
+            border-color: #f46a6a;
+            background: #fff8f8;
+        }
+        .field-error-wrap .metric-input-card:focus-within {
+            border-color: #f46a6a;
+            box-shadow: 0 0 0 3px rgba(244, 106, 106, 0.10);
+        }
+        .error-msg {
+            font-size: 0.72rem;
+            color: #f46a6a;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .form-select.is-invalid,
+        .form-control.is-invalid {
+            border-color: #f46a6a !important;
+        }
+
+        /* ===== Form Actions ===== */
+        .form-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 24px;
+            border-top: 1px solid #f0f2f7;
+            margin-top: 24px;
+        }
+
+        /* ===== Alert Banner ===== */
+        .non-field-errors {
+            background: #fff8f8;
+            border: 1px solid #f46a6a;
+            border-left: 4px solid #f46a6a;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+        }
+
+        /* ===== Info Sidebar Card ===== */
+        .info-sidebar-card {
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #ffffff 0%, #f2f3f6 100%);
+            color: #fff;
+        }
+        .info-sidebar-card .tip-item {
+            display: flex;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+        .info-sidebar-card .tip-item:last-child { border-bottom: none; }
+        .info-sidebar-card .tip-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+<div id="layout-wrapper">
+    {% include 'base/header.html' %}
+    {% include 'base/sidebar.html' %}
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+    <div class="sidebar-left horizontal-sidebar">
+        {% include 'base/horizontal_sidebar.html' %}
+    </div>
+
+    <div class="main-content">
+        <div class="page-content">
+            <div class="container-fluid">
+
+                <!-- ===== Page Heading ===== -->
+                <div class="row align-items-center mb-4">
+                    <div class="col-md-7">
+                        <h4 class="mb-1 fw-bold">
+                            {% if is_update %}
+                            <i class="mdi mdi-pencil-circle-outline text-primary me-2"></i>Edit Monthly Target
+                            {% else %}
+                            <i class="mdi mdi-bullseye-arrow text-primary me-2"></i>Set Monthly Target
+                            {% endif %}
+                        </h4>
+                        <p class="text-muted mb-0 fs-13">
+                            {% if is_update %}Update targets for this staff member's performance period.
+                            {% else %}Define measurable monthly targets to track your team's productivity.{% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-5 text-md-end mt-2 mt-md-0">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb justify-content-md-end m-0">
+                                <li class="breadcrumb-item"><a href="{% url 'sales:performance_monitoring' %}">Performance</a></li>
+                                <li class="breadcrumb-item"><a href="{% url 'sales:staff_target_list' %}">Targets</a></li>
+                                <li class="breadcrumb-item active">{% if is_update %}Edit{% else %}Add{% endif %}</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- ===== Main Layout ===== -->
+                <div class="row g-4">
+
+                    <!-- Left: Form -->
+                    <div class="col-xl-8">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom py-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar avatar-sm avatar-circle bg-soft-primary text-primary">
+                                        <i class="mdi mdi-chart-line-variant"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-0 fw-bold">Target Configuration</h5>
+                                        <p class="text-muted mb-0 fs-12">Fill in all 6 performance metrics below</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-4">
+
+                                <!-- Non-field / Global Errors -->
+                                {% if form.non_field_errors %}
+                                <div class="non-field-errors">
+                                    <div class="d-flex align-items-start gap-2">
+                                        <i class="mdi mdi-alert-circle-outline text-danger fs-18 mt-1 flex-shrink-0"></i>
+                                        <div>
+                                            <p class="fw-semibold mb-1 text-danger">Please fix the following errors:</p>
+                                            {% for error in form.non_field_errors %}
+                                            <p class="mb-0 fs-13 text-danger">{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <form method="post" id="targetForm" novalidate>
+                                    {% csrf_token %}
+
+                                    <!-- ─── Section 1: Assignment ─── -->
+                                    <div class="section-divider">
+                                        <div class="section-divider-icon bg-primary-subtle">
+                                            <i class="mdi mdi-account-circle-outline text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="text-primary">Assignment</h6>
+                                            <small class="text-muted fw-normal" style="text-transform:none;letter-spacing:0;">Staff member &amp; target period</small>
+                                        </div>
+                                        <div class="section-divider-line"></div>
+                                    </div>
+
+                                    <div class="row g-3 mb-4">
+                                        <!-- Staff Member -->
+                                        <div class="col-12 {% if form.staff.errors %}field-error-wrap{% endif %}">
+                                            <label class="form-label fw-semibold" for="{{ form.staff.id_for_label }}">
+                                                Staff Member <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="mdi mdi-account-outline text-muted"></i>
+                                                </span>
+                                                {{ form.staff }}
+                                            </div>
+                                            {% if form.staff.errors %}
+                                            <div class="error-msg">
+                                                <i class="mdi mdi-alert-circle-outline"></i> {{ form.staff.errors.0 }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Month -->
+                                        <div class="col-md-6 {% if form.month.errors %}field-error-wrap{% endif %}">
+                                            <label class="form-label fw-semibold" for="{{ form.month.id_for_label }}">
+                                                Month <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="mdi mdi-calendar-month-outline text-muted"></i>
+                                                </span>
+                                                {{ form.month }}
+                                            </div>
+                                            {% if form.month.errors %}
+                                            <div class="error-msg">
+                                                <i class="mdi mdi-alert-circle-outline"></i> {{ form.month.errors.0 }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Year -->
+                                        <div class="col-md-6 {% if form.year.errors %}field-error-wrap{% endif %}">
+                                            <label class="form-label fw-semibold" for="{{ form.year.id_for_label }}">
+                                                Year <span class="text-danger">*</span>
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">
+                                                    <i class="mdi mdi-calendar-outline text-muted"></i>
+                                                </span>
+                                                {{ form.year }}
+                                            </div>
+                                            {% if form.year.errors %}
+                                            <div class="error-msg">
+                                                <i class="mdi mdi-alert-circle-outline"></i> {{ form.year.errors.0 }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <!-- ─── Section 2: Activity Targets ─── -->
+                                    <div class="section-divider">
+                                        <div class="section-divider-icon bg-info-subtle">
+                                            <i class="mdi mdi-chart-bar text-info"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="text-info">Activity Targets</h6>
+                                            <small class="text-muted fw-normal" style="text-transform:none;letter-spacing:0;">Set monthly numeric goals for each activity</small>
+                                        </div>
+                                        <div class="section-divider-line"></div>
+                                    </div>
+
+                                    <div class="row g-3 mb-4">
+
+                                        <!-- Leads -->
+                                        <div class="col-md-4 {% if form.leads_target.errors %}field-error-wrap{% endif %}">
+                                            <div class="metric-input-card">
+                                                <div class="metric-icon bg-info-subtle">
+                                                    <i class="mdi mdi-account-plus-outline text-info"></i>
+                                                </div>
+                                                <label for="{{ form.leads_target.id_for_label }}">Leads Target</label>
+                                                {{ form.leads_target }}
+                                                <p class="metric-help">No. of new leads to generate</p>
+                                            </div>
+                                            {% if form.leads_target.errors %}
+                                            <div class="error-msg"><i class="mdi mdi-alert-circle-outline"></i> {{ form.leads_target.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Calls -->
+                                        <div class="col-md-4 {% if form.calls_target.errors %}field-error-wrap{% endif %}">
+                                            <div class="metric-input-card">
+                                                <div class="metric-icon bg-warning-subtle">
+                                                    <i class="mdi mdi-phone-outline text-warning"></i>
+                                                </div>
+                                                <label for="{{ form.calls_target.id_for_label }}">Calls Target</label>
+                                                {{ form.calls_target }}
+                                                <p class="metric-help">Total outbound calls expected</p>
+                                            </div>
+                                            {% if form.calls_target.errors %}
+                                            <div class="error-msg"><i class="mdi mdi-alert-circle-outline"></i> {{ form.calls_target.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Meetings -->
+                                        <div class="col-md-4 {% if form.meetings_target.errors %}field-error-wrap{% endif %}">
+                                            <div class="metric-input-card">
+                                                <div class="metric-icon bg-primary-subtle">
+                                                    <i class="mdi mdi-calendar-check-outline text-primary"></i>
+                                                </div>
+                                                <label for="{{ form.meetings_target.id_for_label }}">Meetings Target</label>
+                                                {{ form.meetings_target }}
+                                                <p class="metric-help">Scheduled client meetings</p>
+                                            </div>
+                                            {% if form.meetings_target.errors %}
+                                            <div class="error-msg"><i class="mdi mdi-alert-circle-outline"></i> {{ form.meetings_target.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Proposals -->
+                                        <div class="col-md-4 {% if form.proposals_target.errors %}field-error-wrap{% endif %}">
+                                            <div class="metric-input-card">
+                                                <div class="metric-icon bg-secondary-subtle">
+                                                    <i class="mdi mdi-file-document-outline text-secondary"></i>
+                                                </div>
+                                                <label for="{{ form.proposals_target.id_for_label }}">Proposals Target</label>
+                                                {{ form.proposals_target }}
+                                                <p class="metric-help">Proposals or quotes to send</p>
+                                            </div>
+                                            {% if form.proposals_target.errors %}
+                                            <div class="error-msg"><i class="mdi mdi-alert-circle-outline"></i> {{ form.proposals_target.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Deals -->
+                                        <div class="col-md-4 {% if form.deals_target.errors %}field-error-wrap{% endif %}">
+                                            <div class="metric-input-card">
+                                                <div class="metric-icon bg-success-subtle">
+                                                    <i class="mdi mdi-handshake-outline text-success"></i>
+                                                </div>
+                                                <label for="{{ form.deals_target.id_for_label }}">Deals Target</label>
+                                                {{ form.deals_target }}
+                                                <p class="metric-help">Deals to close this month</p>
+                                            </div>
+                                            {% if form.deals_target.errors %}
+                                            <div class="error-msg"><i class="mdi mdi-alert-circle-outline"></i> {{ form.deals_target.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Revenue -->
+                                        <div class="col-md-4 {% if form.revenue_target.errors %}field-error-wrap{% endif %}">
+                                            <div class="metric-input-card" style="border-color: #e8e0ff;">
+                                                <div class="metric-icon" style="background:rgba(114,57,234,0.1);">
+                                                    <i class="mdi mdi-currency-inr" style="color:#7239ea;"></i>
+                                                </div>
+                                                <label for="{{ form.revenue_target.id_for_label }}" style="color:#7239ea;">Revenue Target (₹)</label>
+                                                {{ form.revenue_target }}
+                                                <p class="metric-help">Revenue in ₹ to generate</p>
+                                            </div>
+                                            {% if form.revenue_target.errors %}
+                                            <div class="error-msg"><i class="mdi mdi-alert-circle-outline"></i> {{ form.revenue_target.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                    </div>
+
+                                    <!-- ─── Form Actions ─── -->
+                                    <div class="form-actions">
+                                        <a href="{% url 'sales:staff_target_list' %}" class="btn btn-light border px-4">
+                                            <i class="mdi mdi-arrow-left me-1"></i> Cancel
+                                        </a>
+                                        <button type="submit" class="btn btn-primary px-4" id="submitBtn">
+                                            <span class="spinner-border spinner-border-sm me-2 d-none" id="loadingSpinner"></span>
+                                            {% if is_update %}
+                                            <i class="mdi mdi-content-save-outline me-1" id="submitIcon"></i>
+                                            <span id="submitText">Update Target</span>
+                                            {% else %}
+                                            <i class="mdi mdi-check-circle-outline me-1" id="submitIcon"></i>
+                                            <span id="submitText">Save Target</span>
+                                            {% endif %}
+                                        </button>
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Info Sidebar -->
+                    <div class="col-xl-4">
+
+                        <!-- How Targets Work -->
+                        <div class="card info-sidebar-card shadow-sm mb-3">
+                            <div class="card-body p-4">
+                                <h6 class="fw-bold mb-3" style="opacity:0.9;">
+                                    <i class="mdi mdi-information-outline me-2"></i>How Targets Work
+                                </h6>
+                                <div class="tip-item">
+                                    <div class="tip-icon"><i class="mdi mdi-bullseye-arrow fs-16"></i></div>
+                                    <div>
+                                        <p class="fw-semibold mb-0 fs-13">Monthly Reset</p>
+                                        <p class="mb-0 fs-12" style="opacity:0.75;">Each month has its own target. Performance is automatically compared at month-end.</p>
+                                    </div>
+                                </div>
+                                <div class="tip-item">
+                                    <div class="tip-icon"><i class="mdi mdi-progress-check fs-16"></i></div>
+                                    <div>
+                                        <p class="fw-semibold mb-0 fs-13">Auto-Tracked</p>
+                                        <p class="mb-0 fs-12" style="opacity:0.75;">Activity logging (calls, meetings, proposals) updates counters in real-time.</p>
+                                    </div>
+                                </div>
+                                <div class="tip-item">
+                                    <div class="tip-icon"><i class="mdi mdi-star-outline fs-16"></i></div>
+                                    <div>
+                                        <p class="fw-semibold mb-0 fs-13">Ratings</p>
+                                        <p class="mb-0 fs-12" style="opacity:0.75;">Staff are rated as Top Performer, On Track, Needs Push, or Needs Review based on combined achievement.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Required Fields Note -->
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <h6 class="fw-bold mb-3 text-dark">
+                                    <i class="mdi mdi-clipboard-text-outline text-primary me-2"></i>Required Fields
+                                </h6>
+                                <ul class="list-unstyled mb-0">
+                                    <li class="d-flex align-items-center gap-2 py-2 border-bottom">
+                                        <i class="mdi mdi-check-circle text-success fs-16"></i>
+                                        <span class="fs-13">Staff Member — who this target is for</span>
+                                    </li>
+                                    <li class="d-flex align-items-center gap-2 py-2 border-bottom">
+                                        <i class="mdi mdi-check-circle text-success fs-16"></i>
+                                        <span class="fs-13">Month &amp; Year — the performance period</span>
+                                    </li>
+                                    <li class="d-flex align-items-center gap-2 py-2 border-bottom">
+                                        <i class="mdi mdi-check-circle text-success fs-16"></i>
+                                        <span class="fs-13">At least one activity target value</span>
+                                    </li>
+                                    <li class="d-flex align-items-center gap-2 py-2">
+                                        <i class="mdi mdi-information-outline text-info fs-16"></i>
+                                        <span class="fs-13">A target per staff per month is unique — editing updates it</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div><!-- /row -->
+            </div><!-- /container-fluid -->
+        </div><!-- /page-content -->
+
+        <footer class="footer">
+            <div class="container-fluid">
+                <div class="row align-items-center">
+                    <div class="col-sm-6">
+                        <script>document.write(new Date().getFullYear())</script> © Zentryx CRM.
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div><!-- /main-content -->
+</div><!-- /layout-wrapper -->
+
+<script>
+(function () {
+    'use strict';
+
+    const form = document.getElementById('targetForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const spinner = document.getElementById('loadingSpinner');
+    const submitIcon = document.getElementById('submitIcon');
+    const submitText = document.getElementById('submitText');
+
+    /* ── Client-side validation highlighting ── */
+    form.addEventListener('submit', function (e) {
+        let hasError = false;
+
+        // Validate required selects and inputs
+        const requiredFields = form.querySelectorAll('select[required], input[required]');
+        requiredFields.forEach(function (field) {
+            if (!field.value || field.value === '') {
+                field.classList.add('is-invalid');
+                hasError = true;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+
+        // Validate all metric number inputs are non-negative
+        form.querySelectorAll('input[type="number"]').forEach(function (inp) {
+            const val = parseFloat(inp.value);
+            if (!isNaN(val) && val < 0) {
+                inp.classList.add('is-invalid');
+                // Show inline message
+                let errEl = inp.closest('.metric-input-card');
+                if (errEl) errEl.closest('[class*="col-"]').querySelector('.error-msg') ||
+                    errEl.insertAdjacentHTML('afterend', '<div class="error-msg"><i class="mdi mdi-alert-circle-outline"></i> Value must be 0 or greater.</div>');
+                hasError = true;
+            }
+        });
+
+        if (hasError) {
+            e.preventDefault();
+            // Scroll to first error
+            const firstError = form.querySelector('.is-invalid, .field-error-wrap');
+            if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
+        // Show loading state
+        submitBtn.disabled = true;
+        spinner.classList.remove('d-none');
+        submitIcon.classList.add('d-none');
+        submitText.textContent = 'Saving...';
+    });
+
+    /* ── Live validation: remove error on input/change ── */
+    form.querySelectorAll('input, select').forEach(function (field) {
+        ['input', 'change'].forEach(function (evt) {
+            field.addEventListener(evt, function () {
+                this.classList.remove('is-invalid');
+            });
+        });
+    });
+
+    /* ── Remove negative values on blur ── */
+    form.querySelectorAll('input[type="number"]').forEach(function (inp) {
+        inp.addEventListener('blur', function () {
+            if (this.value !== '' && parseFloat(this.value) < 0) {
+                this.value = 0;
+            }
+        });
+    });
+})();
+</script>
+
+</body>
+</html>

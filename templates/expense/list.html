@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+{% load static %}
+{% include 'base/base.html'%}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Financial Expenditure Ledger | Zentry CRM </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <!-- Eva Icons -->
+    <script src="https://unpkg.com/eva-icons"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+                    <!-- Expenditure Intelligence Header -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-7">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-primary bg-gradient p-3 rounded-pill shadow-sm">
+                                    <i data-eva="file-text-outline" data-eva-fill="#ffffff" class="fs-4"></i>
+                                </div>
+                                <div>
+                                    <h3 class="fw-bold text-dark mb-1">Financial Expenditure Ledger</h3>
+                                    <p class="text-muted mb-0"><i data-eva="activity-outline" class="me-1" style="width: 16px;"></i> Monitoring corporate liabilities and settlement pipelines</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                            <div class="d-flex gap-2 justify-content-md-end">
+                                <a href="{% url 'expenses:export_csv' %}" class="btn btn-outline-secondary btn-lg rounded-3 px-4 shadow-none">
+                                    <i data-eva="download-outline" class="me-2" style="width: 18px;"></i> Export Data
+                                </a>
+                                <a href="{% url 'expenses:expense_create' %}" class="btn btn-primary btn-lg rounded-3 px-4 shadow-sm">
+                                    <i data-eva="plus-outline" class="me-2" style="width: 18px;"></i> New Entry
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Expenditure Intelligence Header (Pulse stats) -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="card border-0 shadow-sm h-100 overflow-hidden bg-white hover-up transition-all">
+                                <div class="card-body p-4 position-relative">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div class="bg-soft-primary p-3 rounded-3">
+                                            <i data-eva="credit-card-outline" data-eva-fill="var(--bs-primary)" style="width: 28px; height: 28px;"></i>
+                                        </div>
+                                        <span class="badge bg-soft-primary text-primary rounded-pill px-3 py-2 fs-11 fw-bold">TOTAL LIABILITY</span>
+                                    </div>
+                                    <h2 class="fw-bold text-dark mb-1">₹{{ stats.total|default:"0"|floatformat:2 }}</h2>
+                                    <p class="text-muted small mb-0"><i data-eva="trending-up-outline" class="text-success me-1" style="width: 14px;"></i> Base operational volume</p>
+                                    <div class="position-absolute bottom-0 end-0 opacity-10 me-n3 mb-n3" style="font-size: 80px;">
+                                        <i data-eva="credit-card-outline"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="card border-0 shadow-sm h-100 overflow-hidden bg-white hover-up transition-all">
+                                <div class="card-body p-4 position-relative border-start border-4 border-warning">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div class="bg-soft-warning p-3 rounded-3">
+                                            <i data-eva="clock-outline" data-eva-fill="var(--bs-warning)" style="width: 28px; height: 28px;"></i>
+                                        </div>
+                                        <span class="badge bg-soft-warning text-warning rounded-pill px-3 py-2 fs-11 fw-bold">IN REVIEW</span>
+                                    </div>
+                                    <h2 class="fw-bold text-dark mb-1">₹{{ stats.pending|default:"0"|floatformat:2 }}</h2>
+                                    <p class="text-muted small mb-0 font-monospace">Awaiting protocol clearance</p>
+                                    <div class="position-absolute bottom-0 end-0 opacity-10 me-n3 mb-n3" style="font-size: 80px;">
+                                        <i data-eva="clock-outline"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="card border-0 shadow-sm h-100 overflow-hidden bg-white hover-up transition-all">
+                                <div class="card-body p-4 position-relative border-start border-4 border-success">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div class="bg-soft-success p-3 rounded-3">
+                                            <i data-eva="checkmark-circle-outline" data-eva-fill="var(--bs-success)" style="width: 28px; height: 28px;"></i>
+                                        </div>
+                                        <span class="badge bg-soft-success text-success rounded-pill px-3 py-2 fs-11 fw-bold">SETTLED</span>
+                                    </div>
+                                    <h2 class="fw-bold text-dark mb-1">₹{{ stats.paid|default:"0"|floatformat:2 }}</h2>
+                                    <p class="text-muted small mb-0"><span class="text-success fw-bold">{{ stats.paid_count|default:"0" }}</span> finalized accounts</p>
+                                    <div class="position-absolute bottom-0 end-0 opacity-10 me-n3 mb-n3" style="font-size: 80px;">
+                                        <i data-eva="checkmark-circle-outline"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="card border-0 shadow-sm h-100 overflow-hidden bg-white hover-up transition-all">
+                                <div class="card-body p-4 position-relative border-start border-4 border-danger">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div class="bg-soft-danger p-3 rounded-3">
+                                            <i data-eva="alert-triangle-outline" data-eva-fill="var(--bs-danger)" style="width: 28px; height: 28px;"></i>
+                                        </div>
+                                        <span class="badge bg-soft-danger text-danger rounded-pill px-3 py-2 fs-11 fw-bold">CREDIT BALANCE</span>
+                                    </div>
+                                    <h2 class="fw-bold text-dark mb-1">₹{{ stats.balance|default:"0"|floatformat:2 }}</h2>
+                                    <p class="text-muted small mb-0">Outstanding commitment</p>
+                                    <div class="position-absolute bottom-0 end-0 opacity-10 me-n3 mb-n3" style="font-size: 80px;">
+                                        <i data-eva="alert-triangle-outline"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transaction Pipeline Matrix -->
+                    <div class="card border-0 shadow-sm mb-5 bg-white">
+                        <div class="card-header bg-white py-4 border-0">
+                            <form method="get" class="row g-3 align-items-center">
+                                <div class="col-lg-4">
+                                    <div class="input-group input-group-lg bg-light rounded-pill px-3">
+                                        <span class="bg-transparent border-0 text-muted d-flex align-items-center"><i data-eva="search" style="width: 20px;"></i></span>
+                                        <input type="text" name="search" class="form-control bg-transparent border-0 fs-15 shadow-none" 
+                                            placeholder="Search ledger by Ref ID, title, or user..." value="{{ current_search }}">
+                                    </div>
+                                </div>
+                                <div class="col-lg-2">
+                                    <select name="status" class="form-select form-select-lg rounded-pill bg-light border-0 fs-14 shadow-none px-4" onchange="this.form.submit()">
+                                        <option value="">Status: All Lifecycle</option>
+                                        <option value="draft" {% if current_status == 'draft' %}selected{% endif %}>Draft Pipeline</option>
+                                        <option value="submitted" {% if current_status == 'submitted' %}selected{% endif %}>In Review</option>
+                                        <option value="approved" {% if current_status == 'approved' %}selected{% endif %}>Approved Trace</option>
+                                        <option value="paid" {% if current_status == 'paid' %}selected{% endif %}>Settled Entries</option>
+                                        <option value="rejected" {% if current_status == 'rejected' %}selected{% endif %}>Rejected Archive</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-2">
+                                    <input type="date" name="start_date" class="form-control form-control-lg rounded-pill bg-light border-0 fs-14 shadow-none px-4" value="{{ current_start_date }}">
+                                </div>
+                                <div class="col-lg-2">
+                                    <input type="date" name="end_date" class="form-control form-control-lg rounded-pill bg-light border-0 fs-14 shadow-none px-4" value="{{ current_end_date }}">
+                                </div>
+                                <div class="col-lg-2">
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-dark btn-lg rounded-pill px-4 flex-grow-1">Apply</button>
+                                        <a href="{% url 'expenses:expense_list' %}" class="btn btn-soft-danger btn-lg rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                            <i data-eva="refresh-outline"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Bulk Control Toolbar -->
+                        <div id="bulkControl" class="card-body bg-dark text-white d-none py-3 animate__animated animate__fadeIn">
+                            <div class="container-fluid d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bg-primary p-2 rounded-circle">
+                                        <i data-eva="layers-outline" data-eva-fill="#ffffff" style="width: 18px; height: 18px;"></i>
+                                    </div>
+                                    <span class="fw-bold fs-15"><span id="selectedCount">0</span> Entities Selected</span>
+                                </div>
+                                <div class="d-flex gap-3">
+                                    <button type="submit" form="bulkActionForm" name="bulk_action" value="approve" class="btn btn-success rounded-pill px-4">
+                                        <i data-eva="checkmark-outline" class="me-1"></i> Bulk Approve
+                                    </button>
+                                    <button type="submit" form="bulkActionForm" name="bulk_action" value="delete" class="btn btn-danger rounded-pill px-4" 
+                                        onclick="return confirm('Initiate secure terminal deletion?');">
+                                        <i data-eva="trash-2-outline" class="me-1"></i> Terminal Delete
+                                    </button>
+                                    <button type="button" class="btn btn-link text-white text-decoration-none" onclick="cancelSelection()">Discard Selection</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <form id="bulkActionForm" method="post" action="{% url 'expenses:bulk_actions' %}">
+                                    {% csrf_token %}
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead>
+                                            <tr class="bg-soft-light text-muted fs-11 text-uppercase fw-bold letter-spacing-1">
+                                                <th style="width: 60px;" class="ps-4 py-3">
+                                                    <div class="form-check custom-checkbox">
+                                                        <input class="form-check-input" type="checkbox" id="checkAll">
+                                                    </div>
+                                                </th>
+                                                <th class="py-3">Exp ID</th>
+                                                <th class="py-3">Expenditure Profile</th>
+                                                <th class="py-3">Financial Nexus</th>
+                                                <th class="py-3">Timeline</th>
+                                                <th class="py-3">Workflow State</th>
+                                                <th class="text-end pe-4 py-3">Operations</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for expense in expenses %}
+                                            <tr class="transition-all hover-soft-primary border-bottom border-light">
+                                                <td class="ps-4">
+                                                    <div class="form-check custom-checkbox">
+                                                        <input class="form-check-input expense-checkbox" type="checkbox" name="expense_ids" value="{{ expense.pk }}">
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <a href="{% url 'expenses:expense_detail' expense.pk %}" class="fw-bold font-monospace text-primary">#{{ expense.expense_number }}</a>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-3">
+                                                        <div class="avatar-md bg-soft-info text-info rounded-circle d-flex align-items-center justify-content-center shadow-sm fw-bold">
+                                                            {{ expense.title|slice:":1"|upper }}
+                                                        </div>
+                                                        <div>
+                                                            <h6 class="fw-bold text-dark mb-0 fs-14">{{ expense.title }}</h6>
+                                                            <div class="d-flex align-items-center mt-1">
+                                                                <i data-eva="person-outline" class="text-muted me-1" style="width: 12px;"></i>
+                                                                <span class="text-muted small">Origin: {{ expense.created_by.username|title }}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="fw-bold text-dark fs-15">₹{{ expense.total_amount|floatformat:2 }}</div>
+                                                    {% if expense.tax_amount %}
+                                                    <div class="badge bg-soft-secondary text-secondary fs-10 mt-1">VAT/Tax Included: ₹{{ expense.tax_amount }}</div>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <div class="text-dark fw-medium small">{{ expense.expense_date|date:"d M, Y" }}</div>
+                                                    <div class="text-muted fs-10 d-flex align-items-center gap-1">
+                                                        <i data-eva="clock-outline" style="width: 10px;"></i> {{ expense.created_at|timesince }} ago
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    {% if expense.status == 'draft' %}
+                                                    <span class="badge-status bg-secondary">Draft</span>
+                                                    {% elif expense.status == 'submitted' %}
+                                                    <span class="badge-status bg-info">In Review</span>
+                                                    {% elif expense.status == 'approved' %}
+                                                    <span class="badge-status bg-warning pulse-warning">Approved</span>
+                                                    {% elif expense.status == 'paid' %}
+                                                    <span class="badge-status bg-success">Settled</span>
+                                                    {% elif expense.status == 'rejected' %}
+                                                    <span class="badge-status bg-danger">Rejected</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-end pe-4">
+                                                    <div class="d-flex justify-content-end gap-2">
+                                                        <a href="{% url 'expenses:expense_detail' expense.pk %}" class="btn btn-icon btn-soft-primary" data-bs-toggle="tooltip" title="Analysis View">
+                                                            <i data-eva="eye-outline"></i>
+                                                        </a>
+                                                        {% if expense.status == 'draft' %}
+                                                        <a href="{% url 'expenses:expense_edit' expense.pk %}" class="btn btn-icon btn-soft-info" data-bs-toggle="tooltip" title="Protocol Refresh">
+                                                            <i data-eva="edit-2-outline"></i>
+                                                        </a>
+                                                        {% endif %}
+                                                        <a href="{% url 'expenses:expense_delete' expense.pk %}" class="btn btn-icon btn-soft-danger" onclick="return confirm('Execute secure terminal deletion?');" data-bs-toggle="tooltip" title="Terminal Dismissal">
+                                                            <i data-eva="trash-2-outline"></i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="7" class="text-center py-5 bg-soft-light transition-all">
+                                                    <div class="py-5">
+                                                        <div class="bg-white p-4 rounded-circle shadow-sm d-inline-block mb-4">
+                                                            <i data-eva="folder-outline" data-eva-fill="var(--bs-primary)" style="width: 48px; height: 48px;"></i>
+                                                        </div>
+                                                        <h4 class="fw-bold text-dark mb-2">Matrix Void Detected</h4>
+                                                        <p class="text-muted mb-4 fs-15">No expenditure records match the current transmission parameters.</p>
+                                                        <a href="{% url 'expenses:expense_create' %}" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm">
+                                                            <i data-eva="plus-outline" class="me-2"></i> Initialize New Record
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Matrix Footer Control -->
+                        {% if is_paginated %}
+                        <div class="card-footer bg-white py-4 border-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="text-muted fs-13">Showing <span class="fw-bold text-dark">{{ page_obj.start_index }} - {{ page_obj.end_index }}</span> of <span class="fw-bold text-dark">{{ paginator.count }}</span> recorded expenditures</div>
+                                <ul class="pagination pagination-rounded gap-1 mb-0 shadow-none border-0">
+                                    {% if page_obj.has_previous %}
+                                    <li class="page-item"><a href="?page={{ page_obj.previous_page_number }}&search={{ current_search }}&status={{ current_status }}&start_date={{ current_start_date }}&end_date={{ current_end_date }}" class="page-link rounded-circle border-0 bg-light text-dark shadow-none"><i data-eva="chevron-left-outline" style="width: 18px;"></i></a></li>
+                                    {% endif %}
+
+                                    {% for n in paginator.page_range %}
+                                        {% if page_obj.number == n %}
+                                        <li class="page-item active"><span class="page-link rounded-circle border-0 shadow-sm">{{ n }}</span></li>
+                                        {% elif n > page_obj.number|add:'-3' and n < page_obj.number|add:'3' %}
+                                        <li class="page-item"><a href="?page={{ n }}&search={{ current_search }}&status={{ current_status }}&start_date={{ current_start_date }}&end_date={{ current_end_date }}" class="page-link rounded-circle border-0 bg-light text-dark shadow-none">{{ n }}</a></li>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if page_obj.has_next %}
+                                    <li class="page-item"><a href="?page={{ page_obj.next_page_number }}&search={{ current_search }}&status={{ current_status }}&start_date={{ current_start_date }}&end_date={{ current_end_date }}" class="page-link rounded-circle border-0 bg-light text-dark shadow-none"><i data-eva="chevron-right-outline" style="width: 18px;"></i></a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            eva.replace();
+            
+            const checkAll = document.getElementById('checkAll');
+            const checkboxes = document.querySelectorAll('.expense-checkbox');
+            const bulkControl = document.getElementById('bulkControl');
+            const selectedCount = document.getElementById('selectedCount');
+
+            function updateBulkControl() {
+                const checked = document.querySelectorAll('.expense-checkbox:checked');
+                if (checked.length > 0) {
+                    bulkControl.classList.remove('d-none');
+                    selectedCount.textContent = checked.length;
+                } else {
+                    bulkControl.classList.add('d-none');
+                }
+            }
+
+            if (checkAll) {
+                checkAll.addEventListener('change', function () {
+                    checkboxes.forEach(cb => cb.checked = checkAll.checked);
+                    updateBulkControl();
+                });
+            }
+
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', updateBulkControl);
+            });
+
+            window.cancelSelection = function () {
+                if (checkAll) checkAll.checked = false;
+                checkboxes.forEach(cb => cb.checked = false);
+                updateBulkControl();
+            };
+
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        });
+    </script>
+
+    <style>
+        :root {
+            --bs-primary: #6366f1;
+            --bs-primary-rgb: 99, 102, 241;
+            --font-family-sans-serif: 'Inter', sans-serif;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb !important;
+        }
+
+        .letter-spacing-1 { letter-spacing: 0.05em; }
+        .fs-15 { font-size: 15px; }
+        .fs-14 { font-size: 14px; }
+        .fs-11 { font-size: 11px; }
+        .fs-10 { font-size: 10px; }
+
+        .bg-soft-primary { background-color: rgba(99, 102, 241, 0.1); }
+        .bg-soft-success { background-color: rgba(34, 197, 94, 0.1); }
+        .bg-soft-warning { background-color: rgba(245, 158, 11, 0.1); }
+        .bg-soft-danger { background-color: rgba(239, 68, 68, 0.1); }
+        .bg-soft-info { background-color: rgba(6, 182, 212, 0.1); }
+        .bg-soft-light { background-color: #f8fafc; }
+        .bg-soft-secondary { background-color: rgba(100, 116, 139, 0.1); }
+
+        .hover-up:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .transition-all { transition: all 0.3s ease; }
+
+        .avatar-md {
+            width: 48px;
+            height: 48px;
+            min-width: 48px; /* Added to prevent shrinking */
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-icon i { width: 18px; }
+
+        .badge-status {
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            color: white;
+        }
+
+        .badge-status.bg-secondary { background-color: #6c757d; }
+        .badge-status.bg-info { background-color: #0dcaf0; }
+        .badge-status.bg-warning { background-color: #ffc107; }
+        .badge-status.bg-success { background-color: #198754; }
+        .badge-status.bg-danger { background-color: #dc3545; }
+
+
+        .custom-checkbox .form-check-input {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .custom-checkbox .form-check-input:checked {
+            background-color: var(--bs-primary);
+            border-color: var(--bs-primary);
+        }
+
+        .hover-soft-primary:hover {
+            background-color: rgba(99, 102, 241, 0.02) !important;
+        }
+
+        .pulse-warning {
+            animation: pulse-warning-animation 2s infinite;
+        }
+
+        @keyframes pulse-warning-animation {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
+        .pagination .page-link {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: var(--bs-primary);
+            color: white;
+        }
+
+        /* Input overrides */
+        .form-control:focus, .form-select:focus {
+            background-color: #fff !important;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+            border-color: var(--bs-primary) !important;
+        }
+    </style>
+</body>
+
+</html>

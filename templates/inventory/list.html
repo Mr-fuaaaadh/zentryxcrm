@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Asset Inventory Registry | Zentryx CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <!-- Select2 Css -->
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- App Css -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css">
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'assets/css/app.min.css' %}" id="app-style" rel="stylesheet" type="text/css">
+
+    <style>
+        :root { --inv-primary: #6366f1; --inv-success: #10b981; --inv-warning: #f59e0b; --inv-danger: #ef4444; --inv-info: #0ea5e9; }
+        .inventory-card { border: none; border-radius: 1.25rem; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; position: relative; }
+        .inventory-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .inventory-card::before { content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--card-accent, var(--inv-primary)); }
+        
+        .stat-icon-inv { width: 42px; height: 42px; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; background: #f8fafc; color: #64748b; }
+        
+        .registry-table thead th { background: #f8fafc; text-transform: uppercase; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; color: #64748b; border-top: none; padding: 1rem 1.25rem; }
+        .registry-table tbody td { padding: 1.1rem 1.25rem; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
+        
+        .asset-avatar { width: 38px; height: 38px; border-radius: 10px; background: #f1f5f9; color: #475569; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; border: 1px solid #e2e8f0; }
+        
+        .status-pill { padding: 4px 12px; border-radius: 50px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; border: 1px solid transparent; }
+        .status-healthy { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
+        .status-low { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+        .status-critical { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+        
+        .ops-ribbon { background: rgba(255,255,255,0.8); backdrop-filter: blur(8px); border: 1px solid #f1f5f9; border-radius: 1rem; padding: 1rem 1.5rem; }
+        
+        .action-btn { width: 32px; height: 32px; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; border: 1px solid #e2e8f0; background: #fff; color: #64748b; }
+        .action-btn:hover { background: #f8fafc; color: var(--inv-primary); border-color: var(--inv-primary); }
+        
+        .search-box-doc { position: relative; }
+        .search-box-doc .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .search-box-doc input { padding-left: 2.75rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; }
+    </style>
+</head>
+
+<body>
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+
+                    <!-- Header Section -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-sm-6">
+                            <h4 class="mb-1 text-dark fw-bold">Asset Inventory Intelligence</h4>
+                            <p class="text-muted fs-13 mb-0">Centralized governance for physical assets and commercial stock.</p>
+                        </div>
+                        <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+                            <div class="d-flex gap-2 justify-content-sm-end">
+                                <a href="{% url 'inventory:export_inventory_csv' %}?{{ request.GET.urlencode }}" class="btn btn-light border px-3 fw-bold">
+                                    <i class="mdi mdi-download-outline me-1"></i> Export Data
+                                </a>
+                                <a href="{% url 'inventory:asset_add' %}" class="btn btn-primary px-4 fw-bold shadow-sm">
+                                    <i class="mdi mdi-plus-circle-outline me-2"></i> Initialize New Asset
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inventory Pulse -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="inventory-card p-4" style="--card-accent: #6366f1;">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <div class="stat-icon-inv" style="color: #6366f1; background: #eef2ff;"><i class="mdi mdi-cube-scan"></i></div>
+                                    <span class="text-muted fs-11 fw-bold text-uppercase ls-1">Total Assets</span>
+                                </div>
+                                <h3 class="fw-bold mb-1">{{ total_count }}</h3>
+                                <p class="text-muted fs-12 mb-0">Managed units in registry</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="inventory-card p-4" style="--card-accent: #0ea5e9;">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <div class="stat-icon-inv" style="color: #0ea5e9; background: #e0f2fe;"><i class="mdi mdi-barcode"></i></div>
+                                    <span class="text-muted fs-11 fw-bold text-uppercase ls-1">Serialized</span>
+                                </div>
+                                <h3 class="fw-bold mb-1">{{ serialized_count }}</h3>
+                                <p class="text-muted fs-12 mb-0">Tracked via unique identifiers</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="inventory-card p-4" style="--card-accent: #ef4444;">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <div class="stat-icon-inv" style="color: #ef4444; background: #fef2f2;"><i class="mdi mdi-alert-decagram-outline"></i></div>
+                                    <span class="text-muted fs-11 fw-bold text-uppercase ls-1">Critical Stock</span>
+                                </div>
+                                <h3 class="fw-bold mb-1 text-danger">{{ low_stock_count }}</h3>
+                                <p class="text-muted fs-12 mb-0">Items below threshold level</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="inventory-card p-4" style="--card-accent: #10b981;">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <div class="stat-icon-inv" style="color: #10b981; background: #dcfce7;"><i class="mdi mdi-bank-outline"></i></div>
+                                    <span class="text-muted fs-11 fw-bold text-uppercase ls-1">Portfolio Value</span>
+                                </div>
+                                <h3 class="fw-bold mb-1">₹{{ total_inventory_value|floatformat:2 }}</h3>
+                                <p class="text-muted fs-12 mb-0">Aggregated capital valuation</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Ribbon -->
+                    <div class="ops-ribbon mb-4 shadow-sm">
+                        <form method="get" class="row g-3 align-items-end">
+                            <div class="col-lg-12">
+                                <div class="search-box-doc">
+                                    <i class="mdi mdi-magnify search-icon fs-18"></i>
+                                    <input type="text" name="search" class="form-control form-control-lg border-0 bg-transparent" placeholder="Search by name, SKU, UUID or technical specification..." value="{{ current_search }}">
+                                </div>
+                                <hr class="my-2 opacity-10">
+                            </div>
+                            <div class="col-lg-3">
+                                <label class="form-label fs-11 fw-bold text-uppercase text-muted">Classification</label>
+                                <select name="asset_type" class="form-select select2">
+                                    <option value="">All Asset Types</option>
+                                    {% for val, label in asset_types %}
+                                    <option value="{{ val }}" {% if current_asset_type == val %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-lg-2">
+                                <label class="form-label fs-11 fw-bold text-uppercase text-muted">Stock State</label>
+                                <select name="stock_status" class="form-select select2">
+                                    <option value="">Health: All</option>
+                                    <option value="in" {% if current_stock_status == 'in' %}selected{% endif %}>Optimal Stock</option>
+                                    <option value="low" {% if current_stock_status == 'low' %}selected{% endif %}>At Risk (Low)</option>
+                                    <option value="out" {% if current_stock_status == 'out' %}selected{% endif %}>Depleted (Out)</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-2">
+                                <label class="form-label fs-11 fw-bold text-uppercase text-muted">Organization</label>
+                                <select name="brand" class="form-select select2">
+                                    <option value="">Entity Brands: All</option>
+                                    {% for b in brands %}
+                                    <option value="{{ b }}" {% if current_brand == b %}selected{% endif %}>{{ b }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-lg-2">
+                                <label class="form-label fs-11 fw-bold text-uppercase text-muted">Sequence</label>
+                                <select name="sort" class="form-select select2">
+                                    <option value="-created">Temporal: Newest</option>
+                                    <option value="name" {% if current_sort == 'name' %}selected{% endif %}>Lexical: A-Z</option>
+                                    <option value="-stock" {% if current_sort == '-stock' %}selected{% endif %}>Volume: Decr</option>
+                                    <option value="-price" {% if current_sort == '-price' %}selected{% endif %}>Capital: Decr</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-3 d-flex gap-2">
+                                <button type="submit" class="btn btn-dark w-100 fw-bold py-2">Execute Filter</button>
+                                <a href="{% url 'inventory:asset_list' %}" class="btn btn-light border px-3 py-2" title="Reset Ribbon"><i class="mdi mdi-refresh"></i></a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Registry Matrix -->
+                    <div class="inventory-card border-0 mb-5">
+                        <form id="bulkActionForm" method="post" action="{% url 'inventory:asset_bulk_delete' %}">
+                            {% csrf_token %}
+                            
+                            <!-- Bulk Intelligence Ribbon -->
+                            <div id="bulkToolbar" class="d-none px-4 py-3 bg-soft-warning border-bottom border-warning-subtle d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar avatar-xs bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style="width:24px; height:24px;">
+                                        <i class="mdi mdi-checkbox-multiple-marked fs-12"></i>
+                                    </div>
+                                    <span id="selectedCountText" class="fw-bold text-warning-emphasis fs-13">0 Managed items selected</span>
+                                </div>
+                                <button type="submit" class="btn btn-danger btn-sm px-3 fw-bold shadow-sm" onclick="return confirm('Initiate bulk deletion protocol?');">
+                                    <i class="mdi mdi-delete-sweep-outline me-1"></i> Terminate Selected
+                                </button>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table registry-table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 50px;" class="ps-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input shadow-none" type="checkbox" id="checkAll">
+                                                </div>
+                                            </th>
+                                            <th>Asset Identity</th>
+                                            <th>Protocol Ref</th>
+                                            <th>Organization Detail</th>
+                                            <th>Inventory State</th>
+                                            <th>Health State</th>
+                                            <th>Commercial Valuation</th>
+                                            <th class="text-end pe-4">Operations</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for asset in assets %}
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input asset-checkbox shadow-none" type="checkbox" name="asset_ids" value="{{ asset.pk }}">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <div class="asset-avatar">
+                                                        {{ asset.name|slice:":1"|upper }}
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0 fw-bold text-dark fs-14"><a href="{% url 'inventory:asset_detail' asset.pk %}" class="text-dark">{{ asset.name }}</a></h6>
+                                                        <span class="text-muted fs-11 fw-medium text-uppercase ls-1">{{ asset.get_asset_type_display }}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <code class="fs-12 text-primary fw-bold">{{ asset.asset_code }}</code>
+                                                {% if asset.is_serialized %}
+                                                <div class="mt-1"><span class="badge bg-soft-info text-info border-info-subtle" style="font-size: 9px; padding: 2px 6px;">SERIALIZED</span></div>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-column gap-1">
+                                                    <span class="text-dark fs-13 fw-semibold"><i class="mdi mdi-domain me-1 text-muted"></i>{{ asset.brand|default:"Generic" }}</span>
+                                                    <small class="text-muted"><i class="mdi mdi-cpu-64-bit me-1"></i>{{ asset.model_number|default:"Standard" }}</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-column">
+                                                    <span class="fw-800 text-dark fs-14">{{ asset.total_stock }} <small class="text-muted fw-normal">{{ asset.unit }}</small></span>
+                                                    <small class="{% if asset.available_stock < asset.min_stock_level %}text-danger fw-bold{% else %}text-muted{% endif %}" style="font-size: 11px;">
+                                                        AVAIL: {{ asset.available_stock }}
+                                                    </small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="status-pill 
+                                                    {% if asset.total_stock == 0 %}status-critical
+                                                    {% elif asset.total_stock < asset.min_stock_level %}status-low
+                                                    {% else %}status-healthy{% endif %}">
+                                                    {% if asset.total_stock == 0 %}DEPLETED
+                                                    {% elif asset.total_stock < asset.min_stock_level %}LOW VOLUME
+                                                    {% else %}STABLE{% endif %}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="fw-bold text-dark fs-14">₹{{ asset.default_selling_price|floatformat:2 }}</div>
+                                                <small class="text-muted fs-11">COST: ₹{{ asset.default_purchase_price|floatformat:2 }}</small>
+                                            </td>
+                                            <td class="text-end pe-4">
+                                                <div class="d-flex gap-1 justify-content-end">
+                                                    <a href="{% url 'inventory:asset_detail' asset.pk %}" class="action-btn" title="Inspect Detail">
+                                                        <i class="mdi mdi-eye-outline"></i>
+                                                    </a>
+                                                    <a href="{% url 'inventory:asset_edit' asset.pk %}" class="action-btn" title="Modify Asset">
+                                                        <i class="mdi mdi-pencil-outline"></i>
+                                                    </a>
+                                                    <a href="{% url 'inventory:stock_update' asset.pk %}" class="action-btn" title="Adjust Inventory">
+                                                        <i class="mdi mdi-package-variant"></i>
+                                                    </a>
+                                                    <a href="{% url 'inventory:asset_assign' id=asset.pk %}" class="action-btn text-success" title="Execute Assignment">
+                                                        <i class="mdi mdi-account-plus-outline"></i>
+                                                    </a>
+                                                    <button type="button" class="action-btn text-danger delete-asset" 
+                                                            data-url="{% url 'inventory:asset_delete' asset.pk %}" 
+                                                            data-name="{{ asset.name }}"
+                                                            title="Archive Asset">
+                                                        <i class="mdi mdi-delete-outline"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="8" class="text-center py-5">
+                                                <div class="opacity-25 mb-3">
+                                                    <i class="mdi mdi-archive-off-outline display-4"></i>
+                                                </div>
+                                                <h5 class="fw-bold text-dark">No Assets in Registry</h5>
+                                                <p class="text-muted fs-13">Initiate inventory management by deploying your first managed asset.</p>
+                                                <a href="{% url 'inventory:asset_add' %}" class="btn btn-primary btn-sm px-4 mt-2">Initialize Asset</a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </form>
+
+                        {% if is_paginated %}
+                        <div class="card-footer bg-white border-top py-4 px-4">
+                            <div class="row align-items-center">
+                                <div class="col-sm-6">
+                                    <p class="text-muted mb-0 fs-13">Displaying page <strong>{{ page_obj.number }}</strong> of <strong>{{ paginator.num_pages }}</strong> in global registry</p>
+                                </div>
+                                <div class="col-sm-6 text-sm-end">
+                                    <ul class="pagination pagination-rounded justify-content-end mb-0">
+                                        {% if page_obj.has_previous %}
+                                        <li class="page-item"><a class="page-link shadow-none" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode|safe }}"><i class="mdi mdi-chevron-left"></i></a></li>
+                                        {% endif %}
+                                        {% for num in paginator.page_range %}
+                                            {% if page_obj.number == num %}
+                                                <li class="page-item active"><a class="page-link shadow-none" href="#">{{ num }}</a></li>
+                                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                                <li class="page-item"><a class="page-link shadow-none" href="?page={{ num }}&{{ request.GET.urlencode|safe }}">{{ num }}</a></li>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if page_obj.has_next %}
+                                        <li class="page-item"><a class="page-link shadow-none" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode|safe }}"><i class="mdi mdi-chevron-right"></i></a></li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+            {% include 'base/footer.html' %}
+        </div>
+    </div>
+
+    <!-- Termination Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-body text-center p-5">
+                    <div class="avatar avatar-lg bg-danger-subtle text-danger mx-auto mb-4" style="width:70px; height:70px; border-radius:1.5rem; display:flex; align-items:center; justify-content:center; font-size:1.8rem;">
+                        <i class="mdi mdi-archive-remove-outline"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark">Terminate Asset Record?</h4>
+                    <p class="text-muted fs-14">Asset <strong id="asset-name-text" class="text-dark"></strong> will be archived. All associated inventory logic for this record will be deactivated.</p>
+                    <div class="mt-4 d-flex gap-2 justify-content-center">
+                        <button type="button" class="btn btn-light px-4 fw-bold border" data-bs-dismiss="modal">Cancel</button>
+                        <form id="delete-form" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger px-4 fw-bold shadow-sm">Confirm Termination</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/libs/metismenu/metisMenu.min.js' %}"></script>
+    <script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/app.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            if ($.fn.select2) {
+                $('.select2').select2({ width: '100%', minimumResultsForSearch: Infinity });
+            }
+
+            // Bulk Action Logic
+            const checkAll = document.getElementById('checkAll');
+            const assetCheckboxes = document.querySelectorAll('.asset-checkbox');
+            const bulkToolbar = document.getElementById('bulkToolbar');
+            const selectedCountText = document.getElementById('selectedCountText');
+
+            function updateToolbar() {
+                const checkedCount = document.querySelectorAll('.asset-checkbox:checked').length;
+                if (checkedCount > 0) {
+                    bulkToolbar.classList.remove('d-none');
+                    bulkToolbar.classList.add('d-flex');
+                    selectedCountText.textContent = `${checkedCount} Managed items selected`;
+                } else {
+                    bulkToolbar.classList.add('d-none');
+                    bulkToolbar.classList.remove('d-flex');
+                }
+            }
+
+            if (checkAll) {
+                checkAll.addEventListener('change', function() {
+                    assetCheckboxes.forEach(cb => cb.checked = checkAll.checked);
+                    updateToolbar();
+                });
+            }
+
+            assetCheckboxes.forEach(cb => cb.addEventListener('change', updateToolbar));
+
+            // Individual Delete Logic
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            const deleteForm = document.getElementById('delete-form');
+            const nameText = document.getElementById('asset-name-text');
+
+            $('.delete-asset').on('click', function() {
+                deleteForm.action = $(this).data('url');
+                nameText.textContent = $(this).data('name');
+                deleteModal.show();
+            });
+        });
+    </script>
+</body>
+</html>

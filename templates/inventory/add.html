@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>{% if is_update %}Refine{% else %}Initialize{% endif %} Asset | Zentryx CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <!-- Select2 Css -->
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- App Css -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css">
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'assets/css/app.min.css' %}" id="app-style" rel="stylesheet" type="text/css">
+
+    <style>
+        :root { --ast-primary: #6366f1; --ast-secondary: #f8fafc; --ast-border: #e2e8f0; }
+        .canvas-card { border: none; border-radius: 1.5rem; background: #fff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); border: 1px solid var(--ast-border); }
+        .canvas-label { font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+        
+        .form-control-ast, .form-select-ast { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.85rem; padding: 0.75rem 1.1rem; font-size: 0.9rem; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .form-control-ast:focus, .form-select-ast:focus { background: #fff; border-color: var(--ast-primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12); outline: none; }
+        
+        .section-separator { height: 1px; background: #f1f5f9; margin: 2rem 0; width: 100%; }
+        
+        .type-pill { background: #eef2ff; color: #4338ca; font-weight: 700; font-size: 0.75rem; padding: 4px 12px; border-radius: 50px; }
+        
+        .sticky-ops { position: sticky; top: 1.5rem; }
+        .ops-card { background: #1e293b; border-radius: 1.25rem; color: #fff; padding: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+        
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+
+                    <!-- Title Ribbon -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-sm-6">
+                            <h4 class="mb-1 text-dark fw-bold">Strategic Asset Initialization</h4>
+                            <p class="text-muted fs-13 mb-0">{% if is_update %}Refining managed asset protocol Ref #{{ form.asset_code.value }}{% else %}Configuring new physical or commercial asset for the global registry{% endif %}</p>
+                        </div>
+                        <div class="col-sm-6 text-sm-end">
+                            <a href="{% url 'inventory:asset_list' %}" class="btn btn-light border px-4 fw-bold">
+                                <i class="mdi mdi-arrow-left me-2"></i> Registry
+                            </a>
+                        </div>
+                    </div>
+
+                    <form method="post" id="asset-form">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-4">
+                            {% for error in form.non_field_errors %}<div class="fw-bold fs-13">{{ error }}</div>{% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="row g-4">
+                            <!-- Main Configuration Canvas -->
+                            <div class="col-xl-8">
+                                <div class="canvas-card p-4 p-md-5">
+                                    <div class="canvas-label"><i class="mdi mdi-identifier text-primary"></i> Identity Protocols</div>
+                                    <div class="row g-4 mb-4">
+                                        <div class="col-md-8">
+                                            <label class="form-label text-muted fs-11 fw-bold text-uppercase">Commercial Designation</label>
+                                            {{ form.name }}
+                                            {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label text-muted fs-11 fw-bold text-uppercase">Resource Code (SKU/TAG)</label>
+                                            {{ form.asset_code }}
+                                            {% if form.asset_code.errors %}<div class="text-danger small mt-1">{{ form.asset_code.errors.0 }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label text-muted fs-11 fw-bold text-uppercase">Asset Classification</label>
+                                            {{ form.asset_type }}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label text-muted fs-11 fw-bold text-uppercase">Measurement Unit</label>
+                                            {{ form.unit }}
+                                        </div>
+                                    </div>
+
+                                    <div class="section-separator"></div>
+
+                                    <div class="canvas-label"><i class="mdi mdi-finance text-success"></i> Commercial Dynamics</div>
+                                    <div class="row g-4 mb-4">
+                                        <div class="col-md-4">
+                                            <label class="form-label text-muted fs-11 fw-bold text-uppercase">Acquisition Value (Cost)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">₹</span>
+                                                {{ form.default_purchase_price }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label text-muted fs-11 fw-bold text-uppercase">Target Yield (Sale Price)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light border-end-0">₹</span>
+                                                {{ form.default_selling_price }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label text-muted fs-11 fw-bold text-uppercase">Risk Threshold (Min Stock)</label>
+                                            {{ form.min_stock_level }}
+                                        </div>
+                                    </div>
+
+                                    <div class="section-separator"></div>
+
+                                    <div class="canvas-label"><i class="mdi mdi-script-text-outline text-warning"></i> Operational Description</div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            {{ form.description }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Contextual Operations -->
+                            <div class="col-xl-4">
+                                <div class="sticky-ops">
+                                    <div class="ops-card mb-4">
+                                        <h6 class="text-white-50 fs-11 fw-bold text-uppercase ls-1 mb-4">Registry Protocol</h6>
+                                        
+                                        <div class="form-check form-switch form-switch-lg mb-4">
+                                            {{ form.is_serialized }}
+                                            <label class="form-check-label text-white-50 fs-13" for="{{ form.is_serialized.id_for_label }}">Serialization Protocol</label>
+                                        </div>
+                                        
+                                        <p class="text-white-50 fs-12 opacity-75 mb-4">
+                                            Activating <strong>Serialization</strong> requires each unit to have a unique alphanumeric sequence for precision tracking. Ideal for hardware and mobile assets.
+                                        </p>
+                                        
+                                        <div class="d-grid gap-2">
+                                            <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">
+                                                <i class="mdi mdi-cloud-upload-outline me-2"></i> {% if is_update %}Commit Refinements{% else %}Execute Initialization{% endif %}
+                                            </button>
+                                            <button type="button" class="btn btn-outline-light btn-sm border-white-subtle opacity-75" onclick="history.back()">Abort Protocol</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert bg-white border shadow-sm rounded-4 p-4">
+                                        <div class="d-flex gap-3">
+                                            <div class="avatar avatar-sm bg-info-subtle text-info mt-1" style="width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                                                <i class="mdi mdi-link-variant"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="fw-bold text-dark mb-1">Entity Relation</h6>
+                                                <p class="text-muted fs-12 mb-0">Once initialized, this asset will be available for <strong>Assignment Protocols</strong> across the staff network.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% include 'base/footer.html' %}
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/libs/metismenu/metisMenu.min.js' %}"></script>
+    <script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/app.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            if ($.fn.select2) {
+                $('.select2-ast').select2({ width: '100%', minimumResultsForSearch: Infinity });
+                $('#id_asset_type').select2({ width: '100%', placeholder: 'Select classification...' });
+            }
+            
+            // Apply consistent styling to all form controls if django-crispy or similar didn't
+            $('input[type="text"], input[type="number"], select, textarea').addClass('form-control-ast');
+            $('select').addClass('form-select-ast');
+        });
+    </script>
+</body>
+</html>

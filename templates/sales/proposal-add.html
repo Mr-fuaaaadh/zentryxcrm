@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>{% if is_update %}Refine{% else %}Compose{% endif %} Proposal | Zentryx CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <!-- Select2 Css -->
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- App Css -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css">
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'assets/css/app.min.css' %}" id="app-style" rel="stylesheet" type="text/css">
+
+    <style>
+        :root { --doc-primary: #6366f1; --doc-secondary: #f8fafc; --doc-border: #e2e8f0; }
+        .composition-canvas { background: #fff; border-radius: 1.5rem; border: 1px solid var(--doc-border); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        .canvas-section-head { font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+        .canvas-section-head::after { content: ""; flex: 1; height: 1px; background: var(--doc-border); }
+        
+        .sticky-intelligence { position: sticky; top: 1.5rem; z-index: 10; }
+        .intelligence-card { background: #1e293b; border-radius: 1.25rem; color: #fff; padding: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
+        
+        .item-matrix-table thead th { background: #f8fafc; font-size: 0.65rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; padding: 1rem; border: none; }
+        .item-matrix-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.2s; }
+        .item-matrix-table tbody tr:hover { background: #fbfcfe; }
+        
+        .form-control-doc, .form-select-doc { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.6rem 1rem; font-size: 0.875rem; transition: all 0.2s; }
+        .form-control-doc:focus, .form-select-doc:focus { background: #fff; border-color: var(--doc-primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15); outline: none; }
+        
+        .btn-add-line { background: #f0f7ff; color: #007bff; border: 1px dashed #007bff; border-radius: 0.75rem; padding: 0.5rem 1.25rem; font-weight: 700; font-size: 0.8rem; transition: all 0.2s; }
+        .btn-add-line:hover { background: #007bff; color: #fff; transform: translateY(-1px); }
+        
+        .remove-line { width: 32px; height: 32px; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #fee2e2; color: #ef4444; transition: all 0.2s; }
+        .remove-line:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
+
+        .total-display-box { border-radius: 1rem; background: rgba(255,255,255,0.05); padding: 1rem; margin-top: 1rem; }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        <div class="sidebar-left horizontal-sidebar">
+            {% include 'base/horizontal_sidebar.html' %}
+        </div>
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+
+                    <!-- Title Ribbon -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-sm-6">
+                            <h4 class="mb-1 text-dark fw-bold">Document Composition Canvas</h4>
+                            <p class="text-muted fs-13 mb-0">{% if is_update %}Refining commercial proposal Ref #{{ form.document_number.value }}{% else %}Drafting initial commercial projection{% endif %}</p>
+                        </div>
+                        <div class="col-sm-6 text-sm-end">
+                            <a href="{% url 'sales:proposal_list' %}" class="btn btn-light border px-4 fw-bold">
+                                <i class="mdi mdi-arrow-left me-2"></i> Registry
+                            </a>
+                        </div>
+                    </div>
+
+                    <form method="post" id="proposal-form">
+                        {% csrf_token %}
+                        <div class="row g-4">
+                            <!-- Main Workspace -->
+                            <div class="col-xl-9">
+                                <div class="composition-canvas p-4 p-lg-5 mb-4">
+                                    <div class="canvas-section-head">Config & Identity</div>
+                                    <div class="row g-4 mb-5">
+                                        <div class="col-md-4">
+                                            <label class="form-label text-muted fs-11 fw-bold text-uppercase">Document Identifier</label>
+                                            {{ form.document_number }}
+                                            {% if form.document_number.errors %}<div class="text-danger small mt-1">{{ form.document_number.errors.0 }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label text-muted fs-11 fw-bold text-uppercase">Commercial Entity</label>
+                                            <div class="select2-doc-parent">
+                                                {{ form.customer }}
+                                            </div>
+                                            {% if form.customer.errors %}<div class="text-danger small mt-1">{{ form.customer.errors.0 }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label text-muted fs-11 fw-bold text-uppercase">Price Level strategy</label>
+                                            {{ form.price_level }}
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label text-muted fs-11 fw-bold text-uppercase">Deployment Date</label>
+                                            {{ form.issue_date }}
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label text-muted fs-11 fw-bold text-uppercase">Fidelity Expiry</label>
+                                            {{ form.expiry_date }}
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label text-muted fs-11 fw-bold text-uppercase">Current Protocol State</label>
+                                            {{ form.status }}
+                                        </div>
+                                    </div>
+
+                                    <div class="canvas-section-head">
+                                        Line Item Matrix
+                                        <button type="button" class="btn btn-add-line ms-auto" id="add-item-btn">
+                                            <i class="mdi mdi-plus-circle-outline me-2"></i> Insert Entry
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="table-responsive mb-5">
+                                        <table class="table item-matrix-table align-middle" id="items-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 25%;">Solution/Product</th>
+                                                    <th style="width: 30%;">Operational Description</th>
+                                                    <th style="width: 10%;">Qty</th>
+                                                    <th style="width: 15%;">Unit Value</th>
+                                                    <th style="width: 10%;">Tax %</th>
+                                                    <th style="width: 10%;" class="text-end">Computed Amount</th>
+                                                    <th style="width: 50px;"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="item-formset-container">
+                                                {{ items.management_form }}
+                                                {% for item_form in items %}
+                                                <tr class="item-row">
+                                                    <td>
+                                                        {{ item_form.id }}
+                                                        {{ item_form.name }}
+                                                    </td>
+                                                    <td>{{ item_form.description }}</td>
+                                                    <td>{{ item_form.quantity }}</td>
+                                                    <td>{{ item_form.unit_price }}</td>
+                                                    <td>{{ item_form.tax_percent }}</td>
+                                                    <td class="text-end">
+                                                        <input type="text" class="form-control-doc text-end border-0 bg-transparent fw-bold total-input" readonly value="{{ item_form.total.value|default:'0.00' }}">
+                                                    </td>
+                                                    <td class="text-center">
+                                                        {% if not forloop.first %}
+                                                        <a href="javascript:void(0);" class="remove-line delete-item-row" title="Retract Entry">
+                                                            <i class="mdi mdi-delete-outline"></i>
+                                                        </a>
+                                                        <div class="d-none">{{ item_form.DELETE }}</div>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div class="canvas-section-head">Engagement Terms & Remarks</div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            {{ form.notes }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Intelligence Sidebar -->
+                            <div class="col-xl-3">
+                                <div class="sticky-intelligence">
+                                    <div class="intelligence-card mb-4">
+                                        <h6 class="text-white-50 fs-11 fw-bold text-uppercase ls-1 mb-4">Financial Intelligence</h6>
+                                        
+                                        <div class="d-flex justify-content-between mb-3">
+                                            <span class="text-white-50">Operational Subtotal</span>
+                                            <span class="fw-bold" id="display-subtotal">₹0.00</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-3">
+                                            <span class="text-white-50">Tax Aggregation</span>
+                                            <span class="fw-bold" id="display-tax">₹0.00</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-3">
+                                            <span class="text-white-50">Applied Discount</span>
+                                            <div class="d-flex flex-column align-items-end">
+                                                <span class="fw-bold text-warning" id="display-discount">-₹0.00</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="total-display-box mt-4">
+                                            <label class="d-block text-white-50 fs-10 fw-bold mb-1">FINAL CONTRACTUAL VALUE</label>
+                                            <h2 class="fw-900 mb-0" id="display-total">₹0.00</h2>
+                                        </div>
+
+                                        <div class="mt-4">
+                                            <label class="form-label text-white-50 fs-10 fw-bold">Manual Discount Adjustment</label>
+                                            {{ form.discount_amount }}
+                                        </div>
+                                        <hr class="border-white-subtle opacity-25">
+                                        <div class="d-grid gap-2">
+                                            <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">
+                                                <i class="mdi mdi-cloud-upload-outline me-2"></i> {% if is_update %}Commit Refinements{% else %}Deploy Proposal{% endif %}
+                                            </button>
+                                            <button type="button" class="btn btn-outline-light btn-sm border-white-subtle opacity-75" onclick="history.back()">Discard Changes</button>
+                                        </div>
+
+                                        <!-- Hidden Aggregates -->
+                                        <div class="d-none">
+                                            {{ form.subtotal }}
+                                            {{ form.tax_amount }}
+                                            {{ form.total_amount }}
+                                        </div>
+                                    </div>
+
+                                    <div class="alert bg-white border shadow-sm rounded-4 p-4 mb-4">
+                                        <div class="d-flex gap-3">
+                                            <div class="avatar avatar-sm bg-primary-subtle text-primary mt-1" style="width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                                                <i class="mdi mdi-lightbulb-on-outline"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="fw-bold text-dark mb-1">Intelligence Hint</h6>
+                                                <p class="text-muted fs-12 mb-0">Switching the <strong>Price Level</strong> will recalibrate all line items across the entire canvas instantly.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% include 'base/footer.html' %}
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/libs/metismenu/metisMenu.min.js' %}"></script>
+    <script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/app.js' %}"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Apply Modern Select2
+            if ($.fn.select2) {
+                $('.select2-doc').select2({ width: '100%' });
+                $('#id_customer').select2({ width: '100%', placeholder: 'Select target entity...' });
+                $('#id_price_level').select2({ width: '100%', minimumResultsForSearch: Infinity });
+                $('#id_status').select2({ width: '100%', minimumResultsForSearch: Infinity });
+            }
+
+            const tableBody = document.getElementById('item-formset-container');
+            const totalForms = document.getElementById('id_items-TOTAL_FORMS');
+            const addItemBtn = document.getElementById('add-item-btn');
+            const priceLevelSelect = document.getElementById('id_price_level');
+            const productData = JSON.parse('{{ product_data_json|safe|default:"[]" }}');
+
+            function updateElementIndex(el, prefix, ndx) {
+                const id_regex = new RegExp('(' + prefix + '-\\d+)');
+                const replacement = prefix + '-' + ndx;
+                if (el.getAttribute("for")) el.setAttribute("for", el.getAttribute("for").replace(id_regex, replacement));
+                if (el.id) el.id = el.id.replace(id_regex, replacement);
+                if (el.name) el.name = el.name.replace(id_regex, replacement);
+            }
+
+            // Price Level recalibration
+            if (priceLevelSelect) {
+                $(priceLevelSelect).on('select2:select', function() {
+                    const levelId = this.value;
+                    document.querySelectorAll('.item-row').forEach(row => {
+                        const productSelect = row.querySelector('.product-select');
+                        if (productSelect && productSelect.value) {
+                            const product = productData.find(p => p.name == productSelect.value);
+                            if (product) updateRowPrice(row, product, levelId);
+                        }
+                    });
+                    calculateTotals();
+                });
+            }
+
+            function updateRowPrice(row, product, levelId) {
+                const priceInput = row.querySelector('.price-input');
+                if (!priceInput) return;
+                if (levelId && product.tiered_prices && product.tiered_prices[levelId]) {
+                    priceInput.value = product.tiered_prices[levelId];
+                } else {
+                    priceInput.value = product.unit_price;
+                }
+            }
+
+            // Dynamic Row Management
+            if (addItemBtn) {
+                addItemBtn.addEventListener('click', function () {
+                    const currentForms = parseInt(totalForms.value);
+                    const rows = tableBody.querySelectorAll('.item-row');
+                    if (rows.length === 0) return;
+                    
+                    const templateRow = rows[0].cloneNode(true);
+                    templateRow.querySelectorAll('input, select, textarea').forEach(input => {
+                        updateElementIndex(input, 'items', currentForms);
+                        if (input.type !== 'hidden') {
+                            if (input.classList.contains('qty-input')) { input.value = '1'; }
+                            else if (input.classList.contains('tax-input') || input.classList.contains('price-input')) { input.value = '0'; }
+                            else { input.value = ''; }
+                        }
+                    });
+
+                    const actionCell = templateRow.cells[templateRow.cells.length - 1];
+                    actionCell.innerHTML = `
+                        <a href="javascript:void(0);" class="remove-line delete-item-row">
+                            <i class="mdi mdi-delete-outline"></i>
+                        </a>
+                        <div class="d-none">
+                            <input type="checkbox" name="items-${currentForms}-DELETE" id="id_items-${currentForms}-DELETE">
+                        </div>
+                    `;
+
+                    tableBody.appendChild(templateRow);
+                    totalForms.value = currentForms + 1;
+                    attachRowListeners(templateRow);
+                    calculateTotals();
+                });
+            }
+
+            tableBody.addEventListener('click', function (e) {
+                const deleteBtn = e.target.closest('.delete-item-row');
+                if (deleteBtn) {
+                    const row = deleteBtn.closest('.item-row');
+                    const delCheck = row.querySelector('input[name$="-DELETE"]');
+                    if (delCheck) {
+                        delCheck.checked = true;
+                        row.style.display = 'none';
+                        row.classList.remove('item-row');
+                    } else {
+                        row.remove();
+                        totalForms.value = parseInt(totalForms.value) - 1;
+                    }
+                    calculateTotals();
+                }
+            });
+
+            function attachRowListeners(row) {
+                row.querySelectorAll('.qty-input, .price-input, .tax-input').forEach(input => {
+                    input.addEventListener('input', calculateTotals);
+                });
+
+                const prodSel = row.querySelector('.product-select');
+                if (prodSel) {
+                    prodSel.addEventListener('change', function () {
+                        const product = productData.find(p => p.name == this.value);
+                        if (product) {
+                            const row = this.closest('.item-row');
+                            const desc = row.querySelector('input[name$="-description"]');
+                            const tax = row.querySelector('input[name$="-tax_percent"]');
+                            if (desc) desc.value = product.description || product.name;
+                            if (tax) tax.value = product.tax_percent;
+                            updateRowPrice(row, product, priceLevelSelect.value);
+                            calculateTotals();
+                        }
+                    });
+                }
+            }
+
+            function calculateTotals() {
+                let subtotal = 0;
+                let taxTotal = 0;
+                document.querySelectorAll('.item-row').forEach(row => {
+                    const qty = parseFloat(row.querySelector('.qty-input')?.value || 0);
+                    const prc = parseFloat(row.querySelector('.price-input')?.value || 0);
+                    const txp = parseFloat(row.querySelector('.tax-input')?.value || 0);
+                    const amt = qty * prc;
+                    const tax = (amt * txp) / 100;
+                    const rowGrd = amt + tax;
+                    const totInp = row.querySelector('.total-input');
+                    if (totInp) totInp.value = rowGrd.toFixed(2);
+                    subtotal += amt;
+                    taxTotal += tax;
+                });
+
+                const discount = parseFloat(document.getElementById('id_discount_amount')?.value || 0);
+                const grandTotal = subtotal + taxTotal - discount;
+
+                document.getElementById('id_subtotal').value = subtotal.toFixed(2);
+                document.getElementById('id_tax_amount').value = taxTotal.toFixed(2);
+                document.getElementById('id_total_amount').value = grandTotal.toFixed(2);
+
+                document.getElementById('display-subtotal').textContent = '₹' + subtotal.toLocaleString(undefined, {minimumFractionDigits: 2});
+                document.getElementById('display-tax').textContent = '₹' + taxTotal.toLocaleString(undefined, {minimumFractionDigits: 2});
+                document.getElementById('display-discount').textContent = '-₹' + discount.toLocaleString(undefined, {minimumFractionDigits: 2});
+                document.getElementById('display-total').textContent = '₹' + grandTotal.toLocaleString(undefined, {minimumFractionDigits: 2});
+            }
+
+            document.querySelectorAll('.item-row').forEach(attachRowListeners);
+            document.getElementById('id_discount_amount')?.addEventListener('input', calculateTotals);
+            calculateTotals();
+        });
+    </script>
+</body>
+</html>

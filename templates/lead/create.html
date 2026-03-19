@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>{% if form.instance.pk %}Edit Lead{% else %}Add New Lead{% endif %} | Zentryx CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta content="Enterprise Lead Management" name="description">
+    
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{% static 'assets/images/logo-sm.png' %}">
+    
+    <!-- Select2 Css -->
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- Bootstrap Datepicker -->
+    <link href="{% static 'assets/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet">
+    <!-- Simplebar Css -->
+    <link rel="stylesheet" href="{% static 'assets/libs/simplebar/simplebar.min.css' %}">
+    <!-- Bootstrap Css -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css">
+    <!-- icons css -->
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- App Css -->
+    <link href="{% static 'assets/css/app.min.css' %}" id="app-style" rel="stylesheet" type="text/css">
+
+    <style>
+        .form-card { border: none; border-radius: 1rem; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05); background: #fff; margin-bottom: 1.5rem; }
+        .card-header-premium { background: transparent; border-bottom: 1px solid #f3f4f6; padding: 1.25rem 1.5rem; }
+        .section-icon { width: 36px; height: 36px; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; background-color: rgba(79, 70, 229, 0.1); color: #4f46e5; margin-right: 1rem; }
+        
+        .form-label { font-weight: 500; color: #374151; font-size: 0.825rem; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.025em; }
+        .form-control, .form-select { border-radius: 0.5rem; border: 1px solid #e5e7eb; padding: 0.6rem 0.75rem; font-size: 0.875rem; transition: border-color 0.2s, box-shadow 0.2s; }
+        .form-control:focus, .form-select:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        
+        .sticky-actions { position: sticky; bottom: 0; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); border-top: 1px solid #f3f4f6; padding: 1.25rem 0; z-index: 100; margin-top: 2.5rem; }
+    </style>
+</head>
+
+<body>
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        <div class="sidebar-left horizontal-sidebar">
+            {% include 'base/horizontal_sidebar.html' %}
+        </div>
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+                    
+                    <!-- Header -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-8">
+                            <h4 class="mb-1 text-dark fw-bold">{% if form.instance.pk %}Update Lead Profile{% else %}Add New Opportunity{% endif %}</h4>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0 fs-13 text-muted">
+                                    <li class="breadcrumb-item"><a href="{% url 'leads:list' %}" class="text-muted text-decoration-none">Lead Management</a></li>
+                                    <li class="breadcrumb-item active fw-medium">{% if form.instance.pk %}Edit Record{% else %}Capture Lead{% endif %}</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="col-4 text-end">
+                            <a href="{% url 'leads:list' %}" class="btn btn-outline-secondary px-3">
+                                <i class="mdi mdi-arrow-left me-1"></i> Back to Directory
+                            </a>
+                        </div>
+                    </div>
+
+
+                    <form method="post" enctype="multipart/form-data" id="leadForm">
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <!-- Left Column: Identity & Source -->
+                            <div class="col-lg-7">
+                                <div class="card form-card shadow-sm border-light-subtle">
+                                    <div class="card-header-premium d-flex align-items-center">
+                                        <div class="section-icon"><i class="mdi mdi-account-card-outline fs-18"></i></div>
+                                        <h5 class="card-title mb-0 fw-bold">Lead Identity & Contact</h5>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="row g-4">
+                                            <div class="col-md-6">
+                                                <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                                {{ form.first_name }}
+                                                {% if form.first_name.errors %}
+                                                <p class="text-danger fs-11 mt-1">{{ form.first_name.errors.0 }}</p>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Last Name</label>
+                                                {{ form.last_name }}
+                                                {% if form.last_name.errors %}
+                                                <p class="text-danger fs-11 mt-1">{{ form.last_name.errors.0 }}</p>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-7">
+                                                <label class="form-label">Email Address</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-light border-light-subtle"><i class="mdi mdi-email-outline"></i></span>
+                                                    {{ form.email }}
+                                                </div>
+                                                {% if form.email.errors %}
+                                                <p class="text-danger fs-11 mt-1">{{ form.email.errors.0 }}</p>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-5">
+                                                <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-light border-light-subtle"><i class="mdi mdi-phone-outline"></i></span>
+                                                    {{ form.phone }}
+                                                </div>
+                                                {% if form.phone.errors %}
+                                                <p class="text-danger fs-11 mt-1">{{ form.phone.errors.0 }}</p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card form-card shadow-sm border-light-subtle">
+                                    <div class="card-header-premium d-flex align-items-center">
+                                        <div class="section-icon"><i class="mdi mdi-domain fs-18"></i></div>
+                                        <h5 class="card-title mb-0 fw-bold">Company & Professional Info</h5>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="row g-4">
+                                            <div class="col-md-12">
+                                                <label class="form-label">Organization Name</label>
+                                                {{ form.company_name }}
+                                                {% if form.company_name.errors %}
+                                                <p class="text-danger fs-11 mt-1">{{ form.company_name.errors.0 }}</p>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-12">
+                                                <label class="form-label">Lead Designation</label>
+                                                {{ form.designation }}
+                                                {% if form.designation.errors %}
+                                                <p class="text-danger fs-11 mt-1">{{ form.designation.errors.0 }}</p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Column: Status & Forecast -->
+                            <div class="col-lg-5">
+                                <div class="card form-card shadow-sm border-light-subtle">
+                                    <div class="card-header-premium d-flex align-items-center">
+                                        <div class="section-icon"><i class="mdi mdi-chart-timeline-variant fs-18"></i></div>
+                                        <h5 class="card-title mb-0 fw-bold">Classification & Priority</h5>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="row g-4">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Lead Status</label>
+                                                {{ form.status }}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Engagement Source</label>
+                                                {{ form.source }}
+                                            </div>
+                                            <div class="col-md-12">
+                                                <label class="form-label">Pipeline Priority</label>
+                                                {{ form.priority }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card form-card shadow-sm border-light-subtle">
+                                    <div class="card-header-premium d-flex align-items-center">
+                                        <div class="section-icon"><i class="mdi mdi-cash-multiple fs-18"></i></div>
+                                        <h5 class="card-title mb-0 fw-bold">Revenue & Assignment</h5>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="row g-4">
+                                            <div class="col-md-12">
+                                                <label class="form-label">Expected Revenue Value</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-light border-light-subtle fw-bold text-dark">$</span>
+                                                    {{ form.expected_revenue }}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <label class="form-label">Assigned Representative</label>
+                                                {{ form.assigned_to }}
+                                            </div>
+                                            <div class="col-md-12">
+                                                <label class="form-label">Target Follow-Up Date</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-light border-light-subtle"><i class="mdi mdi-calendar-clock-outline"></i></span>
+                                                    {{ form.next_follow_up }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Full Width: Engagement Notes -->
+                            <div class="col-12">
+                                <div class="card form-card shadow-sm border-light-subtle">
+                                    <div class="card-header-premium d-flex align-items-center">
+                                        <div class="section-icon"><i class="mdi mdi-notebook-edit-outline fs-18"></i></div>
+                                        <h5 class="card-title mb-0 fw-bold">Internal Engagement Notes</h5>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        {{ form.notes }}
+                                        <p class="text-muted fs-11 mt-2">Provide any critical context, previous discussions, or specific lead requirements here.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sticky Actions -->
+                        <div class="sticky-actions border-radius-lg">
+                            <div class="container-fluid text-end">
+                                <a href="{% url 'leads:list' %}" class="btn btn-light px-4 me-2 fw-medium">Cancel Changes</a>
+                                <button type="submit" class="btn btn-primary px-5 shadow-sm fw-bold">
+                                    <i class="mdi mdi-check-circle-outline me-1 fs-18"></i> {% if form.instance.pk %}Update Active Lead{% else %}Create Lead Account{% endif %}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+            {% include 'base/footer.html' %}
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/libs/metismenu/metisMenu.min.js' %}"></script>
+    <script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'assets/libs/eva-icons/eva.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/app.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Apply premium styling to Django form controls
+            $('input, select, textarea').not('[type="file"]').addClass('form-control');
+            $('select').removeClass('form-control').addClass('form-select select2');
+            
+            if ($.fn.select2) {
+                $('.select2').select2({ width: '100%', placeholder: "Select an option" });
+            }
+            if (typeof eva !== 'undefined') {
+                eva.replace();
+            }
+        });
+    </script>
+</body>
+</html>

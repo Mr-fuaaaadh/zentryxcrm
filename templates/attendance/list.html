@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Workforce Pulse | Zentryx CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta content="Enterprise Attendance & Engagement Tracking" name="description">
+    
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{% static 'assets/images/logo-sm.png' %}">
+    
+    <!-- Select2 Css -->
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- Simplebar Css -->
+    <link rel="stylesheet" href="{% static 'assets/libs/simplebar/simplebar.min.css' %}">
+    <!-- Bootstrap Css -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css">
+    <!-- icons css -->
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- App Css -->
+    <link href="{% static 'assets/css/app.min.css' %}" id="app-style" rel="stylesheet" type="text/css">
+
+    <style>
+        :root { --att-present: #10b981; --att-absent: #ef4444; --att-late: #f59e0b; --att-leave: #3b82f6; --att-neutral: #6b7280; }
+        .att-card-premium { border: none; border-radius: 1.25rem; overflow: hidden; position: relative; transition: all 0.3s; background: #fff; }
+        .att-card-premium:hover { transform: translateY(-3px); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.08); }
+        .att-icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+        
+        .pulse-container { position: relative; }
+        .pulse-dot { position: absolute; bottom: 2px; right: 2px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #fff; z-index: 10; }
+        .pulse-active { background: var(--att-present); box-shadow: 0 0 0 rgba(16, 185, 129, 0.4); animation: pulse-anim 2s infinite; }
+        @keyframes pulse-anim { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+        
+        .att-table-card { border: none; border-radius: 1rem; background: #fff; overflow: hidden; }
+        .table thead th { background: #f8fafc; font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; color: #64748b; padding: 1.25rem 1rem; border: none; }
+        .table tbody td { padding: 1.25rem 1rem; vertical-align: middle; border-color: #f1f5f9; }
+        
+        .status-badge-premium { padding: 0.35em 0.75em; border-radius: 6px; font-weight: 700; font-size: 0.65rem; letter-spacing: 0.02em; text-transform: uppercase; }
+        .time-box { display: flex; align-items: center; gap: 0.4rem; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.85rem; }
+        
+        .filter-ribbon { background: #fff; border-radius: 1.25rem; padding: 1.25rem; margin-bottom: 2rem; }
+        .form-control-att { border-radius: 0.75rem; border: 1px solid #e2e8f0; padding: 0.6rem 0.9rem; font-size: 0.85rem; }
+    </style>
+</head>
+
+<body>
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        <div class="sidebar-left horizontal-sidebar">
+            {% include 'base/horizontal_sidebar.html' %}
+        </div>
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+                    
+                    <!-- Header Actions -->
+                    <div class="row mb-4 align-items-center">
+                        <div class="col-8">
+                            <h4 class="mb-1 text-dark fw-bold">Workforce Pulse</h4>
+                            <p class="text-muted mb-0 fs-13">High-fidelity tracking of workforce presence and engagement.</p>
+                        </div>
+                        <div class="col-4 text-end">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <a href="{% url 'attendance:export_csv' %}?{{ request.GET.urlencode }}" class="btn btn-outline-success px-3 fw-bold border-success-subtle shadow-sm">
+                                    <i class="mdi mdi-microsoft-excel me-1 fs-16"></i> Strategic Export
+                                </a>
+                                <a href="{% url 'attendance:add' %}" class="btn btn-primary px-4 fw-bold shadow-sm">
+                                    <i class="mdi mdi-calendar-check-outline me-1 fs-18"></i> New Entry
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Live Dashboard Metrics -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card att-card-premium shadow-sm border-start border-4 border-success">
+                                <div class="card-body p-4">
+                                    <div class="att-icon-box bg-success-subtle text-success"><i class="mdi mdi-account-check-outline fs-24"></i></div>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <h6 class="text-muted fw-bold fs-11 text-uppercase ls-1 mb-1">Present Resources</h6>
+                                            <h3 class="mb-0 fw-bold text-dark">{{ summary.present }}</h3>
+                                        </div>
+                                        <div class="text-success fs-12 fw-bold"><i class="mdi mdi-trending-up me-1"></i>Optimized</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card att-card-premium shadow-sm border-start border-4 border-warning">
+                                <div class="card-body p-4">
+                                    <div class="att-icon-box bg-warning-subtle text-warning"><i class="mdi mdi-clock-alert-outline fs-24"></i></div>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <h6 class="text-muted fw-bold fs-11 text-uppercase ls-1 mb-1">Late Arrivals</h6>
+                                            <h3 class="mb-0 fw-bold text-dark">{{ summary.late }}</h3>
+                                        </div>
+                                        <div class="text-warning fs-12 fw-bold"><i class="mdi mdi-alert-circle-outline me-1"></i>Review Needed</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card att-card-premium shadow-sm border-start border-4 border-primary">
+                                <div class="card-body p-4">
+                                    <div class="att-icon-box bg-primary-subtle text-primary"><i class="mdi mdi-airplane-takeoff fs-24"></i></div>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <h6 class="text-muted fw-bold fs-11 text-uppercase ls-1 mb-1">On Approved Leave</h6>
+                                            <h3 class="mb-0 fw-bold text-dark">{{ summary.on_leave }}</h3>
+                                        </div>
+                                        <div class="text-primary fs-12 fw-bold">Scheduled</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card att-card-premium shadow-sm border-start border-4 border-info">
+                                <div class="card-body p-4">
+                                    <div class="att-icon-box bg-info-subtle text-info"><i class="mdi mdi-chart-line fs-24"></i></div>
+                                    <div class="d-flex align-items-end justify-content-between">
+                                        <div>
+                                            <h6 class="text-muted fw-bold fs-11 text-uppercase ls-1 mb-1">Avg. Daily Intensity</h6>
+                                            <h3 class="mb-0 fw-bold text-dark">{{ summary.avg_hours|default:"0"|floatformat:1 }}<small class="fs-12 ms-1 fw-medium text-muted">Hrs</small></h3>
+                                        </div>
+                                        <div class="text-info fs-12 fw-bold">Operational</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Operational Filters -->
+                    <div class="filter-ribbon shadow-sm border-light-subtle">
+                        <form method="get" class="row g-3">
+                            <div class="col-md-3">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="mdi mdi-magnify fs-18"></i></span>
+                                    <input type="text" name="search" class="form-control-att border-start-0 ps-0 form-control" placeholder="Search by name or employee ID..." value="{{ search_query }}">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <select name="department" class="form-select select2">
+                                    <option value="">All Departments</option>
+                                    {% for dept in departments %}
+                                    <option value="{{ dept.id }}" {% if selected_dept == dept.id|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="date" name="date" class="form-control form-control-att" value="{{ selected_date }}">
+                            </div>
+                            <div class="col-md-2">
+                                <select name="status" class="form-select select2-no-search">
+                                    <option value="">All States</option>
+                                    {% for code, label in status_choices %}
+                                    <option value="{{ code }}" {% if selected_status == code %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary px-4 flex-grow-1 fw-bold">Analyze Pulse</button>
+                                <a href="{% url 'attendance:list' %}" class="btn btn-light px-3 border-light-subtle" title="Clear Filters"><i class="mdi mdi-refresh fs-18"></i></a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Attendance Intelligence Table -->
+                    <div class="card att-table-card shadow-sm border-light-subtle">
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table align-middle hover-row mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="ps-4">Workforce Entity</th>
+                                            <th>Timestamp</th>
+                                            <th>Sign In</th>
+                                            <th>Sign Out</th>
+                                            <th>Lifecycle State</th>
+                                            <th>Net Performance</th>
+                                            <th class="text-end pe-4">Operations</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for record in attendance_list %}
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="pulse-container me-3">
+                                                        <div class="avatar avatar-sm avatar-circle bg-soft-primary text-primary fw-bold">
+                                                            {{ record.staff.user.first_name|slice:":1" }}{{ record.staff.user.last_name|slice:":1" }}
+                                                        </div>
+                                                        {% if is_today and record.check_in and not record.check_out %}
+                                                        <div class="pulse-dot pulse-active"></div>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0 fw-bold text-dark">{{ record.staff.user.get_full_name }}</h6>
+                                                        <span class="fs-11 text-muted fw-medium font-monospace">{{ record.staff.employee_id }}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-column">
+                                                    <span class="fs-13 fw-bold text-dark">{{ record.date|date:"D, d M" }}</span>
+                                                    <span class="fs-11 text-muted">{{ record.date|date:"Y" }}</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="time-box text-success">
+                                                    <i class="mdi mdi-login-variant fs-14"></i>
+                                                    {{ record.check_in|time:"H:i"|default:"--:--" }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="time-box {% if record.check_out %}text-danger{% else %}text-muted{% endif %}">
+                                                    <i class="mdi mdi-logout-variant fs-14"></i>
+                                                    {{ record.check_out|time:"H:i"|default:"--:--" }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="status-badge-premium
+                                                    {% if record.status == 'PRESENT' %}bg-success-subtle text-success
+                                                    {% elif record.status == 'ABSENT' %}bg-danger-subtle text-danger
+                                                    {% elif record.status == 'HALF_DAY' %}bg-warning-subtle text-warning
+                                                    {% elif record.status == 'LEAVE' %}bg-primary-subtle text-primary
+                                                    {% else %}bg-info-subtle text-info{% endif %}">
+                                                    {{ record.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-grow-1">
+                                                        <span class="fs-13 fw-bold text-dark">{{ record.total_working_hours|default:"0.0" }} <small class="text-muted fw-medium">Hrs</small></span>
+                                                        {% if record.late_minutes > 0 %}
+                                                        <span class="d-block fs-10 fw-bold text-danger"><i class="mdi mdi-timer-alert-outline me-1"></i>Late: {{ record.late_minutes }}m</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-end pe-4">
+                                                <div class="dropdown">
+                                                    <button class="btn btn-light btn-sm btn-icon rounded-circle" data-bs-toggle="dropdown"><i class="mdi mdi-dots-horizontal"></i></button>
+                                                    <ul class="dropdown-menu dropdown-menu-end shadow border-light">
+                                                        <li><a class="dropdown-item fs-13" href="{% url 'attendance:edit' record.id %}"><i class="mdi mdi-pencil-outline me-2 text-primary"></i>Modify Entry</a></li>
+                                                        <li><a class="dropdown-item fs-13" href="#"><i class="mdi mdi-shield-check-outline me-2 text-success"></i>Approve Record</a></li>
+                                                        <li><hr class="dropdown-divider"></li>
+                                                        <li><a class="dropdown-item fs-13 text-danger" href="#"><i class="mdi mdi-trash-can-outline me-2"></i>Delete Record</a></li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="7" class="text-center py-5">
+                                                <div class="mb-3"><i class="mdi mdi-clock-outline fs-48 text-light"></i></div>
+                                                <h6 class="text-muted fw-normal">The workforce matrix is empty for the selected criteria.</h6>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Pagination -->
+                            {% if is_paginated %}
+                            <div class="card-footer bg-transparent border-top p-3 d-flex justify-content-between align-items-center">
+                                <p class="mb-0 fs-13 text-muted">Indexing <span class="fw-bold text-dark">{{ page_obj.start_index }}-{{ page_obj.end_index }}</span> from <span class="fw-bold text-dark">{{ paginator.count }}</span> entries</p>
+                                <nav>
+                                    <ul class="pagination pagination-rounded pagination-sm mb-0">
+                                        {% if page_obj.has_previous %}
+                                        <li class="page-item"><a class="page-link shadow-none" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}"><i class="mdi mdi-chevron-left"></i></a></li>
+                                        {% endif %}
+                                        
+                                        {% for i in paginator.page_range %}
+                                        {% if page_obj.number == i %}
+                                        <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                                        {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                                        <li class="page-item"><a class="page-link" href="?page={{ i }}&{{ request.GET.urlencode }}">{{ i }}</a></li>
+                                        {% endif %}
+                                        {% endfor %}
+                                        
+                                        {% if page_obj.has_next %}
+                                        <li class="page-item"><a class="page-link shadow-none" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}"><i class="mdi mdi-chevron-right"></i></a></li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% include 'base/footer.html' %}
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/libs/metismenu/metisMenu.min.js' %}"></script>
+    <script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'assets/libs/eva-icons/eva.min.js' %}"></script>
+    <script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/app.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            if ($.fn.select2) {
+                $('.select2').select2({ width: '100%', placeholder: 'Filter parameter' });
+                $('.select2-no-search').select2({ width: '100%', minimumResultsForSearch: Infinity });
+            }
+            if (typeof eva !== 'undefined') { eva.replace(); }
+        });
+    </script>
+</body>
+</html>

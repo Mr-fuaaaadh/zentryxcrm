@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Asset Dossier | {{ asset.asset_code }} | Zentryx CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <!-- App Css -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'assets/css/app.min.css' %}" rel="stylesheet" type="text/css">
+
+    <style>
+        :root { --dossier-primary: #6366f1; --dossier-warning: #f59e0b; --dossier-success: #10b981; --dossier-info: #0ea5e9; }
+        .dossier-header { background: #1e293b; border-radius: 1.5rem; padding: 2.5rem; color: #fff; position: relative; overflow: hidden; }
+        .dossier-header::after { content: ""; position: absolute; top: -50%; right: -10%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%); }
+        
+        .stat-card-doc { border: none; border-radius: 1.25rem; background: #fff; border: 1px solid #f1f5f9; padding: 1.5rem; }
+        .stat-icon-doc { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-bottom: 1rem; }
+        
+        .nav-pills-doc .nav-link { border-radius: 0.75rem; font-weight: 700; color: #64748b; padding: 0.75rem 1.5rem; margin-right: 0.5rem; transition: all 0.2s; }
+        .nav-pills-doc .nav-link.active { background: #1e293b; color: #fff; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        
+        .timeline-item { position: relative; padding-left: 2rem; border-left: 2px solid #f1f5f9; padding-bottom: 2rem; margin-left: 1rem; }
+        .timeline-item::before { content: ""; position: absolute; left: -7px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: #e2e8f0; border: 2px solid #fff; }
+        .timeline-item.active::before { background: var(--dossier-primary); }
+        
+        .badge-protocol { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 10px; border-radius: 50px; }
+        
+        .registry-table-doc thead th { background: #f8fafc; text-transform: uppercase; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em; color: #64748b; border: none; padding: 1rem; }
+        .registry-table-doc tbody td { padding: 1.1rem 1rem; vertical-align: middle; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+        
+        .staff-avatar-doc { width: 28px; height: 28px; border-radius: 50%; background: #eef2ff; color: #4338ca; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.7rem; border: 1px solid #c7d2fe; }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+
+                    <!-- Dossier Header -->
+                    <div class="dossier-header mb-4 shadow-lg">
+                        <div class="row align-items-center">
+                            <div class="col-md-7">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 fw-bold fs-11">#{{ asset.asset_code }}</span>
+                                    <span class="text-white-50 fs-11 fw-bold text-uppercase ls-1">{{ asset.get_asset_type_display }}</span>
+                                </div>
+                                <h2 class="text-white fw-900 mb-1">{{ asset.name }}</h2>
+                                <p class="text-white-50 fs-13 mb-0">{{ asset.description|truncatewords:20|default:"No technical description provided in registry." }}</p>
+                            </div>
+                            <div class="col-md-5 text-md-end mt-4 mt-md-0">
+                                <div class="d-flex gap-2 justify-content-md-end">
+                                    <a href="{% url 'inventory:stock_update' asset.pk %}" class="btn btn-warning px-4 fw-bold shadow-sm">
+                                        <i class="mdi mdi-package-variant me-1"></i> Adjust Calibration
+                                    </a>
+                                    <a href="{% url 'inventory:asset_assign' id=asset.pk %}" class="btn btn-success px-4 fw-bold shadow-sm">
+                                        <i class="mdi mdi-account-plus-outline me-1"></i> Deploy Asset
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="stat-card-doc">
+                                <div class="stat-icon-doc bg-primary-subtle text-primary"><i class="mdi mdi-cube-send"></i></div>
+                                <h4 class="fw-800 text-dark mb-1">{{ asset.total_stock }} {{ asset.unit }}</h4>
+                                <span class="text-muted fs-11 fw-bold text-uppercase ls-1">Aggregated Registry Stock</span>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="stat-card-doc">
+                                <div class="stat-icon-doc bg-success-subtle text-success"><i class="mdi mdi-check-decagram-outline"></i></div>
+                                <h4 class="fw-800 text-dark mb-1">{{ asset.available_stock }} {{ asset.unit }}</h4>
+                                <span class="text-muted fs-11 fw-bold text-uppercase ls-1">Currently Deployable</span>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="stat-card-doc">
+                                <div class="stat-icon-doc bg-info-subtle text-info"><i class="mdi mdi-tag-text-outline"></i></div>
+                                <h4 class="fw-800 text-dark mb-1">₹{{ asset.default_selling_price|floatformat:2 }}</h4>
+                                <span class="text-muted fs-11 fw-bold text-uppercase ls-1">Commercial Valuation</span>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="stat-card-doc">
+                                <div class="stat-icon-doc bg-warning-subtle text-warning"><i class="mdi mdi-shield-alert-outline"></i></div>
+                                <h4 class="fw-800 text-dark mb-1">{{ asset.min_stock_level }}</h4>
+                                <span class="text-muted fs-11 fw-bold text-uppercase ls-1">Critical Buffer State</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Activity Protocols -->
+                        <div class="col-xl-9">
+                            <div class="card border-0 rounded-4 shadow-sm overflow-hidden mb-4">
+                                <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                                    <ul class="nav nav-pills nav-pills-doc" id="dossierTabs" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" data-bs-toggle="pill" href="#assignment-history">Assignment Registry</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" data-bs-toggle="pill" href="#audit-ledger">Stock Transaction Ledger</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="tab-content">
+                                        <!-- Assignment History -->
+                                        <div class="tab-pane fade show active" id="assignment-history">
+                                            <div class="table-responsive">
+                                                <table class="table registry-table-doc mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="ps-4">Deployment Target</th>
+                                                            <th>Quantity</th>
+                                                            <th>Initiation Date</th>
+                                                            <th>Operational Status</th>
+                                                            <th class="text-end pe-4">Operations</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for assign in assignments %}
+                                                        <tr>
+                                                            <td class="ps-4">
+                                                                <div class="d-flex align-items-center gap-3">
+                                                                    <div class="staff-avatar-doc">{{ assign.staff_name|slice:":1"|upper }}</div>
+                                                                    <div class="fw-bold text-dark">{{ assign.staff_name }}</div>
+                                                                </div>
+                                                            </td>
+                                                            <td>{{ assign.quantity }} <span class="text-muted">units</span></td>
+                                                            <td>{{ assign.issued_date|date:"M d, Y" }}</td>
+                                                            <td>
+                                                                {% if assign.status == 'assigned' %}
+                                                                <span class="badge-protocol bg-soft-warning text-warning">In Field Presence</span>
+                                                                {% else %}
+                                                                <span class="badge-protocol bg-soft-success text-success">Retracted: {{ assign.returned_date|date:"M d" }}</span>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td class="text-end pe-4">
+                                                                {% if assign.status == 'assigned' %}
+                                                                <form action="{% url 'inventory:asset_return' assign.pk %}" method="post">
+                                                                    {% csrf_token %}
+                                                                    <button type="submit" class="btn btn-soft-danger btn-sm fw-bold px-3">Execute Retraction</button>
+                                                                </form>
+                                                                {% else %}
+                                                                <span class="text-muted opacity-50"><i class="mdi mdi-lock-outline"></i></span>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        {% empty %}
+                                                        <tr>
+                                                            <td colspan="5" class="text-center py-5">
+                                                                <div class="opacity-25 mb-2"><i class="mdi mdi-account-question-outline display-4"></i></div>
+                                                                <h6 class="text-muted">No deployment records found in history.</h6>
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <!-- Stock Ledger -->
+                                        <div class="tab-pane fade" id="audit-ledger">
+                                            <div class="table-responsive">
+                                                <table class="table registry-table-doc mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="ps-4">Timestamp</th>
+                                                            <th>Movement Logic</th>
+                                                            <th>Quantum</th>
+                                                            <th>Structural Reference</th>
+                                                            <th>Unit Valuation</th>
+                                                            <th class="text-end pe-4">Aggr. Value</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for entry in ledger %}
+                                                        <tr>
+                                                            <td class="ps-4 text-muted">{{ entry.created_at|date:"M d, Y H:i" }}</td>
+                                                            <td>
+                                                                {% if entry.movement_type == 'IN' %}
+                                                                    <span class="fw-800 text-success"><i class="mdi mdi-plus-circle-outline me-1"></i>INFLOW</span>
+                                                                {% elif entry.movement_type == 'OUT' %}
+                                                                    <span class="fw-800 text-danger"><i class="mdi mdi-minus-circle-outline me-1"></i>OUTFLOW</span>
+                                                                {% else %}
+                                                                    <span class="fw-800 text-info"><i class="mdi mdi-swap-horizontal me-1"></i>{{ entry.movement_type }}</span>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td class="fw-bold text-dark">{{ entry.quantity }}</td>
+                                                            <td><span class="badge bg-light text-muted border px-2">{{ entry.reference_type|upper }}</span></td>
+                                                            <td>₹{{ entry.unit_price|default:0|floatformat:2 }}</td>
+                                                            <td class="text-end pe-4 fw-bold">₹{{ entry.total_price|default:0|floatformat:2 }}</td>
+                                                        </tr>
+                                                        {% empty %}
+                                                        <tr>
+                                                            <td colspan="6" class="text-center py-5">
+                                                                <h6 class="text-muted">No transactional ledger entries record.</h6>
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Technical Profile -->
+                        <div class="col-xl-3">
+                            <div class="card border-0 rounded-4 shadow-sm mb-4">
+                                <div class="card-header bg-white border-bottom pt-4 px-4">
+                                    <h6 class="fw-bold text-dark mb-0">Technical Specification</h6>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="mb-4">
+                                        <label class="d-block text-muted fs-10 fw-bold text-uppercase ls-1 mb-1">Corporate Brand</label>
+                                        <div class="fw-bold text-dark">{{ asset.brand|default:"Standard/Generic" }}</div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="d-block text-muted fs-10 fw-bold text-uppercase ls-1 mb-1">Structural Model</label>
+                                        <div class="fw-bold text-dark">{{ asset.model_number|default:"System Standard" }}</div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="d-block text-muted fs-10 fw-bold text-uppercase ls-1 mb-1">Acquisition Cost</label>
+                                        <div class="fw-bold text-dark">₹{{ asset.default_purchase_price|floatformat:2 }}</div>
+                                    </div>
+                                    <div>
+                                        <label class="d-block text-muted fs-10 fw-bold text-uppercase ls-1 mb-1">Serialization Protocol</label>
+                                        {% if asset.is_serialized %}
+                                        <span class="badge bg-soft-info text-info fw-bold">ACTIVATED</span>
+                                        {% else %}
+                                        <span class="badge bg-light text-muted border fw-bold">DEACTIVATED</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="alert bg-white border shadow-sm rounded-4 p-4">
+                                <h6 class="fw-bold text-dark mb-2">Audit Intelligence</h6>
+                                <p class="text-muted fs-12 mb-0">Every stock movement is cryptographically logged in the <strong>Stock Transaction Ledger</strong> for forensic accounting compatibility.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% include 'base/footer.html' %}
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/libs/metismenu/metisMenu.min.js' %}"></script>
+    <script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'assets/js/app.js' %}"></script>
+</body>
+</html>

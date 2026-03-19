@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Project Operations | Zentryx CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta content="Enterprise Project Management Dashboard" name="description">
+    
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="{% static 'assets/images/logo-sm.png' %}">
+    
+    <!-- Select2 Css -->
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- Simplebar Css -->
+    <link rel="stylesheet" href="{% static 'assets/libs/simplebar/simplebar.min.css' %}">
+    <!-- Bootstrap Css -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css">
+    <!-- icons css -->
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- App Css -->
+    <link href="{% static 'assets/css/app.min.css' %}" id="app-style" rel="stylesheet" type="text/css">
+
+    <style>
+        :root { --proj-primary: #4f46e5; --proj-success: #10b981; --proj-warning: #f59e0b; --proj-danger: #ef4444; }
+        .op-card-premium { border: none; border-radius: 1.25rem; overflow: hidden; position: relative; transition: all 0.3s; background: #fff; }
+        .op-card-premium:hover { transform: translateY(-3px); box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1); }
+        .op-icon-wrapper { width: 52px; height: 52px; border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; }
+        
+        .project-table-card { border: none; border-radius: 1rem; background: #fff; overflow: hidden; }
+        .table thead th { background: #f9fafb; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; color: #4b5563; padding: 1.25rem 1rem; border: none; }
+        .table tbody td { padding: 1.25rem 1rem; vertical-align: middle; border-color: #f3f4f6; }
+        
+        .prog-bar-mini { height: 6px; border-radius: 10px; background-color: #f3f4f6; overflow: hidden; }
+        .prog-val { height: 100%; border-radius: 10px; transition: width 0.4s ease; }
+        
+        .avatar-group-premium { display: flex; align-items: center; }
+        .avatar-group-premium .avatar-mini { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #fff; margin-left: -8px; position: relative; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 600; background: #eaebef; color: #4b5563; transition: transform 0.2s; }
+        .avatar-group-premium .avatar-mini:first-child { margin-left: 0; }
+        .avatar-group-premium .avatar-mini:hover { transform: translateY(-2px); z-index: 5; }
+        
+        .badge-status { padding: 0.4em 0.8em; border-radius: 6px; font-weight: 600; font-size: 0.7rem; letter-spacing: 0.02em; }
+        .filter-panel { background: #fff; border-radius: 1rem; padding: 1.25rem; margin-bottom: 1.5rem; }
+        
+        .timeline-op { position: relative; padding-left: 2.5rem; }
+        .timeline-op::before { content: ''; position: absolute; left: 0.75rem; top: 0; bottom: 0; width: 2px; background: #f1f5f9; }
+        .timeline-item-op { position: relative; margin-bottom: 1.5rem; }
+        .timeline-marker-op { position: absolute; left: -2.35rem; width: 1.5rem; height: 1.5rem; border-radius: 50%; border: 3px solid #fff; z-index: 1; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #fff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    </style>
+</head>
+
+<body>
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        <div class="sidebar-left horizontal-sidebar">
+            {% include 'base/horizontal_sidebar.html' %}
+        </div>
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+                    
+                    <!-- Title Bar -->
+                    <div class="row mb-4 align-items-center">
+                        <div class="col-8">
+                            <h4 class="mb-1 fw-bold text-dark">Operational Control</h4>
+                            <p class="text-muted mb-0 fs-13">Strategic overview of all active project lifecycles.</p>
+                        </div>
+                        <div class="col-4 text-end">
+                            <a href="{% url 'projects:create' %}" class="btn btn-primary px-4 fw-bold shadow-sm">
+                                <i class="mdi mdi-plus-circle-outline me-1 fs-18"></i> New Project
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Stats -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-xl-2 col-md-4">
+                            <div class="card op-card-premium shadow-sm border-start border-primary border-5">
+                                <div class="card-body p-4">
+                                    <div class="op-icon-wrapper bg-primary-subtle text-primary">
+                                        <i class="mdi mdi-briefcase-outline fs-24"></i>
+                                    </div>
+                                    <h6 class="text-muted fw-bold fs-11 text-uppercase ls-1 mb-1">Total Active</h6>
+                                    <h3 class="mb-0 fw-bold">{{ stats.total }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-2 col-md-4">
+                            <div class="card op-card-premium shadow-sm border-start border-warning border-5">
+                                <div class="card-body p-4">
+                                    <div class="op-icon-wrapper bg-warning-subtle text-warning">
+                                        <i class="mdi mdi-clock-fast fs-24"></i>
+                                    </div>
+                                    <h6 class="text-muted fw-bold fs-11 text-uppercase ls-1 mb-1">In Progress</h6>
+                                    <h3 class="mb-0 fw-bold text-dark">{{ stats.in_progress }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-2 col-md-4">
+                            <div class="card op-card-premium shadow-sm border-start border-danger border-5">
+                                <div class="card-body p-4">
+                                    <div class="op-icon-wrapper bg-danger-subtle text-danger">
+                                        <i class="mdi mdi-alert-decagram-outline fs-24"></i>
+                                    </div>
+                                    <h6 class="text-muted fw-bold fs-11 text-uppercase ls-1 mb-1">Overdue</h6>
+                                    <h3 class="mb-0 fw-bold text-danger">{{ stats.overdue }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card op-card-premium shadow-sm border-start border-success border-5">
+                                <div class="card-body p-4">
+                                    <div class="op-icon-wrapper bg-success-subtle text-success">
+                                        <i class="mdi mdi-finance fs-24"></i>
+                                    </div>
+                                    <h6 class="text-muted fw-bold fs-11 text-uppercase ls-1 mb-1">Budget Burn</h6>
+                                    <div class="d-flex align-items-center">
+                                        <h3 class="mb-0 fw-bold">{{ stats.budget_utilization }}%</h3>
+                                        <span class="ms-2 badge bg-success-subtle text-success fs-10 fw-bold">Optimum</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card op-card-premium shadow-sm border-start border-info border-5">
+                                <div class="card-body p-4">
+                                    <div class="op-icon-wrapper bg-info-subtle text-info">
+                                        <i class="mdi mdi-shield-check-outline fs-24"></i>
+                                    </div>
+                                    <h6 class="text-muted fw-bold fs-11 text-uppercase ls-1 mb-1">Asset Value</h6>
+                                    <h3 class="mb-0 fw-bold">${{ stats.total_budget|floatformat:0 }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Area -->
+                    <div class="filter-panel shadow-sm border-light-subtle">
+                        <form method="get" class="row g-3">
+                            <div class="col-md-5">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="mdi mdi-magnify fs-18"></i></span>
+                                    <input type="text" name="search" class="form-control border-start-0 ps-0" placeholder="Filter by project name or system code..." value="{{ request.GET.search|default:'' }}">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <select name="status" class="form-select select2-no-search">
+                                    <option value="">All Lifecycle States</option>
+                                    {% for val, label in status_choices %}
+                                    <option value="{{ val }}" {% if request.GET.status == val %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select name="priority" class="form-select select2-no-search">
+                                    <option value="">All Priorities</option>
+                                    {% for val, label in priority_choices %}
+                                    <option value="{{ val }}" {% if request.GET.priority == val %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary px-4 flex-grow-1 fw-medium">Search Operations</button>
+                                <a href="{% url 'projects:list' %}" class="btn btn-light px-3" title="Clear All"><i class="mdi mdi-refresh fs-18"></i></a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="row">
+                        <!-- Project Table Content -->
+                        <div class="col-xl-9">
+                            <div class="card project-table-card shadow-sm border-light-subtle">
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table align-middle hover-row mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th class="ps-4">Project Intelligence</th>
+                                                    <th>Lifecycle</th>
+                                                    <th>Performance</th>
+                                                    <th>Account/Lead</th>
+                                                    <th>Directorship</th>
+                                                    <th>Engagement</th>
+                                                    <th class="text-end pe-4">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for project in projects %}
+                                                <tr>
+                                                    <td class="ps-4">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="avatar avatar-sm avatar-circle bg-soft-primary text-primary me-3 fw-bold">
+                                                                {{ project.name|slice:":1"|upper }}
+                                                            </div>
+                                                            <div>
+                                                                <h6 class="mb-0 fw-bold text-dark">
+                                                                    <a href="#!" class="text-dark text-decoration-none">{{ project.name }}</a>
+                                                                </h6>
+                                                                <span class="fs-11 text-muted fw-medium text-uppercase ls-05">CODE: {{ project.project_code }}</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge-status 
+                                                            {% if project.status == 'completed' %}bg-success-subtle text-success
+                                                            {% elif project.status == 'in_progress' %}bg-primary-subtle text-primary
+                                                            {% elif project.status == 'on_hold' %}bg-warning-subtle text-warning
+                                                            {% elif project.status == 'planning' %}bg-info-subtle text-info
+                                                            {% else %}bg-danger-subtle text-danger{% endif %}">
+                                                            {{ project.get_status_display }}
+                                                        </span>
+                                                    </td>
+                                                    <td style="min-width: 140px;">
+                                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                                            <span class="fs-11 text-muted fw-bold">Progress</span>
+                                                            <span class="fs-11 fw-bold text-dark">
+                                                            {% if project.status == 'completed' %}100%{% elif project.status == 'planning' %}10%{% elif project.status == 'in_progress' %}65%{% else %}40%{% endif %}
+                                                            </span>
+                                                        </div>
+                                                        <div class="prog-bar-mini">
+                                                            <div class="prog-val 
+                                                                {% if project.status == 'completed' %}bg-success{% elif project.status == 'in_progress' %}bg-primary{% else %}bg-warning{% endif %}" 
+                                                                style="width: {% if project.status == 'completed' %}100{% elif project.status == 'planning' %}15{% elif project.status == 'in_progress' %}65{% else %}40{% endif %}%">
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        {% if project.customer %}
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="mdi mdi-account-tie text-info me-2 fs-16"></i>
+                                                            <span class="fs-13 fw-medium text-dark">{{ project.customer.name }}</span>
+                                                        </div>
+                                                        {% elif project.lead %}
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="mdi mdi-target-variant text-warning me-2 fs-16"></i>
+                                                            <span class="fs-13 fw-medium text-dark">{{ project.lead.first_name }} {{ project.lead.last_name }}</span>
+                                                        </div>
+                                                        {% else %}
+                                                        <span class="text-muted fs-12">No Direct Association</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex align-items-center" data-bs-toggle="tooltip" title="Portfolio Manager">
+                                                            <div class="avatar avatar-xs avatar-circle bg-light text-dark fw-bold me-2 fs-8" style="width: 24px; height: 24px;">
+                                                                {{ project.manager.user.first_name|slice:":1" }}{{ project.manager.user.last_name|slice:":1" }}
+                                                            </div>
+                                                            <span class="fs-12 text-muted fw-medium">{{ project.manager.user.first_name }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="avatar-group-premium">
+                                                            {% for member in project.team_members.all|slice:":3" %}
+                                                            <div class="avatar-mini" title="{{ member.user.get_full_name }}">
+                                                                {{ member.user.first_name|slice:":1" }}{{ member.user.last_name|slice:":1" }}
+                                                            </div>
+                                                            {% endfor %}
+                                                            {% if project.team_members.count > 3 %}
+                                                            <div class="avatar-mini">+{{ project.team_members.count|add:"-3" }}</div>
+                                                            {% endif %}
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-end pe-4">
+                                                        <div class="dropdown">
+                                                            <a href="#" class="btn btn-light btn-sm btn-icon rounded-circle" data-bs-toggle="dropdown"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                            <ul class="dropdown-menu dropdown-menu-end shadow border-light">
+                                                                <li><a class="dropdown-item fs-13" href="{% url 'projects:update' project.id %}"><i class="mdi mdi-pencil-outline me-2 text-primary"></i>Refine Parameters</a></li>
+                                                                <li><a class="dropdown-item fs-13" href="#"><i class="mdi mdi-chart-line me-2 text-info"></i>Analytical Insights</a></li>
+                                                                <li><hr class="dropdown-divider"></li>
+                                                                <li><a class="dropdown-item fs-13 text-danger" href="javascript:void(0);" onclick="confirmProjectDelete('{{ project.id }}', '{{ project.name }}')"><i class="mdi mdi-trash-can-outline me-2"></i>Archive Project</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                {% empty %}
+                                                <tr>
+                                                    <td colspan="7" class="text-center py-5">
+                                                        <img src="{% static 'assets/images/no-data.png' %}" alt="Clean State" style="width: 80px; opacity: 0.4;" class="mb-3">
+                                                        <h6 class="text-muted fw-normal">No active projects found matching your matrix.</h6>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <!-- Pagination -->
+                                    {% if is_paginated %}
+                                    <div class="card-footer bg-transparent border-top p-3 d-flex justify-content-between align-items-center">
+                                        <p class="mb-0 fs-13 text-muted">Indexing <span class="fw-bold text-dark">{{ page_obj.start_index }}-{{ page_obj.end_index }}</span> from <span class="fw-bold text-dark">{{ paginator.count }}</span> operational assets</p>
+                                        <nav>
+                                            <ul class="pagination pagination-rounded pagination-sm mb-0">
+                                                {% if page_obj.has_previous %}
+                                                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search }}&status={{ request.GET.status }}&priority={{ request.GET.priority }}"><i class="mdi mdi-chevron-left"></i></a></li>
+                                                {% endif %}
+                                                
+                                                {% for i in paginator.page_range %}
+                                                <li class="page-item {% if page_obj.number == i %}active{% endif %}">
+                                                    <a class="page-link" href="?page={{ i }}&search={{ request.GET.search }}&status={{ request.GET.status }}&priority={{ request.GET.priority }}">{{ i }}</a>
+                                                </li>
+                                                {% endfor %}
+                                                
+                                                {% if page_obj.has_next %}
+                                                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ request.GET.search }}&status={{ request.GET.status }}&priority={{ request.GET.priority }}"><i class="mdi mdi-chevron-right"></i></a></li>
+                                                {% endif %}
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sidebar: Operational Logs -->
+                        <div class="col-xl-3">
+                            <div class="card shadow-sm border-light-subtle h-100">
+                                <div class="card-header bg-transparent px-4 py-3 border-bottom d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0 fw-bold fs-16">Operational Logs</h5>
+                                    <span class="badge bg-light text-muted fs-10">Live Feed</span>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="timeline-op">
+                                        {% for activity in activities %}
+                                        <div class="timeline-item-op">
+                                            <div class="timeline-marker-op 
+                                                {% if activity.activity_type == 'status_change' %}bg-info
+                                                {% elif activity.activity_type == 'comment' %}bg-primary
+                                                {% elif activity.activity_type == 'file_upload' %}bg-success
+                                                {% else %}bg-secondary{% endif %}">
+                                                <i class="mdi mdi-{% if activity.activity_type == 'status_change' %}rotate-3d-variant{% elif activity.activity_type == 'comment' %}comment-text-outline{% elif activity.activity_type == 'file_upload' %}file-upload-outline{% else %}update{% endif %}"></i>
+                                            </div>
+                                            <div class="ps-2">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <h6 class="fs-13 mb-0 fw-bold"><a href="#!" class="text-dark hover-primary">{{ activity.project.name|truncatechars:20 }}</a></h6>
+                                                    <span class="fs-9 text-muted uppercase fw-bold">{{ activity.created_at|timesince }} ago</span>
+                                                </div>
+                                                <p class="text-muted fs-12 mb-1 lh-sm">{{ activity.description|truncatechars:65 }}</p>
+                                                <div class="d-flex align-items-center gap-1">
+                                                    <div class="avatar avatar-xxs avatar-circle bg-light text-dark fs-7 fw-bold" style="width: 16px; height: 16px;">
+                                                        {{ activity.created_by.first_name|slice:":1" }}
+                                                    </div>
+                                                    <span class="fs-10 text-muted">by System</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% empty %}
+                                        <div class="text-center py-5">
+                                            <i class="mdi mdi-layers-off-outline fs-32 text-light mb-2"></i>
+                                            <p class="text-muted fs-12">No recent system logs detected.</p>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="text-center mt-3 pt-3 border-top">
+                                        <button class="btn btn-link btn-sm text-primary fw-bold text-decoration-none ls-05">VIEW FULL AUDIT TRAIL <i class="mdi mdi-arrow-right"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% include 'base/footer.html' %}
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal fade" id="projDeleteModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header pt-4 px-4 border-radius-top-lg">
+                    <h5 class="modal-title fw-bold">Archive Project Resource</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="d-flex align-items-center mb-0">
+                        <div class="avatar avatar-soft-danger me-3"><i class="mdi mdi-alert-circle-outline fs-32"></i></div>
+                        <p class="text-muted mb-0">Proceed with archiving project <strong class="text-dark" id="modalProjName"></strong>? This will remove it from all active operational reports.</p>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Maintain Resource</button>
+                    <a href="#" id="modalConfirmBtn" class="btn btn-danger px-4 shadow-sm">Confirm Archive</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/libs/metismenu/metisMenu.min.js' %}"></script>
+    <script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'assets/libs/eva-icons/eva.min.js' %}"></script>
+    <script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/app.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            if ($.fn.select2) {
+                $('.select2').select2({ width: '100%' });
+                $('.select2-no-search').select2({ width: '100%', minimumResultsForSearch: Infinity });
+            }
+            if (typeof eva !== 'undefined') { eva.replace(); }
+            
+            // Tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        function confirmProjectDelete(id, name) {
+            $('#modalProjName').text(name);
+            $('#modalConfirmBtn').attr('href', "{% url 'projects:delete' 0 %}".replace('0', id));
+            $('#projDeleteModal').modal('show');
+        }
+    </script>
+</body>
+</html>

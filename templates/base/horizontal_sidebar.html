@@ -1,0 +1,133 @@
+<div class="sidebar-slide h-100">
+
+    <!-- Sidebar-menu -->
+    <div id="sidebar-menu">
+        <ul class="left-menu list-unstyled" id="side-menu">
+
+            <!-- Dashboard -->
+            <li>
+                <a href="{% url 'accounts:dashboard' %}"
+                    class="{% if request.resolver_match.app_name == 'accounts' %}active{% endif %}">
+                    <i data-eva="home-outline"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <!-- Staff -->
+            <li>
+                <a href="{% url 'staff:list' %}"
+                    class="{% if request.resolver_match.app_name == 'staff' %}active{% endif %}">
+                    <i data-eva="people-outline"></i>
+                    <span>Staff</span>
+                </a>
+            </li>
+
+            <!-- Students -->
+            <li>
+                <a href="{% url 'students:list' %}"
+                    class="{% if request.resolver_match.app_name == 'students' %}active{% endif %}">
+                    <i data-eva="book-open-outline"></i>
+                    <span>Students</span>
+                </a>
+            </li>
+
+            <!-- Customers -->
+            <li>
+                <a href="{% url 'customers:list' %}"
+                    class="{% if request.resolver_match.app_name == 'customers' %}active{% endif %}">
+                    <i data-eva="person-outline"></i>
+                    <span>Customers</span>
+                </a>
+            </li>
+
+            <!-- Leads -->
+            <li>
+                <a href="{% url 'leads:list' %}"
+                    class="{% if request.resolver_match.app_name == 'leads' %}active{% endif %}">
+                    <i data-eva="trending-up-outline"></i>
+                    <span>Leads</span>
+                </a>
+            </li>
+
+            <!-- Projects -->
+            <li>
+                <a href="{% url 'projects:list' %}"
+                    class="{% if request.resolver_match.app_name == 'projects' %}active{% endif %}">
+                    <i data-eva="briefcase-outline"></i>
+                    <span>Projects</span>
+                </a>
+            </li>
+
+            <!-- Attendance -->
+            <li>
+                <a href="{% url 'attendance:list' %}"
+                    class="{% if request.resolver_match.app_name == 'attendance' %}active{% endif %}">
+                    <i data-eva="calendar-outline"></i>
+                    <span>Attendance</span>
+                </a>
+            </li>
+
+            <!-- Sales -->
+            <li>
+                <a href="javascript:void(0);" class="has-arrow">
+                    <i data-eva="shopping-cart-outline"></i>
+                    <span>Sales</span>
+                </a>
+                <ul class="sub-menu" aria-expanded="false">
+                    <li>
+                        <a href="{% url 'sales:staff_target_list' %}">
+                            <i data-eva="target-outline"></i> Target
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'sales:performance_monitoring' %}">
+                            <i data-eva="bar-chart-outline"></i> Performance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'sales:proposal_list' %}">
+                            <i data-eva="file-text-outline"></i> Proposal
+                        </a>
+                    </li>
+                    <li>
+                        <a href="">
+                            <i data-eva="credit-card-outline"></i> Payments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="">
+                            <i data-eva="file-outline"></i> Invoice
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'sales:estimate_list' %}">
+                            <i data-eva="edit-outline"></i> Estimate
+                        </a>
+                    </li>
+                    <li>
+                        <a href="">
+                            <i data-eva="minus-circle-outline"></i> Credit Note
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <!-- Inventory -->
+            <li>
+                <a href="{% url 'inventory:asset_list' %}">
+                    <i data-eva="archive-outline"></i>
+                    <span>Inventory</span>
+                </a>
+            </li>
+
+            <!-- Expenses -->
+            <li>
+                <a href="{% url 'expenses:expense_list' %}">
+                    <i data-eva="file-text-outline"></i>
+                    <span>Expenses</span>
+                </a>
+            </li>
+
+        </ul>
+    </div>
+</div>

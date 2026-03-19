@@ -1,0 +1,10 @@
+from django.apps import AppConfig
+
+
+class LeadConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'apps.lead'
+    label = 'Lead' 
+
+    def ready(self):
+        import apps.lead.signals

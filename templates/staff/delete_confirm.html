@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Delete Staff | Zentry CRM </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{% static 'assets/images/logo-sm.png' %}">
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'assets/css/app.min.css' %}" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+
+                    <div class="row justify-content-center">
+                        <div class="col-md-6 col-lg-5">
+                            <div class="card shadow-lg border-0 mt-5">
+                                <div class="card-body p-5 text-center">
+                                    <div class="avatar-lg mx-auto mb-4">
+                                        <div class="avatar-title bg-danger-subtle text-danger rounded-circle fs-48">
+                                            <i class="mdi mdi-alert-circle-outline"></i>
+                                        </div>
+                                    </div>
+                                    <h3 class="fw-bold mb-3">Delete Staff Record?</h3>
+                                    <p class="text-muted mb-4 fs-16">
+                                        Are you sure you want to delete the staff record for <br>
+                                        <strong class="text-dark">{{ object.user.get_full_name }} ({{ object.employee_id }})</strong>?<br>
+                                        This action will also delete their system user account and cannot be undone.
+                                    </p>
+
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <div class="d-flex gap-3 justify-content-center">
+                                            <a href="{% url 'staff:list' %}" class="btn btn-light px-4 py-2 border">
+                                                <i class="mdi mdi-close-circle-outline me-1"></i> No, Keep It
+                                            </a>
+                                            <button type="submit" class="btn btn-danger px-4 py-2 shadow-sm">
+                                                <i class="mdi mdi-trash-can-outline me-1"></i> Yes, Delete Permanently
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="card-footer bg-light p-3 text-center border-0 rounded-bottom-4">
+                                    <small class="text-muted"><i class="mdi mdi-information-outline me-1"></i>All associated data will be permanently removed.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% include 'base/footer.html' %}
+        </div>
+    </div>
+
+    <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/libs/metismenu/metisMenu.min.js' %}"></script>
+    <script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'assets/js/app.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Target Strategy Canvas | Zentryx CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <!-- Select2 Css -->
+    <link href="{% static 'assets/libs/select2/css/select2.min.css' %}" rel="stylesheet" type="text/css">
+    <!-- App Css -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css">
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'assets/css/app.min.css' %}" id="app-style" rel="stylesheet" type="text/css">
+
+    <style>
+        :root { --target-primary: #6366f1; --target-success: #10b981; --target-warning: #f59e0b; }
+        .strategy-card { border: none; border-radius: 1.25rem; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .strategy-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        
+        .metric-pill { background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 0.75rem; padding: 1rem; display: flex; align-items: center; gap: 1rem; }
+        .pill-icon { width: 42px; height: 42px; border-radius: 0.6rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+        
+        .target-table thead th { background: #f8fafc; text-transform: uppercase; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; color: #64748b; border-top: none; padding: 1rem 1.25rem; }
+        .target-table tbody td { padding: 1.25rem; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
+        
+        .staff-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--target-primary), #4f46e5); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2); }
+        
+        .progress-compact { height: 6px !important; border-radius: 10px; background: #f1f5f9; margin-top: 0.4rem; overflow: hidden; }
+        .metric-label { font-size: 0.7rem; color: #64748b; margin-bottom: 0; display: block; }
+        .metric-value { font-size: 0.85rem; font-weight: 700; color: #1e293b; }
+        
+        .ops-btn { width: 32px; height: 32px; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; border: 1px solid #e2e8f0; background: #fff; color: #64748b; }
+        .ops-btn:hover { background: #f8fafc; color: var(--target-primary); border-color: var(--target-primary); }
+        .ops-btn-delete:hover { background: #fef2f2; color: #ef4444; border-color: #fca5a5; }
+
+        .filter-ribbon { background: rgba(255,255,255,0.8); backdrop-filter: blur(8px); border: 1px solid #f1f5f9; border-radius: 1rem; padding: 1rem 1.5rem; }
+    </style>
+</head>
+
+<body>
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        <div class="sidebar-left horizontal-sidebar">
+            {% include 'base/horizontal_sidebar.html' %}
+        </div>
+
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+
+                    <!-- Top Ribbon -->
+                    <div class="row align-items-center mb-4">
+                        <div class="col-sm-6">
+                            <h4 class="mb-1 text-dark fw-bold">Target Strategy Canvas</h4>
+                            <p class="text-muted fs-13 mb-0">Defining workforce objectives and sales velocity</p>
+                        </div>
+                        <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+                            <a href="{% url 'sales:staff_target_add' %}" class="btn btn-primary px-4 fw-bold shadow-sm">
+                                <i class="mdi mdi-plus-circle-outline me-2"></i> Deploy New Target
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Filter Ribbon -->
+                    <div class="filter-ribbon mb-4 shadow-sm">
+                        <form method="get" class="row g-3 align-items-center">
+                            <div class="col-lg-4">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class="mdi mdi-account-search-outline text-muted"></i></span>
+                                    <input type="text" name="search" class="form-control border-start-0" placeholder="Search staff by identifier..." value="{{ current_search }}">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <select name="month" class="form-select select2">
+                                    <option value="">Specific Month</option>
+                                    {% for m in months %}
+                                    <option value="{{ m }}" {% if current_month == m|stringformat:"i" %}selected{% endif %}>
+                                        {{ m|date:"F"|default:m }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-lg-2">
+                                <input type="number" name="year" class="form-control" placeholder="Fiscal Year" value="{{ current_year|default:2024 }}">
+                            </div>
+                            <div class="col-lg-4 d-flex gap-2">
+                                <button type="submit" class="btn btn-dark px-4 fw-bold w-100">Apply Filter</button>
+                                <a href="{% url 'sales:staff_target_list' %}" class="btn btn-light px-4 border shadow-sm">Reset</a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Performance Table -->
+                    <div class="strategy-card overflow-hidden">
+                        <div class="table-responsive">
+                            <table class="table target-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">Sales Professional</th>
+                                        <th>Target Period</th>
+                                        <th>Outreach Metrics</th>
+                                        <th>Pipeline Targets</th>
+                                        <th>Commercial Goal</th>
+                                        <th class="text-end pe-4">Operations</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for target in targets %}
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="staff-avatar">
+                                                    {{ target.staff.user.get_full_name|default:target.staff.user.username|slice:":1"|upper }}
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 fw-bold text-dark">{{ target.staff.user.get_full_name|default:target.staff.user.username }}</h6>
+                                                    <span class="text-muted fs-11 text-uppercase fw-bold">{{ target.staff.designation|default:"Sales Intelligence" }}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="badge bg-light text-dark border px-3 py-2 rounded-pill fs-12">
+                                                <i class="mdi mdi-calendar-clock me-1 text-primary"></i>
+                                                {{ target.month }}/{{ target.year }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="row g-2" style="max-width: 200px;">
+                                                <div class="col-6">
+                                                    <label class="metric-label">Calls</label>
+                                                    <span class="metric-value">{{ target.calls_target }}</span>
+                                                </div>
+                                                <div class="col-6">
+                                                    <label class="metric-label">Leads</label>
+                                                    <span class="metric-value">{{ target.leads_target }}</span>
+                                                </div>
+                                                <div class="col-12 mt-1">
+                                                    <div class="progress progress-compact">
+                                                        <div class="progress-bar bg-info" style="width: 70%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="row g-2" style="max-width: 200px;">
+                                                <div class="col-6">
+                                                    <label class="metric-label">Meetings</label>
+                                                    <span class="metric-value">{{ target.meetings_target }}</span>
+                                                </div>
+                                                <div class="col-6">
+                                                    <label class="metric-label">Deals</label>
+                                                    <span class="metric-value">{{ target.deals_target }}</span>
+                                                </div>
+                                                <div class="col-12 mt-1">
+                                                    <div class="progress progress-compact">
+                                                        <div class="progress-bar bg-warning" style="width: 45%"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="pill-icon bg-success-subtle text-success border border-success-subtle rounded-3">
+                                                    <i class="mdi mdi-currency-inr fs-16"></i>
+                                                </div>
+                                                <div>
+                                                    <label class="metric-label">Revenue Target</label>
+                                                    <span class="metric-value">₹{{ target.revenue_target|floatformat:0 }}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <div class="d-flex gap-2 justify-content-end">
+                                                <a href="{% url 'sales:staff_target_edit' target.pk %}" class="ops-btn" title="Refine Strategy">
+                                                    <i class="mdi mdi-pencil-outline"></i>
+                                                </a>
+                                                <button type="button" class="ops-btn ops-btn-delete delete-target" 
+                                                        data-url="{% url 'sales:staff_target_delete' target.pk %}" 
+                                                        data-name="{{ target.staff.user.get_full_name|default:target.staff.user.username }} ({{ target.month }}/{{ target.year }})"
+                                                        title="Archive Record">
+                                                    <i class="mdi mdi-delete-outline"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5">
+                                            <div class="text-muted">
+                                                <i class="mdi mdi-bullseye-arrow display-4 d-block mb-3 opacity-25"></i>
+                                                <h5 class="fw-bold">No Strategies Deployed</h5>
+                                                <p class="fs-13">Start by defining monthly performance targets for your sales team.</p>
+                                                <a href="{% url 'sales:staff_target_add' %}" class="btn btn-primary btn-sm mt-2 px-4 shadow-sm">Set First Target</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        {% if is_paginated %}
+                        <div class="card-footer bg-white border-top py-4 px-4">
+                            <div class="row align-items-center">
+                                <div class="col-sm-6">
+                                    <p class="text-muted mb-0 fs-13">Displaying <strong>{{ page_obj.start_index }} to {{ page_obj.end_index }}</strong> of <strong>{{ paginator.count }}</strong> strategic records</p>
+                                </div>
+                                <div class="col-sm-6 text-sm-end">
+                                    <ul class="pagination pagination-rounded justify-content-end mb-0">
+                                        {% if page_obj.has_previous %}
+                                        <li class="page-item"><a class="page-link shadow-none" href="?page={{ page_obj.previous_page_number }}{% if current_search %}&search={{ current_search }}{% endif %}{% if current_month %}&month={{ current_month }}{% endif %}{% if current_year %}&year={{ current_year }}{% endif %}"><i class="mdi mdi-chevron-left"></i></a></li>
+                                        {% endif %}
+                                        
+                                        {% for num in paginator.page_range %}
+                                            {% if page_obj.number == num %}
+                                                <li class="page-item active"><a class="page-link shadow-none" href="#">{{ num }}</a></li>
+                                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                                <li class="page-item"><a class="page-link shadow-none" href="?page={{ num }}{% if current_search %}&search={{ current_search }}{% endif %}{% if current_month %}&month={{ current_month }}{% endif %}{% if current_year %}&year={{ current_year }}{% endif %}">{{ num }}</a></li>
+                                            {% endif %}
+                                        {% endfor %}
+
+                                        {% if page_obj.has_next %}
+                                        <li class="page-item"><a class="page-link shadow-none" href="?page={{ page_obj.next_page_number }}{% if current_search %}&search={{ current_search }}{% endif %}{% if current_month %}&month={{ current_month }}{% endif %}{% if current_year %}&year={{ current_year }}{% endif %}"><i class="mdi mdi-chevron-right"></i></a></li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+            {% include 'base/footer.html' %}
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-body text-center p-5">
+                    <div class="avatar avatar-lg bg-danger-subtle text-danger mx-auto mb-4" style="width:70px; height:70px; border-radius:1.5rem; display:flex; align-items:center; justify-content:center; font-size:2rem;">
+                        <i class="mdi mdi-alert-circle-outline"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark">Terminate Strategy?</h4>
+                    <p class="text-muted fs-14">You are about to archive the performance target for <br><strong id="target-name-text" class="text-dark"></strong>. This action is recorded.</p>
+                    <div class="mt-4 d-flex gap-2 justify-content-center">
+                        <button type="button" class="btn btn-light px-4 fw-bold border" data-bs-dismiss="modal">Cancel</button>
+                        <form id="delete-form" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger px-4 fw-bold shadow-sm">Confirm Termination</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/libs/metismenu/metisMenu.min.js' %}"></script>
+    <script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+    <script src="{% static 'assets/libs/select2/js/select2.min.js' %}"></script>
+    <script src="{% static 'assets/js/app.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            if ($.fn.select2) {
+                $('.select2').select2({ width: '100%', minimumResultsForSearch: Infinity });
+            }
+
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            const deleteForm = document.getElementById('delete-form');
+            const nameText = document.getElementById('target-name-text');
+
+            $('.delete-target').on('click', function() {
+                deleteForm.action = $(this).data('url');
+                nameText.textContent = $(this).data('name');
+                deleteModal.show();
+            });
+        });
+    </script>
+</body>
+</html>
