@@ -1,247 +1,230 @@
 {% load static %}
-<header id="page-topbar">
-    <div class="navbar-header">
+<header id="page-topbar" class="bg-white border-bottom shadow-sm">
+    <div class="navbar-header h-100 px-4">
 
-        <!-- Start Navbar-Brand -->
-        <div class="navbar-logo-box">
-            <a href="index.html" class="logo logo-dark">
+        <!-- Logo Section -->
+        <div class="navbar-logo-box d-flex align-items-center gap-3">
+            <a href="{% url 'accounts:dashboard' %}" class="logo logo-dark">
                 <span class="logo-sm">
-                    <img src="{% static 'assets/images/logo-sm.png' %}" alt="logo-sm-dark" height="22">
+                    <img src="{% static 'assets/images/logo-sm.png' %}" alt="logo-sm" height="26">
                 </span>
                 <span class="logo-lg">
-                    <img src="{% static 'assets/images/logo-dark.png' %}" alt="logo-dark" height="20">
+                    <img src="{% static 'assets/images/logo-dark.png' %}" alt="logo-dark" height="22">
                 </span>
             </a>
-            <a href="index.html" class="logo logo-light">
-                <span class="logo-sm">
-                    <img src="{% static 'assets/images/logo-sm.png' %}" alt="logo-sm-light" height="22">
-                </span>
-                <span class="logo-lg">
-                    <img src="{% static 'assets/images/logo-light.png' %}" alt="logo-light" height="20">
-                </span>
-            </a>
-            <button type="button" class="btn btn-icon top-icon sidebar-btn" id="sidebar-btn"
-                aria-label="Toggle navigation"><i class="mdi mdi-menu-open align-middle fs-17"></i></button>
-            <button type="button" class="btn btn-icon top-icon sidebar-horizontal-btn d-none"
-                aria-label="Toggle navigation"><i class="mdi mdi-menu align-middle fs-17"></i></button>
+            
+            <button type="button" class="btn btn-soft-secondary btn-icon rounded-pill shadow-none sidebar-btn" id="sidebar-btn">
+                <i data-eva="menu-2-outline"></i>
+            </button>
         </div>
 
-        <!-- Start menu -->
-        <div class="d-flex justify-content-between menu-sm px-4 ms-auto">
-            <div class="d-flex align-items-center gap-2">
-                
-            </div>
-            <div class="d-flex align-items-center gap-3">
-                <!--Start App Search-->
-                <form class="app-search d-none d-lg-block me-2">
-                    <div class="position-relative">
-                        <input type="text" class="form-control" placeholder="Search...">
-                        <i data-eva="search-outline" class="align-middle"></i>
+        <!-- Central Search Command -->
+        <div class="d-none d-lg-block flex-grow-1 mx-5">
+            <div class="position-relative w-100 max-w-500 mx-auto">
+                <form class="app-search">
+                    <div class="input-group bg-light rounded-pill px-3 py-1 border border-transparent transition-all hover-border-primary">
+                        <span class="input-group-text bg-transparent border-0 pe-0">
+                            <i data-eva="search-outline" data-eva-fill="#94a3b8" style="width: 18px;"></i>
+                        </span>
+                        <input type="text" class="form-control bg-transparent border-0 shadow-none fs-14 fw-medium" placeholder="Command Search... (Ctrl+K)">
                     </div>
                 </form>
-                <!-- Start Activities -->
-                <div class="d-inline-block activities">
-                    <button type="button" aria-label="activities" class="btn btn-icon top-icon"
-                        data-bs-toggle="offcanvas" data-bs-target="#offcanvas-rightsidabar">
-                        <i class="mdi mdi-table align-middle fs-17"></i>
-                    </button>
-                </div>
-                <button type="button" class="btn btn-icon top-icon d-none d-md-block" id="light-dark-mode"
-                    aria-label="Toggle Light/Dark">
-                    <i class="mdi mdi-brightness-7 align-middle"></i>
-                    <i class="mdi mdi-white-balance-sunny align-middle"></i>
+            </div>
+        </div>
+
+        <!-- Action Components -->
+        <div class="d-flex align-items-center gap-3">
+            
+            <!-- Quick Link: Activities -->
+            <button type="button" class="btn btn-icon btn-soft-secondary rounded-pill shadow-none" 
+                data-bs-toggle="offcanvas" data-bs-target="#offcanvas-rightsidabar">
+                <i data-eva="grid-outline" style="width: 20px;"></i>
+            </button>
+
+            <!-- Mode Toggle -->
+            <button type="button" class="btn btn-icon btn-soft-secondary rounded-pill shadow-none" id="light-dark-mode">
+                <i data-eva="moon-outline" class="mode-dark" style="width: 20px;"></i>
+                <i data-eva="sun-outline" class="mode-light d-none" style="width: 20px;"></i>
+            </button>
+
+            <!-- Notification Hub -->
+            <div class="dropdown">
+                <button type="button" class="btn btn-icon btn-soft-primary rounded-pill position-relative shadow-none" 
+                    id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i data-eva="bell-outline" style="width: 20px;"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white p-1">
+                        <span class="visually-hidden">unread notifications</span>
+                    </span>
                 </button>
-                <!-- Start Notifications -->
-                <div class="dropdown d-inline-block">
-                    <button type="button" class="btn btn-icon top-icon" id="page-header-notifications-dropdown"
-                        data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications">
-                        <i class="mdi mdi-bell-ring-outline fs-17"></i>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-md dropdown-menu-end dropdown-menu-animated p-0 "
-                        aria-labelledby="page-header-notifications-dropdown">
-                        <div class="p-4 border-bottom">
-                            <div class="row align-items-center">
-                                <div class="col">
-                                    <h6 class="m-0"> <i class="mdi mdi-bell-ring-outline me-1 fs-15"></i>
-                                        Notifications </h6>
-                                </div>
-                                <div class="col-auto">
-                                    <a href="#!" class="badge bg-info-subtle text-info"> 8+</a>
-                                </div>
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end border-0 shadow-lg rounded-4 overflow-hidden p-0 dropdown-menu-animated"
+                    aria-labelledby="page-header-notifications-dropdown">
+                    <div class="p-4 bg-dark text-white">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h6 class="m-0 text-white fw-bold d-flex align-items-center gap-2">
+                                    <i data-eva="bell-outline" data-eva-fill="#ffffff" style="width: 18px;"></i>
+                                    Event Stream
+                                </h6>
+                            </div>
+                            <div class="col-auto">
+                                <span class="badge bg-soft-light text-white rounded-pill px-2">8 New</span>
                             </div>
                         </div>
-                        <div data-simplebar style="max-height: 230px;">
-                            <a href="#!" class="text-reset notification-item">
-                                <div class="d-flex">
-                                    <div class="avatar avatar-xs avatar-label-primary me-3">
-                                        <span class="rounded fs-16">
-                                            <i class="mdi mdi-file-document-outline"></i>
-                                        </span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h6 class="mb-1">New report has been recived</h6>
-                                        <p class="mb-0 fs-12 text-muted"><i class="mdi mdi-clock-outline"></i> 3
-                                            min ago</p>
-                                    </div>
-                                    <i class="mdi mdi-chevron-right align-middle ms-2"></i>
+                    </div>
+                    <div data-simplebar style="max-height: 280px;" class="py-2">
+                        <a href="#!" class="dropdown-item px-4 py-3 border-bottom border-light transition-all">
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="bg-soft-primary p-2 rounded-3 text-primary">
+                                    <i data-eva="file-text-outline" style="width: 18px;"></i>
                                 </div>
-                            </a>
-                            <a href="#!" class="text-reset notification-item">
-                                <div class="d-flex">
-                                    <div class="avatar avatar-xs avatar-label-success me-3">
-                                        <span class="rounded fs-16">
-                                            <i class="mdi mdi-cart-variant"></i>
-                                        </span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h6 class="mb-1">Last order was completed</h6>
-                                        <p class="mb-0 fs-12 text-muted"><i class="mdi mdi-clock-outline"></i> 1
-                                            hour ago</p>
-                                    </div>
-                                    <i class="mdi mdi-chevron-right align-middle ms-2"></i>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1 fw-bold fs-13">Financial Report Generated</h6>
+                                    <p class="mb-0 text-muted fs-12 d-flex align-items-center gap-1">
+                                        <i data-eva="clock-outline" style="width: 12px;"></i> 2 min ago
+                                    </p>
                                 </div>
-                            </a>
-                            <a href="#!" class="text-reset notification-item">
-                                <div class="d-flex">
-                                    <div class="avatar avatar-xs avatar-label-danger me-3">
-                                        <span class="rounded fs-16">
-                                            <i class="mdi mdi-account-group"></i>
-                                        </span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h6 class="mb-1">Completed meeting canceled</h6>
-                                        <p class="mb-0 fs-12 text-muted"><i class="mdi mdi-clock-outline"></i> 5
-                                            hour ago</p>
-                                    </div>
-                                    <i class="mdi mdi-chevron-right align-middle ms-2"></i>
+                            </div>
+                        </a>
+                        <a href="#!" class="dropdown-item px-4 py-3 border-bottom border-light transition-all">
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="bg-soft-success p-2 rounded-3 text-success">
+                                    <i data-eva="checkmark-circle-2-outline" style="width: 18px;"></i>
                                 </div>
-                            </a>
-                            <a href="#!" class="text-reset notification-item">
-                                <div class="d-flex">
-                                    <div class="avatar avatar-xs avatar-label-warning me-3">
-                                        <span class="rounded fs-16">
-                                            <i class="mdi mdi-send-outline"></i>
-                                        </span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h6 class="mb-1">New feedback received</h6>
-                                        <p class="mb-0 fs-12 text-muted"><i class="mdi mdi-clock-outline"></i> 6
-                                            hour ago</p>
-                                    </div>
-                                    <i class="mdi mdi-chevron-right align-middle ms-2"></i>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1 fw-bold fs-13">Pipeline Stage Authorized</h6>
+                                    <p class="mb-0 text-muted fs-12 d-flex align-items-center gap-1">
+                                        <i data-eva="clock-outline" style="width: 12px;"></i> 1 hour ago
+                                    </p>
                                 </div>
-                            </a>
-                            <a href="#!" class="text-reset notification-item">
-                                <div class="d-flex">
-                                    <div class="avatar avatar-xs avatar-label-secondary me-3">
-                                        <span class="rounded fs-16">
-                                            <i class="mdi mdi-download-box"></i>
-                                        </span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h6 class="mb-1">New update was available</h6>
-                                        <p class="mb-0 fs-12 text-muted"><i class="mdi mdi-clock-outline"></i> 1
-                                            day ago</p>
-                                    </div>
-                                    <i class="mdi mdi-chevron-right align-middle ms-2"></i>
-                                </div>
-                            </a>
-                            <a href="#!" class="text-reset notification-item">
-                                <div class="d-flex">
-                                    <div class="avatar avatar-xs avatar-label-info me-3">
-                                        <span class="rounded fs-16">
-                                            <i class="mdi mdi-hexagram-outline"></i>
-                                        </span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h6 class="mb-1">Your password was changed</h6>
-                                        <p class="mb-0 fs-12 text-muted"><i class="mdi mdi-clock-outline"></i> 2
-                                            day ago</p>
-                                    </div>
-                                    <i class="mdi mdi-chevron-right align-middle ms-2"></i>
-                                </div>
-                            </a>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="p-3 text-center border-top">
+                        <a class="btn btn-link link-primary p-0 fs-13 fw-bold" href="javascript:void(0)">
+                            Analyze Global History <i data-eva="arrow-forward-outline" style="width: 14px; vertical-align: middle;"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Context -->
+            <div class="dropdown border-start ps-3 ms-2 ms-xl-3 admin-user-info">
+                <button type="button" class="btn btn-link p-0 text-decoration-none d-flex align-items-center gap-2 shadow-none border-0" 
+                    id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <img src="{% static 'assets/images/users/avatar-9.png' %}" class="rounded-pill border border-2 border-white shadow-sm" alt="Avatar" width="34" height="34">
+                    <div class="text-start d-none d-xl-block">
+                        <p class="mb-0 fw-bold fs-13 text-dark line-height-1">Charlie Stone</p>
+                        <p class="mb-0 text-muted fs-11 fw-bold text-uppercase letter-spacing-1">Chief Strategist</p>
+                    </div>
+                    <i data-eva="chevron-down-outline" data-eva-fill="#94a3b8" style="width: 16px;"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end border-0 shadow-lg rounded-4 py-0 overflow-hidden dropdown-menu-animated">
+                    <div class="p-4 bg-primary text-white d-flex align-items-center gap-3">
+                        <img src="{% static 'assets/images/users/avatar-9.png' %}" class="rounded-pill border border-2 border-white shadow-sm" width="48" height="48">
+                        <div>
+                            <h6 class="mb-0 text-white fw-bold fs-15">Charlie Stone</h6>
+                            <p class="mb-0 text-white-50 fs-12">admin@codubucks.in</p>
                         </div>
-                        <div class="p-2 border-top">
-                            <div class="d-grid">
-                                <a class="btn btn-sm btn-link font-size-14 text-center" href="javascript:void(0)">
-                                    <i class="mdi mdi-arrow-right-circle me-1"></i> View More..
+                    </div>
+                    <div class="p-4">
+                        <div class="row g-3 grid-nav">
+                            <div class="col-4">
+                                <a href="pages-profile.html" class="d-flex flex-column align-items-center gap-2 p-3 bg-light rounded-4 text-decoration-none transition-all hover-up-2">
+                                    <i data-eva="person-outline" data-eva-fill="var(--bs-primary)" style="width: 24px;"></i>
+                                    <span class="fs-11 fw-bold text-dark text-uppercase">Profile</span>
+                                </a>
+                            </div>
+                            <div class="col-4">
+                                <a href="#!" class="d-flex flex-column align-items-center gap-2 p-3 bg-light rounded-4 text-decoration-none transition-all hover-up-2">
+                                    <i data-eva="message-square-outline" data-eva-fill="var(--bs-info)" style="width: 24px;"></i>
+                                    <span class="fs-11 fw-bold text-dark text-uppercase">Chat</span>
+                                </a>
+                            </div>
+                            <div class="col-4">
+                                <a href="pages-profile.html" class="d-flex flex-column align-items-center gap-2 p-3 bg-light rounded-4 text-decoration-none transition-all hover-up-2">
+                                    <i data-eva="settings-2-outline" data-eva-fill="var(--bs-warning)" style="width: 24px;"></i>
+                                    <span class="fs-11 fw-bold text-dark text-uppercase">Pulse</span>
                                 </a>
                             </div>
                         </div>
                     </div>
-                </div>
-                <!-- Start Profile -->
-                <div class="dropdown d-inline-block ps-3 ms-2 border-start admin-user-info">
-                    <button type="button" aria-label="profile" class="btn btn-sm p-0" id="page-header-user-dropdown"
-                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span class="avatar avatar-xs p-1 d-inline-block">
-                            <img src="{% static 'assets/images/users/avatar-9.png' %}" alt="Header Avatar"
-                                class="img-fluid">
-                        </span>
-                        <span class="d-none d-xl-inline-block ms-1 fw-semibold fs-14 admin-name">Charlie
-                            Stone</span>
-                        <i class="mdi mdi-chevron-down align-middle fs-16 d-none d-xl-inline-block"></i>
-                    </button>
-                    <div
-                        class="dropdown-menu dropdown-menu-lg dropdown-menu-end dropdown-menu-animated overflow-hidden py-0">
-                        <div class="card mb-0">
-                            <div class="card-header">
-                                <div class="rich-list-item w-100 p-0">
-                                    <div class="rich-list-prepend">
-                                        <span class="rounded avatar-sm p-1 bg-body d-flex">
-                                            <img src="{% static 'assets/images/users/avatar-9.png' %}"
-                                                alt="Header Avatar" class="img-fluid">
-                                        </span>
-                                    </div>
-                                    <div class="rich-list-content">
-                                        <h3 class="rich-list-title fs-13 mb-1">Charlie Stone</h3>
-                                        <span class="rich-list-subtitle">admin@codubucks.in</span>
-                                    </div>
-                                    <div class="rich-list-append"><span class="badge badge-label-primary fs-6">6+</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="grid-nav grid-nav-flush grid-nav-action grid-nav-no-rounded">
-                                    <div class="grid-nav-row">
-                                        <a href="pages-profile.html" class="grid-nav-item">
-                                            <div class="grid-nav-icon"><i class="far fa-address-card"></i></div>
-                                            <span class="grid-nav-content">Profile</span>
-                                        </a>
-                                        <a href="#!" class="grid-nav-item">
-                                            <div class="grid-nav-icon"><i class="far fa-comments"></i></div>
-                                            <span class="grid-nav-content">Messages</span>
-                                        </a>
-                                        <a href="pages-profile.html" class="grid-nav-item">
-                                            <div class="grid-nav-icon"><i class="far fa-clone"></i></div>
-                                            <span class="grid-nav-content">Activities</span>
-                                        </a>
-                                    </div>
-                                    <div class="grid-nav-row">
-                                        <a href="pages-profile.html" class="grid-nav-item">
-                                            <div class="grid-nav-icon"><i class="far fa-calendar-check"></i>
-                                            </div>
-                                            <span class="grid-nav-content">Tasks</span>
-                                        </a>
-                                        <a href="#!" class="grid-nav-item">
-                                            <div class="grid-nav-icon"><i class="far fa-sticky-note"></i></div>
-                                            <span class="grid-nav-content">Notes</span>
-                                        </a>
-                                        <a href="#!" class="grid-nav-item">
-                                            <div class="grid-nav-icon"><i class="far fa-bell"></i></div>
-                                            <span class="grid-nav-content">Notification</span>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-footer card-footer-bordered rounded-0 border-top text-end"><a
-                                    href="auth-signin.html" class="btn btn-label-danger">Sign In</a></div>
-                        </div>
+                    <div class="p-3 border-top bg-light text-end">
+                        <a href="auth-signin.html" class="btn btn-soft-danger rounded-pill px-4 fs-12 fw-bold d-inline-flex align-items-center gap-2">
+                            <i data-eva="log-out-outline" style="width: 16px;"></i> Terminate Session
+                        </a>
                     </div>
                 </div>
             </div>
+
         </div>
-        <!-- End menu -->
     </div>
 </header>
+
+<style>
+    #page-topbar {
+        height: 72px;
+        z-index: 1001;
+    }
+
+    .navbar-header {
+        max-width: 100%;
+        margin: 0;
+    }
+
+    .btn-soft-secondary {
+        background-color: #f1f5f9;
+        color: #64748b;
+        border: none;
+    }
+
+    .btn-soft-secondary:hover {
+        background-color: #e2e8f0;
+        color: #1e293b;
+    }
+
+    .max-w-500 { max-width: 500px; }
+    
+    .hover-border-primary:hover {
+        border-color: rgba(99, 102, 241, 0.4) !important;
+        background: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08);
+    }
+
+    .dropdown-menu-animated {
+        animation-name: DropDownSlide;
+        animation-duration: .3s;
+        animation-fill-mode: both;
+    }
+
+    @keyframes DropDownSlide {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .hover-up-2:hover {
+        transform: translateY(-5px);
+        background-color: #ffffff !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .line-height-1 { line-height: 1; }
+    .letter-spacing-1 { letter-spacing: 0.05em; }
+
+    .bg-soft-primary { background-color: rgba(99, 102, 241, 0.1); }
+    .bg-soft-success { background-color: rgba(34, 197, 94, 0.1); }
+    .bg-soft-light { background-color: rgba(255, 255, 255, 0.1); }
+
+    .transition-all { transition: all 0.3s ease; }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        eva.replace();
+    });
+</script>

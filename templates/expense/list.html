@@ -12,10 +12,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body class="bg-light">
+<body>
     <div id="layout-wrapper">
         {% include 'base/header.html' %}
         {% include 'base/sidebar.html' %}
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        <div class="sidebar-left horizontal-sidebar">
+            {% include 'base/horizontal_sidebar.html' %}
+        </div>
 
         <div class="main-content">
             <div class="page-content">
@@ -24,22 +28,31 @@
                     <div class="row align-items-center mb-4">
                         <div class="col-md-7">
                             <div class="d-flex align-items-center gap-3">
-                                <div class="bg-primary bg-gradient p-3 rounded-pill shadow-sm">
+                                <div class="intelligence-icon-box bg-primary bg-gradient p-3 rounded-pill shadow-lg">
                                     <i data-eva="file-text-outline" data-eva-fill="#ffffff" class="fs-4"></i>
                                 </div>
                                 <div>
-                                    <h3 class="fw-bold text-dark mb-1">Financial Expenditure Ledger</h3>
-                                    <p class="text-muted mb-0"><i data-eva="activity-outline" class="me-1" style="width: 16px;"></i> Monitoring corporate liabilities and settlement pipelines</p>
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <h3 class="fw-bold text-dark mb-0">Financial Expenditure Ledger</h3>
+                                        <span class="badge bg-soft-success text-success border border-success-subtle rounded-pill px-2 py-1 fs-10 d-flex align-items-center gap-1">
+                                            <span class="live-pulse"></span> LIVE
+                                        </span>
+                                    </div>
+                                    <p class="text-muted mb-0 small"><i data-eva="activity-outline" class="me-1"
+                                            style="width: 14px;"></i> Monitoring corporate liabilities and settlement
+                                        pipelines in real-time</p>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-5 text-md-end mt-3 mt-md-0">
                             <div class="d-flex gap-2 justify-content-md-end">
-                                <a href="{% url 'expenses:export_csv' %}" class="btn btn-outline-secondary btn-lg rounded-3 px-4 shadow-none">
-                                    <i data-eva="download-outline" class="me-2" style="width: 18px;"></i> Export Data
+                                <a href="{% url 'expenses:export_csv' %}"
+                                    class="btn btn-glass-secondary btn-lg rounded-3 px-4 shadow-none">
+                                    <i data-eva="download-outline" class="me-2" style="width: 18px;"></i> Export Matrix
                                 </a>
-                                <a href="{% url 'expenses:expense_create' %}" class="btn btn-primary btn-lg rounded-3 px-4 shadow-sm">
-                                    <i data-eva="plus-outline" class="me-2" style="width: 18px;"></i> New Entry
+                                <a href="{% url 'expenses:expense_create' %}"
+                                    class="btn btn-primary btn-lg rounded-3 px-4 shadow-sm hover-grow">
+                                    <i data-eva="plus-outline" class="me-2" style="width: 18px;"></i> Initialize Entry
                                 </a>
                             </div>
                         </div>
@@ -48,68 +61,83 @@
                     <!-- Expenditure Intelligence Header (Pulse stats) -->
                     <div class="row g-4 mb-4">
                         <div class="col-xl-3 col-sm-6">
-                            <div class="card border-0 shadow-sm h-100 overflow-hidden bg-white hover-up transition-all">
+                            <div class="card border-0 shadow-sm h-100 overflow-hidden bg-white hover-up transition-all metric-card">
                                 <div class="card-body p-4 position-relative">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <div class="bg-soft-primary p-3 rounded-3">
-                                            <i data-eva="credit-card-outline" data-eva-fill="var(--bs-primary)" style="width: 28px; height: 28px;"></i>
+                                        <div class="bg-soft-primary p-3 rounded-4 icon-holder">
+                                            <i data-eva="credit-card-outline" data-eva-fill="var(--bs-primary)"
+                                                style="width: 28px; height: 28px;"></i>
                                         </div>
-                                        <span class="badge bg-soft-primary text-primary rounded-pill px-3 py-2 fs-11 fw-bold">TOTAL LIABILITY</span>
+                                        <div class="text-end">
+                                            <span class="badge bg-soft-primary text-primary rounded-pill px-3 py-1 fs-10 fw-bold letter-spacing-1">TOTAL VOLUME</span>
+                                        </div>
                                     </div>
-                                    <h2 class="fw-bold text-dark mb-1">₹{{ stats.total|default:"0"|floatformat:2 }}</h2>
-                                    <p class="text-muted small mb-0"><i data-eva="trending-up-outline" class="text-success me-1" style="width: 14px;"></i> Base operational volume</p>
-                                    <div class="position-absolute bottom-0 end-0 opacity-10 me-n3 mb-n3" style="font-size: 80px;">
+                                    <h2 class="fw-bold text-dark mb-1 tabular-nums">₹{{ stats.total|default:"0"|floatformat:2 }}</h2>
+                                    <div class="d-flex align-items-center gap-2 small">
+                                        <span class="text-success fw-bold d-flex align-items-center"><i data-eva="trending-up-outline" style="width: 14px;"></i> +12%</span>
+                                        <span class="text-muted fs-11">vs previous cycle</span>
+                                    </div>
+                                    <div class="card-bg-icon">
                                         <i data-eva="credit-card-outline"></i>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-xl-3 col-sm-6">
-                            <div class="card border-0 shadow-sm h-100 overflow-hidden bg-white hover-up transition-all">
+                            <div class="card border-0 shadow-sm h-100 overflow-hidden bg-white hover-up transition-all metric-card">
                                 <div class="card-body p-4 position-relative border-start border-4 border-warning">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <div class="bg-soft-warning p-3 rounded-3">
-                                            <i data-eva="clock-outline" data-eva-fill="var(--bs-warning)" style="width: 28px; height: 28px;"></i>
+                                        <div class="bg-soft-warning p-3 rounded-4 icon-holder">
+                                            <i data-eva="clock-outline" data-eva-fill="var(--bs-warning)"
+                                                style="width: 28px; height: 28px;"></i>
                                         </div>
-                                        <span class="badge bg-soft-warning text-warning rounded-pill px-3 py-2 fs-11 fw-bold">IN REVIEW</span>
+                                        <div class="text-end">
+                                            <span class="badge bg-soft-warning text-warning rounded-pill px-3 py-1 fs-10 fw-bold letter-spacing-1">IN QUEUE</span>
+                                        </div>
                                     </div>
-                                    <h2 class="fw-bold text-dark mb-1">₹{{ stats.pending|default:"0"|floatformat:2 }}</h2>
-                                    <p class="text-muted small mb-0 font-monospace">Awaiting protocol clearance</p>
-                                    <div class="position-absolute bottom-0 end-0 opacity-10 me-n3 mb-n3" style="font-size: 80px;">
+                                    <h2 class="fw-bold text-dark mb-1 tabular-nums">₹{{ stats.pending|default:"0"|floatformat:2 }}</h2>
+                                    <p class="text-muted small mb-0 font-monospace fs-11"><i data-eva="shield-outline" class="me-1" style="width: 12px;"></i> Security validation active</p>
+                                    <div class="card-bg-icon">
                                         <i data-eva="clock-outline"></i>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-xl-3 col-sm-6">
-                            <div class="card border-0 shadow-sm h-100 overflow-hidden bg-white hover-up transition-all">
+                            <div class="card border-0 shadow-sm h-100 overflow-hidden bg-white hover-up transition-all metric-card">
                                 <div class="card-body p-4 position-relative border-start border-4 border-success">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <div class="bg-soft-success p-3 rounded-3">
-                                            <i data-eva="checkmark-circle-outline" data-eva-fill="var(--bs-success)" style="width: 28px; height: 28px;"></i>
+                                        <div class="bg-soft-success p-3 rounded-4 icon-holder">
+                                            <i data-eva="checkmark-circle-outline" data-eva-fill="var(--bs-success)"
+                                                style="width: 28px; height: 28px;"></i>
                                         </div>
-                                        <span class="badge bg-soft-success text-success rounded-pill px-3 py-2 fs-11 fw-bold">SETTLED</span>
+                                        <div class="text-end">
+                                            <span class="badge bg-soft-success text-success rounded-pill px-3 py-1 fs-10 fw-bold letter-spacing-1">FINALIZED</span>
+                                        </div>
                                     </div>
-                                    <h2 class="fw-bold text-dark mb-1">₹{{ stats.paid|default:"0"|floatformat:2 }}</h2>
-                                    <p class="text-muted small mb-0"><span class="text-success fw-bold">{{ stats.paid_count|default:"0" }}</span> finalized accounts</p>
-                                    <div class="position-absolute bottom-0 end-0 opacity-10 me-n3 mb-n3" style="font-size: 80px;">
+                                    <h2 class="fw-bold text-dark mb-1 tabular-nums">₹{{ stats.paid|default:"0"|floatformat:2 }}</h2>
+                                    <p class="text-muted small mb-0"><span class="text-success fw-bold d-inline-flex align-items-center gap-1"><i data-eva="done-all-outline" style="width: 14px;"></i> {{ stats.paid_count|default:"0" }}</span> settlement tokens issued</p>
+                                    <div class="card-bg-icon">
                                         <i data-eva="checkmark-circle-outline"></i>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-xl-3 col-sm-6">
-                            <div class="card border-0 shadow-sm h-100 overflow-hidden bg-white hover-up transition-all">
+                            <div class="card border-0 shadow-sm h-100 overflow-hidden bg-white hover-up transition-all metric-card">
                                 <div class="card-body p-4 position-relative border-start border-4 border-danger">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <div class="bg-soft-danger p-3 rounded-3">
-                                            <i data-eva="alert-triangle-outline" data-eva-fill="var(--bs-danger)" style="width: 28px; height: 28px;"></i>
+                                        <div class="bg-soft-danger p-3 rounded-4 icon-holder">
+                                            <i data-eva="alert-triangle-outline" data-eva-fill="var(--bs-danger)"
+                                                style="width: 28px; height: 28px;"></i>
                                         </div>
-                                        <span class="badge bg-soft-danger text-danger rounded-pill px-3 py-2 fs-11 fw-bold">CREDIT BALANCE</span>
+                                        <div class="text-end">
+                                            <span class="badge bg-soft-danger text-danger rounded-pill px-3 py-1 fs-10 fw-bold letter-spacing-1">CREDIT RISK</span>
+                                        </div>
                                     </div>
-                                    <h2 class="fw-bold text-dark mb-1">₹{{ stats.balance|default:"0"|floatformat:2 }}</h2>
-                                    <p class="text-muted small mb-0">Outstanding commitment</p>
-                                    <div class="position-absolute bottom-0 end-0 opacity-10 me-n3 mb-n3" style="font-size: 80px;">
+                                    <h2 class="fw-bold text-dark mb-1 tabular-nums">₹{{ stats.balance|default:"0"|floatformat:2 }}</h2>
+                                    <p class="text-muted small mb-0 d-flex align-items-center gap-1"><i data-eva="activity-outline" class="text-danger" style="width:14px"></i> Critical threshold monitoring</p>
+                                    <div class="card-bg-icon">
                                         <i data-eva="alert-triangle-outline"></i>
                                     </div>
                                 </div>
@@ -118,19 +146,23 @@
                     </div>
 
                     <!-- Transaction Pipeline Matrix -->
-                    <div class="card border-0 shadow-sm mb-5 bg-white">
+                    <div class="card border-0 shadow-sm mb-5 bg-white glass-matrix-container">
                         <div class="card-header bg-white py-4 border-0">
                             <form method="get" class="row g-3 align-items-center">
                                 <div class="col-lg-4">
-                                    <div class="input-group input-group-lg bg-light rounded-pill px-3">
-                                        <span class="bg-transparent border-0 text-muted d-flex align-items-center"><i data-eva="search" style="width: 20px;"></i></span>
-                                        <input type="text" name="search" class="form-control bg-transparent border-0 fs-15 shadow-none" 
-                                            placeholder="Search ledger by Ref ID, title, or user..." value="{{ current_search }}">
+                                    <div class="search-input-wrapper">
+                                        <i data-eva="search" class="search-icon"></i>
+                                        <input type="text" name="search"
+                                            class="form-control premium-search-input"
+                                            placeholder="Audit ID, Title, or Account..."
+                                            value="{{ current_search }}">
                                     </div>
                                 </div>
                                 <div class="col-lg-2">
-                                    <select name="status" class="form-select form-select-lg rounded-pill bg-light border-0 fs-14 shadow-none px-4" onchange="this.form.submit()">
-                                        <option value="">Status: All Lifecycle</option>
+                                    <select name="status"
+                                        class="form-select premium-select"
+                                        onchange="this.form.submit()">
+                                        <option value="">All Workflow States</option>
                                         <option value="draft" {% if current_status == 'draft' %}selected{% endif %}>Draft Pipeline</option>
                                         <option value="submitted" {% if current_status == 'submitted' %}selected{% endif %}>In Review</option>
                                         <option value="approved" {% if current_status == 'approved' %}selected{% endif %}>Approved Trace</option>
@@ -139,15 +171,28 @@
                                     </select>
                                 </div>
                                 <div class="col-lg-2">
-                                    <input type="date" name="start_date" class="form-control form-control-lg rounded-pill bg-light border-0 fs-14 shadow-none px-4" value="{{ current_start_date }}">
+                                    <div class="date-input-wrapper">
+                                        <i data-eva="calendar-outline" class="date-icon"></i>
+                                        <input type="date" name="start_date"
+                                            class="form-control premium-date-input"
+                                            value="{{ current_start_date }}">
+                                    </div>
                                 </div>
                                 <div class="col-lg-2">
-                                    <input type="date" name="end_date" class="form-control form-control-lg rounded-pill bg-light border-0 fs-14 shadow-none px-4" value="{{ current_end_date }}">
+                                    <div class="date-input-wrapper">
+                                        <i data-eva="calendar-outline" class="date-icon"></i>
+                                        <input type="date" name="end_date"
+                                            class="form-control premium-date-input"
+                                            value="{{ current_end_date }}">
+                                    </div>
                                 </div>
                                 <div class="col-lg-2">
                                     <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-dark btn-lg rounded-pill px-4 flex-grow-1">Apply</button>
-                                        <a href="{% url 'expenses:expense_list' %}" class="btn btn-soft-danger btn-lg rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                        <button type="submit"
+                                            class="btn btn-dark btn-lg rounded-pill px-4 flex-grow-1 shadow-sm">Audit Matrix</button>
+                                        <a href="{% url 'expenses:expense_list' %}"
+                                            class="btn btn-soft-danger btn-lg rounded-circle p-2 d-flex align-items-center justify-content-center hover-rotate"
+                                            style="width: 48px; height: 48px;">
                                             <i data-eva="refresh-outline"></i>
                                         </a>
                                     </div>
@@ -156,23 +201,28 @@
                         </div>
 
                         <!-- Bulk Control Toolbar -->
-                        <div id="bulkControl" class="card-body bg-dark text-white d-none py-3 animate__animated animate__fadeIn">
+                        <div id="bulkControl"
+                            class="card-body bg-dark text-white d-none py-3 animate__animated animate__slideInDown shadow-lg">
                             <div class="container-fluid d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center gap-3">
-                                    <div class="bg-primary p-2 rounded-circle">
-                                        <i data-eva="layers-outline" data-eva-fill="#ffffff" style="width: 18px; height: 18px;"></i>
+                                    <div class="bg-primary p-2 rounded-circle pulse-blue">
+                                        <i data-eva="layers-outline" data-eva-fill="#ffffff"
+                                            style="width: 18px; height: 18px;"></i>
                                     </div>
-                                    <span class="fw-bold fs-15"><span id="selectedCount">0</span> Entities Selected</span>
+                                    <span class="fw-bold fs-15"><span id="selectedCount" class="text-primary fs-18">0</span> Entities Linked</span>
                                 </div>
                                 <div class="d-flex gap-3">
-                                    <button type="submit" form="bulkActionForm" name="bulk_action" value="approve" class="btn btn-success rounded-pill px-4">
-                                        <i data-eva="checkmark-outline" class="me-1"></i> Bulk Approve
+                                    <button type="submit" form="bulkActionForm" name="bulk_action" value="approve"
+                                        class="btn btn-success rounded-pill px-4 hover-lift">
+                                        <i data-eva="checkmark-outline" class="me-1"></i> Bulk Validate
                                     </button>
-                                    <button type="submit" form="bulkActionForm" name="bulk_action" value="delete" class="btn btn-danger rounded-pill px-4" 
+                                    <button type="submit" form="bulkActionForm" name="bulk_action" value="delete"
+                                        class="btn btn-danger rounded-pill px-4 hover-lift"
                                         onclick="return confirm('Initiate secure terminal deletion?');">
-                                        <i data-eva="trash-2-outline" class="me-1"></i> Terminal Delete
+                                        <i data-eva="trash-2-outline" class="me-1"></i> Purge Data
                                     </button>
-                                    <button type="button" class="btn btn-link text-white text-decoration-none" onclick="cancelSelection()">Discard Selection</button>
+                                    <button type="button" class="btn btn-link text-white-50 text-decoration-none px-0"
+                                        onclick="cancelSelection()">Discard Select</button>
                                 </div>
                             </div>
                         </div>
@@ -181,83 +231,94 @@
                             <div class="table-responsive">
                                 <form id="bulkActionForm" method="post" action="{% url 'expenses:bulk_actions' %}">
                                     {% csrf_token %}
-                                    <table class="table table-hover align-middle mb-0">
+                                    <table class="table table-hover align-middle mb-0 matrix-table">
                                         <thead>
                                             <tr class="bg-soft-light text-muted fs-11 text-uppercase fw-bold letter-spacing-1">
                                                 <th style="width: 60px;" class="ps-4 py-3">
-                                                    <div class="form-check custom-checkbox">
+                                                    <div class="form-check custom-checkbox-premium">
                                                         <input class="form-check-input" type="checkbox" id="checkAll">
                                                     </div>
                                                 </th>
-                                                <th class="py-3">Exp ID</th>
-                                                <th class="py-3">Expenditure Profile</th>
+                                                <th class="py-3">Audit ID</th>
+                                                <th class="py-3">Corporate Profile</th>
                                                 <th class="py-3">Financial Nexus</th>
-                                                <th class="py-3">Timeline</th>
-                                                <th class="py-3">Workflow State</th>
+                                                <th class="py-3">Temporal Data</th>
+                                                <th class="py-3 text-center">Protocol State</th>
                                                 <th class="text-end pe-4 py-3">Operations</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {% for expense in expenses %}
-                                            <tr class="transition-all hover-soft-primary border-bottom border-light">
+                                            <tr class="transition-all matrix-row">
                                                 <td class="ps-4">
-                                                    <div class="form-check custom-checkbox">
-                                                        <input class="form-check-input expense-checkbox" type="checkbox" name="expense_ids" value="{{ expense.pk }}">
+                                                    <div class="form-check custom-checkbox-premium">
+                                                        <input class="form-check-input expense-checkbox" type="checkbox"
+                                                            name="expense_ids" value="{{ expense.pk }}">
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <a href="{% url 'expenses:expense_detail' expense.pk %}" class="fw-bold font-monospace text-primary">#{{ expense.expense_number }}</a>
+                                                    <span class="badge bg-light text-primary font-monospace fs-12 px-2 py-1 border border-primary-subtle shadow-sm">#{{ expense.expense_number }}</span>
                                                 </td>
                                                 <td>
                                                     <div class="d-flex align-items-center gap-3">
-                                                        <div class="avatar-md bg-soft-info text-info rounded-circle d-flex align-items-center justify-content-center shadow-sm fw-bold">
+                                                        <div class="avatar-md-premium bg-soft-info text-info rounded-pill d-flex align-items-center justify-content-center shadow-sm fw-bold border border-info-subtle">
                                                             {{ expense.title|slice:":1"|upper }}
                                                         </div>
                                                         <div>
-                                                            <h6 class="fw-bold text-dark mb-0 fs-14">{{ expense.title }}</h6>
+                                                            <a href="{% url 'expenses:expense_detail' expense.pk %}" class="fw-bold text-dark mb-0 fs-14 hover-text-primary text-decoration-none d-block">{{ expense.title }}</a>
                                                             <div class="d-flex align-items-center mt-1">
-                                                                <i data-eva="person-outline" class="text-muted me-1" style="width: 12px;"></i>
-                                                                <span class="text-muted small">Origin: {{ expense.created_by.username|title }}</span>
+                                                                <i data-eva="person-outline" class="text-muted me-1"
+                                                                    style="width: 12px;"></i>
+                                                                <span class="text-muted fs-11">{{ expense.created_by.username|title }}</span>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <div class="fw-bold text-dark fs-15">₹{{ expense.total_amount|floatformat:2 }}</div>
+                                                    <div class="fw-bold text-dark fs-15 tabular-nums">₹{{ expense.total_amount|floatformat:2 }}</div>
                                                     {% if expense.tax_amount %}
-                                                    <div class="badge bg-soft-secondary text-secondary fs-10 mt-1">VAT/Tax Included: ₹{{ expense.tax_amount }}</div>
+                                                    <div class="text-muted fs-10 mt-1 d-flex align-items-center gap-1">
+                                                        <i data-eva="diagonal-arrow-right-up-outline" class="text-danger" style="width:10px"></i> Tax Enc: ₹{{ expense.tax_amount }}
+                                                    </div>
                                                     {% endif %}
                                                 </td>
                                                 <td>
-                                                    <div class="text-dark fw-medium small">{{ expense.expense_date|date:"d M, Y" }}</div>
-                                                    <div class="text-muted fs-10 d-flex align-items-center gap-1">
+                                                    <div class="text-dark fw-semibold small">{{ expense.expense_date|date:"F d, Y" }}</div>
+                                                    <div class="text-muted fs-10 d-flex align-items-center gap-1 mt-1">
                                                         <i data-eva="clock-outline" style="width: 10px;"></i> {{ expense.created_at|timesince }} ago
                                                     </div>
                                                 </td>
-                                                <td>
+                                                <td class="text-center">
                                                     {% if expense.status == 'draft' %}
-                                                    <span class="badge-status bg-secondary">Draft</span>
+                                                    <span class="badge-status-premium status-draft">DRAFT</span>
                                                     {% elif expense.status == 'submitted' %}
-                                                    <span class="badge-status bg-info">In Review</span>
+                                                    <span class="badge-status-premium status-review">REVIEW</span>
                                                     {% elif expense.status == 'approved' %}
-                                                    <span class="badge-status bg-warning pulse-warning">Approved</span>
+                                                    <span class="badge-status-premium status-approved pulse-glow-warning">APPROVED</span>
                                                     {% elif expense.status == 'paid' %}
-                                                    <span class="badge-status bg-success">Settled</span>
+                                                    <span class="badge-status-premium status-settled">SETTLED</span>
                                                     {% elif expense.status == 'rejected' %}
-                                                    <span class="badge-status bg-danger">Rejected</span>
+                                                    <span class="badge-status-premium status-rejected">REJECTED</span>
                                                     {% endif %}
                                                 </td>
                                                 <td class="text-end pe-4">
                                                     <div class="d-flex justify-content-end gap-2">
-                                                        <a href="{% url 'expenses:expense_detail' expense.pk %}" class="btn btn-icon btn-soft-primary" data-bs-toggle="tooltip" title="Analysis View">
+                                                        <a href="{% url 'expenses:expense_detail' expense.pk %}"
+                                                            class="btn btn-icon-premium btn-soft-primary"
+                                                            data-bs-toggle="tooltip" title="Deep Audit">
                                                             <i data-eva="eye-outline"></i>
                                                         </a>
                                                         {% if expense.status == 'draft' %}
-                                                        <a href="{% url 'expenses:expense_edit' expense.pk %}" class="btn btn-icon btn-soft-info" data-bs-toggle="tooltip" title="Protocol Refresh">
+                                                        <a href="{% url 'expenses:expense_edit' expense.pk %}"
+                                                            class="btn btn-icon-premium btn-soft-info" data-bs-toggle="tooltip"
+                                                            title="Secure Edit">
                                                             <i data-eva="edit-2-outline"></i>
                                                         </a>
                                                         {% endif %}
-                                                        <a href="{% url 'expenses:expense_delete' expense.pk %}" class="btn btn-icon btn-soft-danger" onclick="return confirm('Execute secure terminal deletion?');" data-bs-toggle="tooltip" title="Terminal Dismissal">
+                                                        <a href="{% url 'expenses:expense_delete' expense.pk %}"
+                                                            class="btn btn-icon-premium btn-soft-danger"
+                                                            onclick="return confirm('Execute secure terminal deletion?');"
+                                                            data-bs-toggle="tooltip" title="Terminal Purge">
                                                             <i data-eva="trash-2-outline"></i>
                                                         </a>
                                                     </div>
@@ -265,15 +326,16 @@
                                             </tr>
                                             {% empty %}
                                             <tr>
-                                                <td colspan="7" class="text-center py-5 bg-soft-light transition-all">
+                                                <td colspan="7" class="text-center py-5 bg-matrix-empty">
                                                     <div class="py-5">
-                                                        <div class="bg-white p-4 rounded-circle shadow-sm d-inline-block mb-4">
-                                                            <i data-eva="folder-outline" data-eva-fill="var(--bs-primary)" style="width: 48px; height: 48px;"></i>
+                                                        <div class="empty-state-icon mb-4">
+                                                            <i data-eva="folder-outline" data-eva-fill="var(--bs-primary)"></i>
                                                         </div>
                                                         <h4 class="fw-bold text-dark mb-2">Matrix Void Detected</h4>
-                                                        <p class="text-muted mb-4 fs-15">No expenditure records match the current transmission parameters.</p>
-                                                        <a href="{% url 'expenses:expense_create' %}" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm">
-                                                            <i data-eva="plus-outline" class="me-2"></i> Initialize New Record
+                                                        <p class="text-muted mb-4 fs-15 mx-auto" style="max-width: 400px;">No expenditure transmissions were detected within the specified spatial temporal parameters.</p>
+                                                        <a href="{% url 'expenses:expense_create' %}"
+                                                            class="btn btn-primary btn-lg rounded-pill px-5 shadow-lg hover-grow">
+                                                            <i data-eva="plus-outline" class="me-2"></i> Initialize Protocol
                                                         </a>
                                                     </div>
                                                 </td>
@@ -289,23 +351,35 @@
                         {% if is_paginated %}
                         <div class="card-footer bg-white py-4 border-0">
                             <div class="d-flex justify-content-between align-items-center">
-                                <div class="text-muted fs-13">Showing <span class="fw-bold text-dark">{{ page_obj.start_index }} - {{ page_obj.end_index }}</span> of <span class="fw-bold text-dark">{{ paginator.count }}</span> recorded expenditures</div>
+                                <div class="text-muted fs-13">Showing <span class="fw-bold text-dark">{{ mpage_obj.start_index }} - {{ page_obj.end_index }}</span> of <span
+                                        class="fw-bold text-dark">{{ paginator.count }}</span> recorded expenditures
+                                </div>
                                 <ul class="pagination pagination-rounded gap-1 mb-0 shadow-none border-0">
                                     {% if page_obj.has_previous %}
-                                    <li class="page-item"><a href="?page={{ page_obj.previous_page_number }}&search={{ current_search }}&status={{ current_status }}&start_date={{ current_start_date }}&end_date={{ current_end_date }}" class="page-link rounded-circle border-0 bg-light text-dark shadow-none"><i data-eva="chevron-left-outline" style="width: 18px;"></i></a></li>
+                                    <li class="page-item"><a
+                                            href="?page={{ page_obj.previous_page_number }}&search={{ current_search }}&status={{ current_status }}&start_date={{ current_start_date }}&end_date={{ current_end_date }}"
+                                            class="page-link rounded-circle border-0 bg-light text-dark shadow-none"><i
+                                                data-eva="chevron-left-outline" style="width: 18px;"></i></a></li>
                                     {% endif %}
 
                                     {% for n in paginator.page_range %}
-                                        {% if page_obj.number == n %}
-                                        <li class="page-item active"><span class="page-link rounded-circle border-0 shadow-sm">{{ n }}</span></li>
-                                        {% elif n > page_obj.number|add:'-3' and n < page_obj.number|add:'3' %}
-                                        <li class="page-item"><a href="?page={{ n }}&search={{ current_search }}&status={{ current_status }}&start_date={{ current_start_date }}&end_date={{ current_end_date }}" class="page-link rounded-circle border-0 bg-light text-dark shadow-none">{{ n }}</a></li>
+                                    {% if page_obj.number == n %}
+                                    <li class="page-item active"><span
+                                            class="page-link rounded-circle border-0 shadow-sm">{{ n }}</span></li>
+                                    {% elif n > page_obj.number|add:'-3' and n < page_obj.number|add:'3' %} <li
+                                        class="page-item"><a
+                                            href="?page={{ n }}&search={{ current_search }}&status={{ current_status }}&start_date={{ current_start_date }}&end_date={{ current_end_date }}"
+                                            class="page-link rounded-circle border-0 bg-light text-dark shadow-none">{{
+                                            n }}</a></li>
                                         {% endif %}
-                                    {% endfor %}
+                                        {% endfor %}
 
-                                    {% if page_obj.has_next %}
-                                    <li class="page-item"><a href="?page={{ page_obj.next_page_number }}&search={{ current_search }}&status={{ current_status }}&start_date={{ current_start_date }}&end_date={{ current_end_date }}" class="page-link rounded-circle border-0 bg-light text-dark shadow-none"><i data-eva="chevron-right-outline" style="width: 18px;"></i></a></li>
-                                    {% endif %}
+                                        {% if page_obj.has_next %}
+                                        <li class="page-item"><a
+                                                href="?page={{ page_obj.next_page_number }}&search={{ current_search }}&status={{ current_status }}&start_date={{ current_start_date }}&end_date={{ current_end_date }}"
+                                                class="page-link rounded-circle border-0 bg-light text-dark shadow-none"><i
+                                                    data-eva="chevron-right-outline" style="width: 18px;"></i></a></li>
+                                        {% endif %}
                                 </ul>
                             </div>
                         </div>
@@ -319,7 +393,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             eva.replace();
-            
+
             const checkAll = document.getElementById('checkAll');
             const checkboxes = document.querySelectorAll('.expense-checkbox');
             const bulkControl = document.getElementById('bulkControl');
@@ -364,121 +438,231 @@
         :root {
             --bs-primary: #6366f1;
             --bs-primary-rgb: 99, 102, 241;
-            --font-family-sans-serif: 'Inter', sans-serif;
+            --matrix-bg: #ffffff;
+            --matrix-border: #f1f5f9;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f9fafb !important;
+            background-color: #f8fafc !important;
+            color: #1e293b;
         }
 
-        .letter-spacing-1 { letter-spacing: 0.05em; }
-        .fs-15 { font-size: 15px; }
-        .fs-14 { font-size: 14px; }
-        .fs-11 { font-size: 11px; }
-        .fs-10 { font-size: 10px; }
-
-        .bg-soft-primary { background-color: rgba(99, 102, 241, 0.1); }
-        .bg-soft-success { background-color: rgba(34, 197, 94, 0.1); }
-        .bg-soft-warning { background-color: rgba(245, 158, 11, 0.1); }
-        .bg-soft-danger { background-color: rgba(239, 68, 68, 0.1); }
-        .bg-soft-info { background-color: rgba(6, 182, 212, 0.1); }
-        .bg-soft-light { background-color: #f8fafc; }
-        .bg-soft-secondary { background-color: rgba(100, 116, 139, 0.1); }
-
-        .hover-up:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+        /* Header Styles */
+        .intelligence-icon-box {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .intelligence-icon-box:hover {
+            transform: rotate(15deg) scale(1.1);
+        }
+        
+        .live-pulse {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 rgba(34, 197, 94, 0.4);
+            animation: live-pulse-animation 2s infinite;
+        }
+        
+        @keyframes live-pulse-animation {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
         }
 
-        .transition-all { transition: all 0.3s ease; }
-
-        .avatar-md {
-            width: 48px;
-            height: 48px;
-            min-width: 48px; /* Added to prevent shrinking */
+        .btn-glass-secondary {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            transition: all 0.3s;
+        }
+        .btn-glass-secondary:hover {
+            background: #ffffff;
+            color: #1e293b;
+            border-color: #cbd5e1;
+            transform: translateY(-2px);
         }
 
-        .btn-icon {
-            width: 36px;
-            height: 36px;
-            padding: 0;
+        /* Metric Cards */
+        .metric-card {
+            border: 1px solid var(--matrix-border) !important;
+        }
+        .metric-card .icon-holder {
+            transition: all 0.3s;
+        }
+        .metric-card:hover .icon-holder {
+            transform: scale(1.1);
+            background: rgba(var(--bs-primary-rgb), 0.15);
+        }
+        .card-bg-icon {
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            opacity: 0.05;
+            font-size: 100px;
+            transform: rotate(-15deg);
+            transition: all 0.5s;
+            pointer-events: none;
+        }
+        .metric-card:hover .card-bg-icon {
+            transform: scale(1.2) rotate(0deg);
+            opacity: 0.08;
+        }
+        .tabular-nums { font-variant-numeric: tabular-nums; }
+
+        /* Search & Filter Bar */
+        .search-input-wrapper, .date-input-wrapper {
+            position: relative;
+        }
+        .search-icon, .date-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            color: #94a3b8;
+            pointer-events: none;
+        }
+        .premium-search-input, .premium-select, .premium-date-input {
+            padding-left: 48px !important;
+            height: 52px;
+            border-radius: 50px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 14px;
+            transition: all 0.3s;
+            box-shadow: none !important;
+        }
+        .premium-select { padding-left: 20px !important; }
+        .premium-search-input:focus, .premium-select:focus, .premium-date-input:focus {
+            background: #ffffff;
+            border-color: var(--bs-primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+        }
+
+        /* Matrix Table */
+        .matrix-table thead th {
+            background: #f8fafc;
+            border-bottom: 2px solid #f1f5f9;
+            color: #64748b;
+        }
+        .matrix-row {
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .matrix-row:hover {
+            background-color: rgba(99, 102, 241, 0.01) !important;
+            transform: translateX(4px);
+        }
+        .matrix-row.row-selected {
+            background-color: rgba(99, 102, 241, 0.05) !important;
+        }
+
+        .avatar-md-premium {
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            font-size: 16px;
+        }
+
+        .hover-text-primary:hover { color: var(--bs-primary) !important; }
+
+        /* Badge Status Premium */
+        .badge-status-premium {
+            padding: 5px 14px;
+            border-radius: 50px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+        .status-draft { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+        .status-review { background: #eff6ff; color: #3b82f6; border: 1px solid #dbeafe; }
+        .status-approved { background: #fffbeb; color: #d97706; border: 1px solid #fef3c7; }
+        .status-settled { background: #f0fdf4; color: #22c55e; border: 1px solid #dcfce7; }
+        .status-rejected { background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; }
+
+        .pulse-glow-warning {
+            animation: pulse-glow-warning 2s infinite;
+        }
+        @keyframes pulse-glow-warning {
+            0% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.2); }
+            70% { box-shadow: 0 0 0 6px rgba(217, 119, 6, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0); }
+        }
+
+        /* Buttons & Utility */
+        .btn-icon-premium {
+            width: 34px;
+            height: 34px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            transition: all 0.2s;
+            border-radius: 10px;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+        .btn-icon-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .hover-grow:hover { transform: scale(1.02); }
+        .hover-lift:hover { transform: translateY(-3px); }
+        .hover-rotate:hover i { transform: rotate(180deg); transition: all 0.5s; }
+
+        .bg-soft-primary { background: rgba(99, 102, 241, 0.1); }
+        .bg-soft-success { background: rgba(34, 197, 94, 0.1); }
+        .bg-soft-warning { background: rgba(245, 158, 11, 0.1); }
+        .bg-soft-danger { background: rgba(239, 68, 68, 0.1); }
+        .bg-soft-info { background: rgba(6, 182, 212, 0.1); }
+
+        /* Pagination Premium */
+        .pagination-premium .page-link {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50% !important;
+            margin: 0 2px;
+            font-weight: 600;
+            color: #64748b;
+            font-size: 13px;
+        }
+        .pagination-premium .page-item.active .page-link {
+            background: var(--bs-primary) !important;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
 
-        .btn-icon:hover {
-            transform: scale(1.1);
-        }
-
-        .btn-icon i { width: 18px; }
-
-        .badge-status {
-            padding: 6px 16px;
-            border-radius: 50px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: inline-block;
-            color: white;
-        }
-
-        .badge-status.bg-secondary { background-color: #6c757d; }
-        .badge-status.bg-info { background-color: #0dcaf0; }
-        .badge-status.bg-warning { background-color: #ffc107; }
-        .badge-status.bg-success { background-color: #198754; }
-        .badge-status.bg-danger { background-color: #dc3545; }
-
-
-        .custom-checkbox .form-check-input {
-            width: 20px;
-            height: 20px;
-            border-radius: 6px;
+        .custom-checkbox-premium .form-check-input {
+            width: 18px;
+            height: 18px;
+            border-radius: 5px;
+            border: 2px solid #e2e8f0;
             cursor: pointer;
         }
-
-        .custom-checkbox .form-check-input:checked {
+        .custom-checkbox-premium .form-check-input:checked {
             background-color: var(--bs-primary);
             border-color: var(--bs-primary);
         }
 
-        .hover-soft-primary:hover {
-            background-color: rgba(99, 102, 241, 0.02) !important;
+        .empty-state-icon i {
+            width: 64px;
+            height: 64px;
+            opacity: 0.8;
         }
 
-        .pulse-warning {
-            animation: pulse-warning-animation 2s infinite;
-        }
-
-        @keyframes pulse-warning-animation {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
-        }
-
-        .pagination .page-link {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* Tooltip */
+        .premium-tooltip .tooltip-inner {
+            background: #1e293b;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 11px;
             font-weight: 600;
-        }
-
-        .pagination .page-item.active .page-link {
-            background-color: var(--bs-primary);
-            color: white;
-        }
-
-        /* Input overrides */
-        .form-control:focus, .form-select:focus {
-            background-color: #fff !important;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
-            border-color: var(--bs-primary) !important;
         }
     </style>
 </body>

@@ -1,84 +1,139 @@
+<style>
+    .left-menu .enterprise-header {
+        padding: 15px 20px 5px !important;
+        letter-spacing: .05em;
+        pointer-events: none;
+        cursor: default;
+        font-size: 11px;
+        text-transform: uppercase;
+        color: #adb5bd !important;
+        font-weight: 700;
+        display: block !important;
+        height: auto !important;
+        opacity: 1 !important;
+        background: transparent !important;
+    }
+    .left-menu li.mm-active > a {
+        background-color: rgba(85, 110, 230, 0.1) !important;
+        color: #556ee6 !important;
+        font-weight: 600;
+    }
+    .left-menu li.mm-active > a i {
+        color: #556ee6 !important;
+    }
+    .sub-menu li a {
+        padding-left: 45px !important;
+        font-size: 13px !important;
+        color: #74788d !important;
+    }
+    .sub-menu li a i {
+        font-size: 14px !important;
+        margin-right: 8px;
+    }
+    .left-menu li a {
+        transition: all 0.3s ease;
+    }
+    .left-menu li a:hover {
+        color: #556ee6 !important;
+    }
+</style>
 <div class="sidebar-left">
     <div class="sidebar-slide h-100" data-simplebar>
 
         <div id="sidebar-menu">
             <ul class="left-menu list-unstyled" id="side-menu">
 
+                <li class="enterprise-header">Main</li>
+
                 <!-- Dashboard -->
-                <li>
-                    <a href="{% url 'accounts:dashboard' %}">
+                <li class="{% if request.resolver_match.app_name == 'accounts' %}mm-active{% endif %}">
+                    <a href="{% url 'accounts:dashboard' %}" class="{% if request.resolver_match.app_name == 'accounts' %}active{% endif %}">
                         <i data-eva="home-outline"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
 
+                <li class="enterprise-header">Management</li>
+
                 <!-- Staff -->
-                <li>
-                    <a href="{% url 'staff:list' %}">
+                <li class="{% if request.resolver_match.app_name == 'staff' %}mm-active{% endif %}">
+                    <a href="{% url 'staff:list' %}" class="{% if request.resolver_match.app_name == 'staff' %}active{% endif %}">
                         <i data-eva="briefcase-outline"></i>
                         <span>Staff</span>
                     </a>
                 </li>
 
                 <!-- Students -->
-                <li>
-                    <a href="{% url 'students:list' %}">
+                <li class="{% if request.resolver_match.app_name == 'students' %}mm-active{% endif %}">
+                    <a href="{% url 'students:list' %}" class="{% if request.resolver_match.app_name == 'students' %}active{% endif %}">
                         <i data-eva="book-open-outline"></i>
                         <span>Students</span>
                     </a>
                 </li>
 
                 <!-- Customers -->
-                <li>
-                    <a href="{% url 'customers:list' %}">
+                <li class="{% if request.resolver_match.app_name == 'customers' %}mm-active{% endif %}">
+                    <a href="{% url 'customers:list' %}" class="{% if request.resolver_match.app_name == 'customers' %}active{% endif %}">
                         <i data-eva="person-outline"></i>
                         <span>Customers</span>
                     </a>
                 </li>
 
+                <li class="enterprise-header">Operations</li>
+
                 <!-- Leads -->
-                <li>
-                    <a href="{% url 'leads:list' %}">
+                <li class="{% if request.resolver_match.app_name == 'leads' %}mm-active{% endif %}">
+                    <a href="{% url 'leads:list' %}" class="{% if request.resolver_match.app_name == 'leads' %}active{% endif %}">
                         <i data-eva="trending-up-outline"></i>
                         <span>Leads</span>
                     </a>
                 </li>
 
                 <!-- Projects -->
-                <li>
-                    <a href="{% url 'projects:list' %}">
+                <li class="{% if request.resolver_match.app_name == 'projects' %}mm-active{% endif %}">
+                    <a href="{% url 'projects:list' %}" class="{% if request.resolver_match.app_name == 'projects' %}active{% endif %}">
                         <i data-eva="layers-outline"></i>
                         <span>Projects</span>
                     </a>
                 </li>
 
                 <!-- Attendance -->
-                <li>
-                    <a href="{% url 'attendance:list' %}">
+                <li class="{% if request.resolver_match.app_name == 'attendance' %}mm-active{% endif %}">
+                    <a href="{% url 'attendance:list' %}" class="{% if request.resolver_match.app_name == 'attendance' %}active{% endif %}">
                         <i data-eva="calendar-outline"></i>
                         <span>Attendance</span>
                     </a>
                 </li>
 
+                <!-- Inventory -->
+                <li class="{% if request.resolver_match.app_name == 'inventory' %}mm-active{% endif %}">
+                    <a href="{% url 'inventory:asset_list' %}" class="{% if request.resolver_match.app_name == 'inventory' %}active{% endif %}">
+                        <i data-eva="archive-outline"></i>
+                        <span>Inventory</span>
+                    </a>
+                </li>
+
+                <li class="enterprise-header">Finance & Sales</li>
+
                 <!-- Sales -->
-                <li>
-                    <a href="javascript:void(0);" class="has-arrow">
+                <li class="{% if request.resolver_match.app_name == 'sales' %}mm-active{% endif %}">
+                    <a href="javascript:void(0);" class="has-arrow {% if request.resolver_match.app_name == 'sales' %}active{% endif %}">
                         <i data-eva="shopping-cart-outline"></i>
                         <span>Sales</span>
                     </a>
-                    <ul class="sub-menu" aria-expanded="false">
+                    <ul class="sub-menu" aria-expanded="{% if request.resolver_match.app_name == 'sales' %}true{% else %}false{% endif %}">
                         <li>
-                            <a href="{% url 'sales:staff_target_list' %}">
+                            <a href="{% url 'sales:staff_target_list' %}" class="{% if request.resolver_match.url_name == 'staff_target_list' %}active{% endif %}">
                                 <i data-eva="target-outline"></i> Target
                             </a>
                         </li>
                         <li>
-                            <a href="{% url 'sales:performance_monitoring' %}">
+                            <a href="{% url 'sales:performance_monitoring' %}" class="{% if request.resolver_match.url_name == 'performance_monitoring' %}active{% endif %}">
                                 <i data-eva="bar-chart-outline"></i> Performance
                             </a>
                         </li>
                         <li>
-                            <a href="{% url 'sales:proposal_list' %}">
+                            <a href="{% url 'sales:proposal_list' %}" class="{% if request.resolver_match.url_name == 'proposal_list' %}active{% endif %}">
                                 <i data-eva="file-text-outline"></i> Proposal
                             </a>
                         </li>
@@ -93,7 +148,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{% url 'sales:estimate_list' %}">
+                            <a href="{% url 'sales:estimate_list' %}" class="{% if request.resolver_match.url_name == 'estimate_list' %}active{% endif %}">
                                 <i data-eva="edit-outline"></i> Estimate
                             </a>
                         </li>
@@ -105,17 +160,9 @@
                     </ul>
                 </li>
 
-                <!-- Inventory -->
-                <li>
-                    <a href="{% url 'inventory:asset_list' %}">
-                        <i data-eva="archive-outline"></i>
-                        <span>Inventory</span>
-                    </a>
-                </li>
-
                 <!-- Expenses -->
-                <li>
-                    <a href="{% url 'expenses:expense_list' %}">
+                <li class="{% if request.resolver_match.app_name == 'expenses' %}mm-active{% endif %}">
+                    <a href="{% url 'expenses:expense_list' %}" class="{% if request.resolver_match.app_name == 'expenses' %}active{% endif %}">
                         <i data-eva="file-text-outline"></i>
                         <span>Expenses</span>
                     </a>
@@ -125,4 +172,4 @@
         </div>
 
     </div>
-</div>
+</div>

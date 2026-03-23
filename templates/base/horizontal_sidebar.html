@@ -5,7 +5,7 @@
         <ul class="left-menu list-unstyled" id="side-menu">
 
             <!-- Dashboard -->
-            <li>
+            <li class="{% if request.resolver_match.app_name == 'accounts' %}mm-active{% endif %}">
                 <a href="{% url 'accounts:dashboard' %}"
                     class="{% if request.resolver_match.app_name == 'accounts' %}active{% endif %}">
                     <i data-eva="home-outline"></i>
@@ -14,7 +14,7 @@
             </li>
 
             <!-- Staff -->
-            <li>
+            <li class="{% if request.resolver_match.app_name == 'staff' %}mm-active{% endif %}">
                 <a href="{% url 'staff:list' %}"
                     class="{% if request.resolver_match.app_name == 'staff' %}active{% endif %}">
                     <i data-eva="people-outline"></i>
@@ -23,7 +23,7 @@
             </li>
 
             <!-- Students -->
-            <li>
+            <li class="{% if request.resolver_match.app_name == 'students' %}mm-active{% endif %}">
                 <a href="{% url 'students:list' %}"
                     class="{% if request.resolver_match.app_name == 'students' %}active{% endif %}">
                     <i data-eva="book-open-outline"></i>
@@ -32,7 +32,7 @@
             </li>
 
             <!-- Customers -->
-            <li>
+            <li class="{% if request.resolver_match.app_name == 'customers' %}mm-active{% endif %}">
                 <a href="{% url 'customers:list' %}"
                     class="{% if request.resolver_match.app_name == 'customers' %}active{% endif %}">
                     <i data-eva="person-outline"></i>
@@ -41,7 +41,7 @@
             </li>
 
             <!-- Leads -->
-            <li>
+            <li class="{% if request.resolver_match.app_name == 'leads' %}mm-active{% endif %}">
                 <a href="{% url 'leads:list' %}"
                     class="{% if request.resolver_match.app_name == 'leads' %}active{% endif %}">
                     <i data-eva="trending-up-outline"></i>
@@ -50,7 +50,7 @@
             </li>
 
             <!-- Projects -->
-            <li>
+            <li class="{% if request.resolver_match.app_name == 'projects' %}mm-active{% endif %}">
                 <a href="{% url 'projects:list' %}"
                     class="{% if request.resolver_match.app_name == 'projects' %}active{% endif %}">
                     <i data-eva="briefcase-outline"></i>
@@ -59,7 +59,7 @@
             </li>
 
             <!-- Attendance -->
-            <li>
+            <li class="{% if request.resolver_match.app_name == 'attendance' %}mm-active{% endif %}">
                 <a href="{% url 'attendance:list' %}"
                     class="{% if request.resolver_match.app_name == 'attendance' %}active{% endif %}">
                     <i data-eva="calendar-outline"></i>
@@ -68,24 +68,24 @@
             </li>
 
             <!-- Sales -->
-            <li>
-                <a href="javascript:void(0);" class="has-arrow">
+            <li class="{% if request.resolver_match.app_name == 'sales' %}mm-active{% endif %}">
+                <a href="javascript:void(0);" class="has-arrow {% if request.resolver_match.app_name == 'sales' %}active{% endif %}">
                     <i data-eva="shopping-cart-outline"></i>
                     <span>Sales</span>
                 </a>
-                <ul class="sub-menu" aria-expanded="false">
+                <ul class="sub-menu" aria-expanded="{% if request.resolver_match.app_name == 'sales' %}true{% else %}false{% endif %}">
                     <li>
-                        <a href="{% url 'sales:staff_target_list' %}">
+                        <a href="{% url 'sales:staff_target_list' %}" class="{% if request.resolver_match.url_name == 'staff_target_list' %}active{% endif %}">
                             <i data-eva="target-outline"></i> Target
                         </a>
                     </li>
                     <li>
-                        <a href="{% url 'sales:performance_monitoring' %}">
+                        <a href="{% url 'sales:performance_monitoring' %}" class="{% if request.resolver_match.url_name == 'performance_monitoring' %}active{% endif %}">
                             <i data-eva="bar-chart-outline"></i> Performance
                         </a>
                     </li>
                     <li>
-                        <a href="{% url 'sales:proposal_list' %}">
+                        <a href="{% url 'sales:proposal_list' %}" class="{% if request.resolver_match.url_name == 'proposal_list' %}active{% endif %}">
                             <i data-eva="file-text-outline"></i> Proposal
                         </a>
                     </li>
@@ -100,7 +100,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{% url 'sales:estimate_list' %}">
+                        <a href="{% url 'sales:estimate_list' %}" class="{% if request.resolver_match.url_name == 'estimate_list' %}active{% endif %}">
                             <i data-eva="edit-outline"></i> Estimate
                         </a>
                     </li>
@@ -113,16 +113,16 @@
             </li>
 
             <!-- Inventory -->
-            <li>
-                <a href="{% url 'inventory:asset_list' %}">
+            <li class="{% if request.resolver_match.app_name == 'inventory' %}mm-active{% endif %}">
+                <a href="{% url 'inventory:asset_list' %}" class="{% if request.resolver_match.app_name == 'inventory' %}active{% endif %}">
                     <i data-eva="archive-outline"></i>
                     <span>Inventory</span>
                 </a>
             </li>
 
             <!-- Expenses -->
-            <li>
-                <a href="{% url 'expenses:expense_list' %}">
+            <li class="{% if request.resolver_match.app_name == 'expenses' %}mm-active{% endif %}">
+                <a href="{% url 'expenses:expense_list' %}" class="{% if request.resolver_match.app_name == 'expenses' %}active{% endif %}">
                     <i data-eva="file-text-outline"></i>
                     <span>Expenses</span>
                 </a>
@@ -131,3 +131,4 @@
         </ul>
     </div>
 </div>
+

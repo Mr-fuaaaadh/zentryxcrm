@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
+{% include 'base/base.html' %}
 <html lang="en">
 
 <head>
@@ -47,6 +48,10 @@
     <div id="layout-wrapper">
         {% include 'base/header.html' %}
         {% include 'base/sidebar.html' %}
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        <div class="sidebar-left horizontal-sidebar">
+            {% include 'base/sidebar.html' %}
+        </div>
 
         <div class="main-content">
             <div class="page-content">
