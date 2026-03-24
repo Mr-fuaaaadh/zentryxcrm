@@ -107,6 +107,14 @@
                                         <tr>
                                             <th>
                                                 <a href="?{% if current_q %}q={{ current_q }}&{% endif %}{% if current_level %}level={{ current_level }}&{% endif %}sort=title&direction={% if current_sort == 'title' and current_direction == 'asc' %}desc{% else %}asc{% endif %}" class="text-dark">
+                                                    ID
+                                                    {% if current_sort == 'title' %}
+                                                        <i class="mdi mdi-arrow-{% if current_direction == 'asc' %}up{% else %}down{% endif %}"></i>
+                                                    {% endif %}
+                                                </a>
+                                            </th>
+                                            <th>
+                                                <a href="?{% if current_q %}q={{ current_q }}&{% endif %}{% if current_level %}level={{ current_level }}&{% endif %}sort=title&direction={% if current_sort == 'title' and current_direction == 'asc' %}desc{% else %}asc{% endif %}" class="text-dark">
                                                     Title
                                                     {% if current_sort == 'title' %}
                                                         <i class="mdi mdi-arrow-{% if current_direction == 'asc' %}up{% else %}down{% endif %}"></i>

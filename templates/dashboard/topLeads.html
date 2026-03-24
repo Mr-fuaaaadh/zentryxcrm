@@ -1,0 +1,81 @@
+{% load static %}
+<div class="col-xl-8">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">Leads</h5>
+            <a href="#!" class="text-muted">See All <i class="mdi mdi-arrow-right"></i></a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive text-nowrap">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Lead Name</th>
+                            <th>Company</th>
+                            <th>Status</th>
+                            <th>Expected Revenue</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if top_deals %}
+                            {% for lead in top_deals %}
+                        <tr>
+                            <td><a href="#!" class="text-muted">#LD-{{ lead.id }}</a></td>
+                            <td>
+                                <a href="#!" class="d-flex align-items-center gap-2 text-body">
+                                    <span class="avatar avatar-sm avatar-circle">
+                                        {{ lead.first_name|first }}{{ lead.last_name|first }}
+                                    </span>
+                                    <span>
+                                        <p class="fw-semibold mb-0 fs-13">{{ lead.first_name }} {{ lead.last_name }}</p>
+                                        <small class="text-muted fs-11">{{ lead.email|default:"No email" }}</small>
+                                    </span>
+                                </a>
+                            </td>
+                            <td>{{ lead.company_name|default:"-" }}</td>
+                            <td>
+                                    {% if lead.status == 'new' %}
+                                        <span class="badge badge-label-primary">New</span>
+                                    {% elif lead.status == 'contacted' %}
+                                        <span class="badge badge-label-warning">Contacted</span>
+                                    {% elif lead.status == 'won' %}
+                                        <span class="badge badge-label-success">Won</span>
+                                    {% elif lead.status == 'lost' %}
+                                        <span class="badge badge-label-danger">Lost</span>
+                                    {% else %}
+                                        <span class="badge badge-label-info">{{ lead.get_status_display }}</span>
+                                    {% endif %}
+                            </td>
+
+                            <td><span class="fw-medium">${{ lead.expected_revenue|default:"0.00" }}</span></td>
+
+                            <td class="text-end">
+                                <button type="button" class="btn btn-sm btn-label-success btn-icon" aria-label="View"><i
+                                        data-eva="eye-outline"></i></button>
+                                <button type="button" class="btn btn-sm btn-label-primary btn-icon" aria-label="Edit"><i
+                                        data-eva="edit-2-outline"></i></button>
+                                <button type="button" class="btn btn-sm btn-label-danger btn-icon"
+                                    aria-label="Delete"><i data-eva="trash-2-outline"></i></button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="avatar-sm mx-auto mb-3">
+                                    <div class="avatar-title bg-soft-primary text-primary fs-20 rounded-circle">
+                                        <i class="mdi mdi-database-off-outline"></i>
+                                    </div>
+                                </div>
+                                <p class="text-muted">No leads found for this period.</p>
+                            </td>
+                        </tr>
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

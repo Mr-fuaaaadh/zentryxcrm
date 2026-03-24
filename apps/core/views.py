@@ -8,17 +8,7 @@ from .models import Department, Designation
 from .forms import DepartmentForm, DesignationForm
 
 
-class CoreDashboardView(LoginRequiredMixin, TemplateView):
-    """
-    Dashboard view for the core module.
-    """
-    template_name = 'core/dashboard.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['department_count'] = Department.objects.filter(is_active=True).count()
-        context['designation_count'] = Designation.objects.count()
-        return context
 
 
 # --- Department Views ---

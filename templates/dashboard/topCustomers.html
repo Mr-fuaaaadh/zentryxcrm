@@ -1,0 +1,40 @@
+{% load static %}
+<div class="col-md-6 col-xxl-3">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">Top Customers</h5>
+            <a href="#!" class="text-muted">See All <i class="mdi mdi-arrow-right"></i></a>
+        </div>
+        <div class="card-body">
+            <div class="rich-list px-4 mx-n4" data-simplebar style="max-height: 363px;">
+            {% if top_customers %}
+                {% for customer in top_customers %}
+                <div class="rich-list-item px-0 py-2">
+                    <div class="rich-list-prepend">
+                        <div class="avatar avatar-sm avatar-circle">
+                            <img src="{% static 'assets/images/users/avatar-1.png' %}" alt="Avatar Image"
+                                class="size-7">
+                        </div>
+                    </div>
+                    <div class="rich-list-content">
+                        <a href="#!" class="rich-list-title text-body fw-semibold">{{ customer.name }}</a>
+                        <a href="#!" class="rich-list-subtitle">{{ customer.customer_code }}</a>
+                    </div>
+                    <div class="rich-list-append text-end">
+                        <h6 class="mb-0 fw-semibold">{{ customer.total_revenue|floatformat:2 }}</h6>
+                    </div>
+                </div>
+            {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center py-4">
+                            <p class="text-muted mb-0">No active customer revenue yet.</p>
+                        </td>
+                    </tr>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+

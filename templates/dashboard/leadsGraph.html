@@ -1,0 +1,69 @@
+{% load static %}
+
+<div class="col-md-6 col-xxl-3">
+    <div class="card card-h-100">
+        <div class="card-header">
+            <h5 class="card-title">Lead management</h5>
+            <span class="badge badge-label-success">12.5%</span>
+        </div>
+        <div class="card-body">
+            <div class="position-relative mb-6">
+                <div id="leadRadialChart" data-colors='["var(--bs-success)"]' data-value="{{ lead_performance.conversion_rate }}" class="apex-charts" dir="ltr"></div>
+                <div
+                    class="position-absolute rounded-circle d-flex justify-content-center align-items-center fw-semibold shadow-lg bg-body-secondary size-8 fs-10 lead-management-value">
+                    {{ lead_performance.conversion_rate }}%</div>
+            </div>
+            <div class="d-flex flex-wrap justify-content-between gap-2 gap-md-0 mb-6">
+                <div class="text-center flex-fill border-end pe-3">
+                    <h5 class="fw-medium mb-1">{{ lead_performance.new }}</h5>
+                    <p class="mb-0 text-muted">New Leads</p>
+                </div>
+                <div class="text-center flex-fill border-end px-3">
+                    <h5 class="fw-medium mb-1">{{ lead_performance.converted }}</h5>
+                    <p class="mb-0 text-muted">Leads Converted</p>
+                </div>
+                <div class="text-center flex-fill ps-3">
+                    <h5 class="fw-medium mb-1">{{ lead_performance.pending }}</h5>
+                    <p class="mb-0 text-muted">Leads Pending</p>
+                </div>
+            </div>
+            <div class="dropdown float-end">
+                <a href="#!" class="text-muted" data-bs-toggle="dropdown" aria-expanded="false" aria-label="more"><i
+                        data-eva="more-vertical-outline" class="size-4"></i></a>
+                <ul class="dropdown-menu dropdown-menu-animated dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#!">Last 7 Days</a></li>
+                    <li><a class="dropdown-item" href="#!">Last 30 Days</a></li>
+                </ul>
+            </div>
+            <div class="d-flex align-items-end gap-2 mb-5">
+                <div class="avatar avatar-sm text-primary">
+                    <div class="avatar-title bg-soft-primary rounded-circle">
+                        <i class="mdi mdi-account-star"></i>
+                    </div>
+                </div>
+                <div>
+                    <a href="#!" class="text-body fw-semibold lh-lg">Global Performance</a>
+                    <p class="text-muted mb-0">Aggregate Overview</p>
+                </div>
+            </div>
+            <p class="mb-4 text-muted d-flex justify-content-between align-items-center">
+                <span>leads converted</span>
+                <span class="fw-semibold text-body">{{ lead_performance.conversion_rate }}% leads</span>
+            </p>
+            <div class="d-flex gap-2">
+                <div class="progress progress-sm w-25" title="New">
+                    <div class="progress-bar bg-info" style="width: {{ lead_performance.new_perc }}%;"></div>
+                </div>
+                <div class="progress progress-sm w-25" title="Active">
+                    <div class="progress-bar bg-primary" style="width: {{ lead_performance.active_perc }}%;"></div>
+                </div>
+                <div class="progress progress-sm w-25" title="Converted">
+                    <div class="progress-bar bg-success" style="width: {{ lead_performance.won_perc }}%;"></div>
+                </div>
+                <div class="progress progress-sm w-25" title="Lost">
+                    <div class="progress-bar bg-danger" style="width: {{ lead_performance.lost_perc }}%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
