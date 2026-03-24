@@ -36,3 +36,14 @@ class DashboardView(View):
         if not request.user.is_authenticated:
             return redirect('accounts:signin')
         return render(request, 'dashboard_placeholder.html')
+
+
+
+class LogoutView(View):
+
+    @method_decorator(never_cache)
+    def get(self, request):
+        if request.user.is_authenticated:
+            logout(request)
+            messages.success(request, "You have been logged out successfully.")
+        return redirect('accounts:signin')
