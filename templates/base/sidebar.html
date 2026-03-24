@@ -63,6 +63,20 @@
                     </a>
                 </li>
 
+                <li class="{% if request.resolver_match.app_name == 'staff' %}mm-active{% endif %}">
+                    <a href="{% url 'core:designation-list' %}" class="{% if request.resolver_match.app_name == 'staff' %}active{% endif %}">
+                        <i data-eva="briefcase-outline"></i>
+                        <span>Designation</span>
+                    </a>
+                </li>
+
+                <li class="{% if request.resolver_match.app_name == 'staff' %}mm-active{% endif %}">
+                    <a href="{% url 'core:department-list' %}" class="{% if request.resolver_match.app_name == 'staff' %}active{% endif %}">
+                        <i data-eva="briefcase-outline"></i>
+                        <span>Departments</span>
+                    </a>
+                </li>
+
                 <!-- Students -->
                 <li class="{% if request.resolver_match.app_name == 'students' %}mm-active{% endif %}">
                     <a href="{% url 'students:list' %}" class="{% if request.resolver_match.app_name == 'students' %}active{% endif %}">
@@ -172,4 +186,4 @@
         </div>
 
     </div>
-</div>
+</div>

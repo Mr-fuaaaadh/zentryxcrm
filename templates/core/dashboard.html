@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+{% load static %}
+{% include 'base/base.html' %}
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Core Dashboard | Aquiry</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+</head>
+<body>
+    <div id="layout-wrapper">
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="page-title-box d-flex align-items-center justify-content-between">
+                                <h4 class="mb-sm-0">Core Dashboard</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 col-xl-3">
+                            <div class="card overflow-hidden">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h5 class="text-muted text-uppercase fs-11">Total Departments</h5>
+                                            <h4 class="mb-0">{{ department_count }}</h4>
+                                        </div>
+                                        <div class="flex-shrink-0">
+                                            <div class="avatar-sm">
+                                                <span class="avatar-title bg-soft-primary text-primary rounded-circle fs-3">
+                                                    <i class="mdi mdi-office-building"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <a href="{% url 'core:department-list' %}" class="btn btn-sm btn-label-primary">View All</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-xl-3">
+                            <div class="card overflow-hidden">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h5 class="text-muted text-uppercase fs-11">Total Designations</h5>
+                                            <h4 class="mb-0">{{ designation_count }}</h4>
+                                        </div>
+                                        <div class="flex-shrink-0">
+                                            <div class="avatar-sm">
+                                                <span class="avatar-title bg-soft-info text-info rounded-circle fs-3">
+                                                    <i class="mdi mdi-account-badge"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <a href="{% url 'core:designation-list' %}" class="btn btn-sm btn-label-info">View All</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% include 'base/footer.html' %}
+        </div>
+    </div>
+</body>
+</html>

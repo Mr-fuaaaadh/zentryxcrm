@@ -40,7 +40,6 @@ class DashboardView(View):
 
 
 class LogoutView(View):
-
     @method_decorator(never_cache)
     def get(self, request):
         if request.user.is_authenticated:

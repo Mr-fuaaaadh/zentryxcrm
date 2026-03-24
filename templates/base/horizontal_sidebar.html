@@ -4,131 +4,146 @@
     <div id="sidebar-menu">
         <ul class="left-menu list-unstyled" id="side-menu">
 
-            <!-- Dashboard -->
-            <li class="{% if request.resolver_match.app_name == 'accounts' %}mm-active{% endif %}">
-                <a href="{% url 'accounts:dashboard' %}"
-                    class="{% if request.resolver_match.app_name == 'accounts' %}active{% endif %}">
-                    <i data-eva="home-outline"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
+                <li class="enterprise-header">Main</li>
 
-            <!-- Staff -->
-            <li class="{% if request.resolver_match.app_name == 'staff' %}mm-active{% endif %}">
-                <a href="{% url 'staff:list' %}"
-                    class="{% if request.resolver_match.app_name == 'staff' %}active{% endif %}">
-                    <i data-eva="people-outline"></i>
-                    <span>Staff</span>
-                </a>
-            </li>
+                <!-- Dashboard -->
+                <li class="{% if request.resolver_match.app_name == 'accounts' %}mm-active{% endif %}">
+                    <a href="{% url 'accounts:dashboard' %}" class="{% if request.resolver_match.app_name == 'accounts' %}active{% endif %}">
+                        <i data-eva="home-outline"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
 
-            <!-- Students -->
-            <li class="{% if request.resolver_match.app_name == 'students' %}mm-active{% endif %}">
-                <a href="{% url 'students:list' %}"
-                    class="{% if request.resolver_match.app_name == 'students' %}active{% endif %}">
-                    <i data-eva="book-open-outline"></i>
-                    <span>Students</span>
-                </a>
-            </li>
+                <li class="enterprise-header">Management</li>
 
-            <!-- Customers -->
-            <li class="{% if request.resolver_match.app_name == 'customers' %}mm-active{% endif %}">
-                <a href="{% url 'customers:list' %}"
-                    class="{% if request.resolver_match.app_name == 'customers' %}active{% endif %}">
-                    <i data-eva="person-outline"></i>
-                    <span>Customers</span>
-                </a>
-            </li>
+                <!-- Staff -->
+                <li class="{% if request.resolver_match.app_name == 'staff' %}mm-active{% endif %}">
+                    <a href="{% url 'staff:list' %}" class="{% if request.resolver_match.app_name == 'staff' %}active{% endif %}">
+                        <i data-eva="briefcase-outline"></i>
+                        <span>Staff</span>
+                    </a>
+                </li>
 
-            <!-- Leads -->
-            <li class="{% if request.resolver_match.app_name == 'leads' %}mm-active{% endif %}">
-                <a href="{% url 'leads:list' %}"
-                    class="{% if request.resolver_match.app_name == 'leads' %}active{% endif %}">
-                    <i data-eva="trending-up-outline"></i>
-                    <span>Leads</span>
-                </a>
-            </li>
+                <li class="{% if request.resolver_match.app_name == 'staff' %}mm-active{% endif %}">
+                    <a href="{% url 'core:designation-list' %}" class="{% if request.resolver_match.app_name == 'staff' %}active{% endif %}">
+                        <i data-eva="briefcase-outline"></i>
+                        <span>Designation</span>
+                    </a>
+                </li>
 
-            <!-- Projects -->
-            <li class="{% if request.resolver_match.app_name == 'projects' %}mm-active{% endif %}">
-                <a href="{% url 'projects:list' %}"
-                    class="{% if request.resolver_match.app_name == 'projects' %}active{% endif %}">
-                    <i data-eva="briefcase-outline"></i>
-                    <span>Projects</span>
-                </a>
-            </li>
+                <li class="{% if request.resolver_match.app_name == 'staff' %}mm-active{% endif %}">
+                    <a href="{% url 'core:department-list' %}" class="{% if request.resolver_match.app_name == 'staff' %}active{% endif %}">
+                        <i data-eva="briefcase-outline"></i>
+                        <span>Departments</span>
+                    </a>
+                </li>
 
-            <!-- Attendance -->
-            <li class="{% if request.resolver_match.app_name == 'attendance' %}mm-active{% endif %}">
-                <a href="{% url 'attendance:list' %}"
-                    class="{% if request.resolver_match.app_name == 'attendance' %}active{% endif %}">
-                    <i data-eva="calendar-outline"></i>
-                    <span>Attendance</span>
-                </a>
-            </li>
+                <!-- Students -->
+                <li class="{% if request.resolver_match.app_name == 'students' %}mm-active{% endif %}">
+                    <a href="{% url 'students:list' %}" class="{% if request.resolver_match.app_name == 'students' %}active{% endif %}">
+                        <i data-eva="book-open-outline"></i>
+                        <span>Students</span>
+                    </a>
+                </li>
 
-            <!-- Sales -->
-            <li class="{% if request.resolver_match.app_name == 'sales' %}mm-active{% endif %}">
-                <a href="javascript:void(0);" class="has-arrow {% if request.resolver_match.app_name == 'sales' %}active{% endif %}">
-                    <i data-eva="shopping-cart-outline"></i>
-                    <span>Sales</span>
-                </a>
-                <ul class="sub-menu" aria-expanded="{% if request.resolver_match.app_name == 'sales' %}true{% else %}false{% endif %}">
-                    <li>
-                        <a href="{% url 'sales:staff_target_list' %}" class="{% if request.resolver_match.url_name == 'staff_target_list' %}active{% endif %}">
-                            <i data-eva="target-outline"></i> Target
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'sales:performance_monitoring' %}" class="{% if request.resolver_match.url_name == 'performance_monitoring' %}active{% endif %}">
-                            <i data-eva="bar-chart-outline"></i> Performance
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'sales:proposal_list' %}" class="{% if request.resolver_match.url_name == 'proposal_list' %}active{% endif %}">
-                            <i data-eva="file-text-outline"></i> Proposal
-                        </a>
-                    </li>
-                    <li>
-                        <a href="">
-                            <i data-eva="credit-card-outline"></i> Payments
-                        </a>
-                    </li>
-                    <li>
-                        <a href="">
-                            <i data-eva="file-outline"></i> Invoice
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'sales:estimate_list' %}" class="{% if request.resolver_match.url_name == 'estimate_list' %}active{% endif %}">
-                            <i data-eva="edit-outline"></i> Estimate
-                        </a>
-                    </li>
-                    <li>
-                        <a href="">
-                            <i data-eva="minus-circle-outline"></i> Credit Note
-                        </a>
-                    </li>
-                </ul>
-            </li>
+                <!-- Customers -->
+                <li class="{% if request.resolver_match.app_name == 'customers' %}mm-active{% endif %}">
+                    <a href="{% url 'customers:list' %}" class="{% if request.resolver_match.app_name == 'customers' %}active{% endif %}">
+                        <i data-eva="person-outline"></i>
+                        <span>Customers</span>
+                    </a>
+                </li>
 
-            <!-- Inventory -->
-            <li class="{% if request.resolver_match.app_name == 'inventory' %}mm-active{% endif %}">
-                <a href="{% url 'inventory:asset_list' %}" class="{% if request.resolver_match.app_name == 'inventory' %}active{% endif %}">
-                    <i data-eva="archive-outline"></i>
-                    <span>Inventory</span>
-                </a>
-            </li>
+                <li class="enterprise-header">Operations</li>
 
-            <!-- Expenses -->
-            <li class="{% if request.resolver_match.app_name == 'expenses' %}mm-active{% endif %}">
-                <a href="{% url 'expenses:expense_list' %}" class="{% if request.resolver_match.app_name == 'expenses' %}active{% endif %}">
-                    <i data-eva="file-text-outline"></i>
-                    <span>Expenses</span>
-                </a>
-            </li>
+                <!-- Leads -->
+                <li class="{% if request.resolver_match.app_name == 'leads' %}mm-active{% endif %}">
+                    <a href="{% url 'leads:list' %}" class="{% if request.resolver_match.app_name == 'leads' %}active{% endif %}">
+                        <i data-eva="trending-up-outline"></i>
+                        <span>Leads</span>
+                    </a>
+                </li>
 
-        </ul>
+                <!-- Projects -->
+                <li class="{% if request.resolver_match.app_name == 'projects' %}mm-active{% endif %}">
+                    <a href="{% url 'projects:list' %}" class="{% if request.resolver_match.app_name == 'projects' %}active{% endif %}">
+                        <i data-eva="layers-outline"></i>
+                        <span>Projects</span>
+                    </a>
+                </li>
+
+                <!-- Attendance -->
+                <li class="{% if request.resolver_match.app_name == 'attendance' %}mm-active{% endif %}">
+                    <a href="{% url 'attendance:list' %}" class="{% if request.resolver_match.app_name == 'attendance' %}active{% endif %}">
+                        <i data-eva="calendar-outline"></i>
+                        <span>Attendance</span>
+                    </a>
+                </li>
+
+                <!-- Inventory -->
+                <li class="{% if request.resolver_match.app_name == 'inventory' %}mm-active{% endif %}">
+                    <a href="{% url 'inventory:asset_list' %}" class="{% if request.resolver_match.app_name == 'inventory' %}active{% endif %}">
+                        <i data-eva="archive-outline"></i>
+                        <span>Inventory</span>
+                    </a>
+                </li>
+
+                <li class="enterprise-header">Finance & Sales</li>
+
+                <!-- Sales -->
+                <li class="{% if request.resolver_match.app_name == 'sales' %}mm-active{% endif %}">
+                    <a href="javascript:void(0);" class="has-arrow {% if request.resolver_match.app_name == 'sales' %}active{% endif %}">
+                        <i data-eva="shopping-cart-outline"></i>
+                        <span>Sales</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="{% if request.resolver_match.app_name == 'sales' %}true{% else %}false{% endif %}">
+                        <li>
+                            <a href="{% url 'sales:staff_target_list' %}" class="{% if request.resolver_match.url_name == 'staff_target_list' %}active{% endif %}">
+                                <i data-eva="target-outline"></i> Target
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'sales:performance_monitoring' %}" class="{% if request.resolver_match.url_name == 'performance_monitoring' %}active{% endif %}">
+                                <i data-eva="bar-chart-outline"></i> Performance
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'sales:proposal_list' %}" class="{% if request.resolver_match.url_name == 'proposal_list' %}active{% endif %}">
+                                <i data-eva="file-text-outline"></i> Proposal
+                            </a>
+                        </li>
+                        <li>
+                            <a href="">
+                                <i data-eva="credit-card-outline"></i> Payments
+                            </a>
+                        </li>
+                        <li>
+                            <a href="">
+                                <i data-eva="file-outline"></i> Invoice
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'sales:estimate_list' %}" class="{% if request.resolver_match.url_name == 'estimate_list' %}active{% endif %}">
+                                <i data-eva="edit-outline"></i> Estimate
+                            </a>
+                        </li>
+                        <li>
+                            <a href="">
+                                <i data-eva="minus-circle-outline"></i> Credit Note
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Expenses -->
+                <li class="{% if request.resolver_match.app_name == 'expenses' %}mm-active{% endif %}">
+                    <a href="{% url 'expenses:expense_list' %}" class="{% if request.resolver_match.app_name == 'expenses' %}active{% endif %}">
+                        <i data-eva="file-text-outline"></i>
+                        <span>Expenses</span>
+                    </a>
+                </li>
+
+            </ul>
     </div>
 </div>
-
+

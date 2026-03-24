@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+{% load static %}
+{% include 'base/base.html' %}
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <title>Product List | Aquiry Admin &amp; Dashboard Template </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta content="Admin & Dashboard Template" name="description">
+    <meta content="Codebucks" name="author">
+
+
+</head>
+
+<body>
+    <!-- Begin page -->
+    <div id="layout-wrapper">
+
+        {% include 'base/header.html' %}
+        {% include 'base/sidebar.html' %}
+        <style>
+            .search-box { position: relative; }
+            .search-box .form-control { padding-left: 35px; }
+            .search-box .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6c757d; }
+            .table-light th { border-top: 0; }
+            .badge-label-success { background-color: rgba(40, 199, 111, 0.12); color: #28c76f; }
+            .badge-label-danger { background-color: rgba(234, 84, 85, 0.12); color: #ea5455; }
+        </style>
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        <div class="sidebar-left horizontal-sidebar">
+            {% include 'base/horizontal_sidebar.html' %}
+        </div>
+        <!-- ============================================================== -->
+        <!-- Start right Content here -->
+        <!-- ============================================================== -->
+        <div class="main-content">
+
+            <div class="page-content">
+                <div class="container-fluid">
+
+                    <!-- start page title -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="page-title-box d-flex align-items-center justify-content-between">
+                                <h4 class="mb-sm-0">Product List</h4>
+                                <nav aria-label="breadcrumb" class="page-title-right">
+                                    <ol class="breadcrumb border-0">
+                                        <li class="breadcrumb-item">
+                                            <a href="#!">
+                                                <i class="mdi mdi-home-outline fs-18 lh-1"></i>
+                                                <span class="visually-hidden">Home</span>
+                                            </a>
+                                        </li>
+                                        <li class="breadcrumb-item"><a href="#!">Core</a></li>
+                                        <li class="breadcrumb-item active" aria-current="page">Department List</li>
+                                    </ol>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end page title -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <form method="get" class="row g-3 align-items-center">
+                                        <div class="col-md-4">
+                                            <div class="search-box">
+                                                <input type="text" name="q" class="form-control" placeholder="Search by name or code..." value="{{ current_q }}">
+                                                <i class="mdi mdi-magnify search-icon"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <select name="status" class="form-select" onchange="this.form.submit()">
+                                                <option value="">All Statuses</option>
+                                                <option value="active" {% if current_status == 'active' %}selected{% endif %}>Active Only</option>
+                                                <option value="inactive" {% if current_status == 'inactive' %}selected{% endif %}>Inactive Only</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <button type="submit" class="btn btn-primary w-100">Filter</button>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <a href="{% url 'core:department-list' %}" class="btn btn-soft-secondary w-100">Reset</a>
+                                        </div>
+                                        <input type="hidden" name="sort" value="{{ current_sort }}">
+                                        <input type="hidden" name="direction" value="{{ current_direction }}">
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header d-flex align-items-center justify-content-between">
+                            <h5 class="card-title mb-0">Department List</h5>
+                            <button type="button" class="btn btn-primary" onclick="openModal('{% url 'core:department-add' %}', 'Add Department')">
+                                <i class="mdi mdi-plus me-1"></i>Add Department
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive text-nowrap">
+                                <table class="table align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>
+                                                <a href="?{% if current_q %}q={{ current_q }}&{% endif %}{% if current_status %}status={{ current_status }}&{% endif %}sort=name&direction={% if current_sort == 'name' and current_direction == 'asc' %}desc{% else %}asc{% endif %}" class="text-dark">
+                                                    Name
+                                                    {% if current_sort == 'name' %}
+                                                        <i class="mdi mdi-arrow-{% if current_direction == 'asc' %}up{% else %}down{% endif %}"></i>
+                                                    {% endif %}
+                                                </a>
+                                            </th>
+                                            <th>
+                                                <a href="?{% if current_q %}q={{ current_q }}&{% endif %}{% if current_status %}status={{ current_status }}&{% endif %}sort=code&direction={% if current_sort == 'code' and current_direction == 'asc' %}desc{% else %}asc{% endif %}" class="text-dark">
+                                                    Code
+                                                    {% if current_sort == 'code' %}
+                                                        <i class="mdi mdi-arrow-{% if current_direction == 'asc' %}up{% else %}down{% endif %}"></i>
+                                                    {% endif %}
+                                                </a>
+                                            </th>
+                                            <th>Status</th>
+                                            <th>
+                                                <a href="?{% if current_q %}q={{ current_q }}&{% endif %}{% if current_status %}status={{ current_status }}&{% endif %}sort=created_at&direction={% if current_sort == 'created_at' and current_direction == 'asc' %}desc{% else %}asc{% endif %}" class="text-dark">
+                                                    Created At
+                                                    {% if current_sort == 'created_at' %}
+                                                        <i class="mdi mdi-arrow-{% if current_direction == 'asc' %}up{% else %}down{% endif %}"></i>
+                                                    {% endif %}
+                                                </a>
+                                            </th>
+                                            <th class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for department in departments %}
+                                        <tr>
+                                            <td><a href="#!" class="text-muted">#DEP-{{ department.id|stringformat:"04d" }}</a></td>
+                                            <td>
+                                                <span class="fw-semibold">{{ department.name }}</span>
+                                            </td>
+                                            <td><span class="badge badge-light-primary">{{ department.code }}</span></td>
+                                            <td>
+                                                {% if department.is_active %}
+                                                    <span class="badge badge-label-success">Active</span>
+                                                {% else %}
+                                                    <span class="badge badge-label-danger">Inactive</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ department.created_at|date:"M d, Y" }}</td>
+                                            <td class="text-end">
+                                                <button type="button" class="btn btn-sm btn-label-primary btn-icon"
+                                                    onclick="openModal('{% url 'core:department-update' department.pk %}', 'Edit Department')"
+                                                    aria-label="Edit"><i class="mdi mdi-pencil-outline"></i></button>
+                                                <button type="button" class="btn btn-sm btn-label-danger btn-icon"
+                                                    onclick="openModal('{% url 'core:department-delete' department.pk %}', 'Delete Department')"
+                                                    aria-label="Delete"><i class="mdi mdi-trash-can-outline"></i></button>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="6" class="text-center">No departments found.</td>
+                                        </tr>
+                                        {% endfor %}
+
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div
+                                class="d-flex flex-wrap align-items-center gap-4 justify-content-between mt-3 flex-wrap">
+                                <div class="d-flex align-items-center">
+                                    <p class="mb-0 text-muted">Showing <span class="fw-semibold text-body">{{ page_obj.start_index }}</span> -
+                                        <span class="fw-semibold text-body">{{ page_obj.end_index }}</span> of <span
+                                            class="fw-semibold text-body">{{ paginator.count }}</span> Results</p>
+                                </div>
+                                <ul class="pagination pagination-arrow mb-0 ms-auto">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item"><a class="page-link page-prev" href="?page={{ page_obj.previous_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_direction %}&direction={{ current_direction }}{% endif %}"><i
+                                                    class="mdi mdi-chevron-left align-middle pagination-left"></i></a></li>
+                                    {% endif %}
+                                    
+                                    {% for num in paginator.page_range %}
+                                        {% if page_obj.number == num %}
+                                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ num }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_direction %}&direction={{ current_direction }}{% endif %}">{{ num }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item"><a class="page-link page-next" href="?page={{ page_obj.next_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_sort %}&sort={{ current_sort }}{% endif %}{% if current_direction %}&direction={{ current_direction }}{% endif %}"><i
+                                                    class="mdi mdi-chevron-right align-middle pagination-right"></i></a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- container-fluid -->
+            </div><!-- End Page-content -->
+
+            <!-- Begin Footer -->
+            <footer class="footer">
+                <div class="container-fluid">
+                    <div class="row align-items-center">
+                        <div class="col-sm-6">
+                            <script>document.write(new Date().getFullYear())</script> © Aquiry.
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="text-sm-end d-none d-sm-block">
+                                Crafted with <i class="mdi mdi-heart text-danger"></i> by <a href="http://codebucks.in/"
+                                    target="_blank" class="text-muted">Codebucks</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+            <!-- END Footer -->
+            <!-- Begin scroll top -->
+            <div class="progress-wrap" id="progress-scroll">
+                <svg class="progress-circle" width="100%" height="100%" viewBox="-1 -1 102 102">
+                    <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" />
+                </svg>
+            </div>
+            <!-- END scroll top -->
+        </div><!-- end main content-->
+
+    </div><!-- END layout-wrapper -->
+
+    
+
+
+    <!-- CRUD Modal -->
+    <div class="modal fade" id="crudModal" tabindex="-1" aria-labelledby="crudModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="crudModalLabel">Manage Department</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div id="modal-content-container">
+                    <!-- Form content will be loaded here via AJAX -->
+                    <div class="text-center p-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal(url, title) {
+            const modal = new bootstrap.Modal(document.getElementById('crudModal'));
+            document.getElementById('crudModalLabel').innerText = title;
+            const container = document.getElementById('modal-content-container');
+            
+            container.innerHTML = `
+                <div class="text-center p-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>`;
+            
+            modal.show();
+
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                container.innerHTML = html;
+                setupFormSubmission(url);
+            })
+            .catch(error => {
+                container.innerHTML = '<div class="alert alert-danger p-3">Failed to load content.</div>';
+            });
+        }
+
+        function setupFormSubmission(url) {
+            const form = document.querySelector('#modal-content-container form');
+            if (!form) return;
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+                
+                fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        return response.text().then(html => {
+                            document.getElementById('modal-content-container').innerHTML = html;
+                            setupFormSubmission(url);
+                            throw new Error('Validation Error');
+                        });
+                    }
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Use a toast or simple alert before reloading
+                        window.location.reload();
+                    }
+                })
+                .catch(error => {
+                    if (error.message !== 'Validation Error') {
+                        console.error('Submission error:', error);
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>
